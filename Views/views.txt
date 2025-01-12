@@ -1,0 +1,10 @@
+The "views" folder is used to store the presentation layer of the application. This includes all the HTML, CSS, and JavaScript files that define the user interface and layout of the application. The views are responsible for displaying data to the user and capturing user input.
+
+Typical contents of the "views" folder:
+- HTML templates
+- CSS stylesheets
+- JavaScript files
+- Header and footer files
+- Specific page templates (e.g., edit_projects.php, list_projects.php, search_materials.php)
+
+The views folder helps in separating the presentation logic from the business logic, making the application easier to maintain and scale.

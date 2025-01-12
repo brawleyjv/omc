@@ -1,0 +1,298 @@
+/* General body styling */
+body {
+    font-family: Arial, sans-serif; /* Set the font family for the entire page */
+    margin: 0; /* Remove default margin */
+    padding: 0; /* Remove default padding */
+    background-color: #e0f7fa; /* Set a new background color */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    margin-top: 160px; /* Increase top margin for visibility */
+}
+
+/* Header styling */
+.header {
+    width: 100%; /* Make the header full width */
+    background-color: #007BFF; /* Set the background color to blue */
+    color: white; /* Set the text color to white */
+    padding: 10px 0; /* Add padding to the top and bottom */
+    text-align: center; /* Center the text */
+    position: fixed; /* Fix the header at the top of the page */
+    top: 0; /* Position the header at the top */
+    left: 0; /* Align the header to the left */
+    z-index: 1000; /* Ensure the header is on top of other elements */
+}
+
+/* Header content styling */
+.header-content {
+    display: flex; /* Use flexbox for layout */
+    justify-content: space-between; /* Space out the items */
+    align-items: center; /* Align items vertically */
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px; /* Add padding to the left and right */
+}
+
+/* Header title styling */
+.header-content h1 {
+    margin: 0; /* Remove default margin */
+}
+
+/* Header slogan styling */
+.header-content p {
+    margin: 0; /* Remove default margin */
+}
+
+/* Container styling */
+.container {
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    text-align: center; /* Center the text */
+    width: 80%;
+    max-width: 800px;
+    margin-top: 50px; /* Adjust the top margin to ensure the container is visible */
+}
+
+/* Title styling */
+.title {
+    text-align: center;
+    margin-top: 50px; /* Adjust the top margin for the title */
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Form styling */
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Label styling */
+label {
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+
+/* Input styling */
+input[type="text"], input[type="password"] {
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 300px;
+}
+
+/* Submit button styling */
+input[type="submit"] {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007BFF;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+input[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* Button container styling */
+.button-container {
+    display: flex;
+    gap: 20px; /* Space between buttons */
+    margin-top: 20px;
+}
+
+/* Button styling */
+.button {
+    background-color: white; /* Change button background to white */
+    color: #007bff; /* Change button text color to blue */
+    padding: 10px 20px; /* Add padding to the button */
+    text-decoration: none; /* Remove underline from links */
+    border-radius: 5px; /* Round the corners */
+    display: inline-block; /* Display as an inline block */
+    margin: 10px; /* Add margin around the button */
+    border: 2px solid #007bff; /* Add border to button */
+    font-weight: bold; /* Make button text bold */
+    cursor: pointer; /* Change cursor to pointer on hover */
+    font-size: 16px; /* Set the font size */
+}
+
+.button:hover {
+    background-color: #007bff; /* Change hover background to blue */
+    color: white; /* Change hover text color to white */
+}
+
+/* Menu styling */
+.menu {
+    display: flex; /* Use flexbox for layout */
+    flex-direction: column; /* Arrange items in a column */
+    align-items: center; /* Center the items horizontally */
+    gap: 10px; /* Add space between items */
+    margin-top: 80px; /* Adjust for fixed header */
+}
+
+/* Menu button styling */
+.menu .button {
+    display: inline-block;
+    margin: 10px;
+}
+
+/* Submit container styling */
+.submit-container {
+    display: flex; /* Use flexbox for layout */
+    justify-content: space-between; /* Space out the items */
+    align-items: center; /* Align items vertically */
+    margin: 5px; /* Add margin around the container */
+    width: 100%; /* Make the container full width */
+}
+
+/* File group styling */
+.file-group {
+    display: flex; /* Use flexbox for layout */
+    flex-direction: column; /* Arrange items in a column */
+    flex: 1 1 30%; /* Allow the group to grow and shrink */
+    margin: 5px; /* Add margin around the group */
+}
+
+/* Top buttons container styling */
+.top-buttons {
+    display: flex; /* Use flexbox for layout */
+    justify-content: space-between; /* Space out the buttons */
+    margin-top: 20px; /* Add margin to bring the buttons down */
+}
+
+/* Center title styling */
+.center-title {
+    text-align: center; /* Center the text */
+}
+
+/* Content container styling */
+.content {
+    margin-top: 20px; /* Add margin to bring the content down */
+}
+
+h1 {
+    text-align: center;
+    margin-top: 100px; /* Add some margin to ensure the title is visible */
+}
+
+.btn.cancel-btn {
+    background-color: #f44336; /* Red background */
+    color: white; /* White text */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin-left: 10px; /* Add some space between buttons */
+}
+
+.btn.cancel-btn:hover {
+    background-color: #d32f2f; /* Darker red on hover */
+}
+
+.btn.white-btn {
+    background-color: white; /* White background */
+    color: #007bff; /* Blue text */
+    border: 2px solid #007bff; /* Blue border */
+}
+
+.btn.white-btn:hover {
+    background-color: #007bff; /* Blue background on hover */
+    color: white; /* White text on hover */
+}
+
+.btn.gray-btn {
+    background-color: #e0e0e0; /* Gray background */
+    color: #007bff; /* Blue text */
+    border: 2px solid #007bff; /* Blue border */
+}
+
+.btn.gray-btn:hover {
+    background-color: #007bff; /* Blue background on hover */
+    color: white; /* White text on hover */
+}
+
+.btn.styled-btn {
+    background-color: #f0f0f0; /* Light gray background */
+    color: #007bff; /* Blue text */
+    border: 2px solid #007bff; /* Blue border */
+    padding: 10px 20px; /* Padding */
+    border-radius: 25px; /* Rounded corners */
+    font-size: 16px; /* Font size */
+    font-weight: bold; /* Bold text */
+    text-transform: uppercase; /* Uppercase text */
+    transition: background-color 0.3s, color 0.3s; /* Smooth transition */
+}
+
+.btn.styled-btn:hover {
+    background-color: #007bff; /* Blue background on hover */
+    color: white; /* White text on hover */
+}
+
+.btn.styled-btn.red {
+    background-color: #DC3545; /* Red background */
+    color: white; /* White text */
+    padding: 5px 10px; /* Reduce padding */
+    font-size: 14px; /* Reduce font size */
+    border: none; /* Remove border */
+}
+
+.btn.styled-btn.red:hover {
+    background-color: #c82333; /* Darker red on hover */
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007BFF;
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    cursor: pointer;
+    display: inline-block;
+    margin-top: 20px;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+.styled-btn {
+    /* Add any additional styles for styled-btn here */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.action-cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Login image styling */
+.login-image {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 20px;
+    border-radius: 10px;
+}
+
+/* Thumbnail image styling */
+.thumbnail-image {
+    max-width: 150px; /* Set the maximum width to 150px */
+    height: auto;
+    margin-bottom: 20px;
+    border-radius: 10px;
+}
+
