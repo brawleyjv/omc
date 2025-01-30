@@ -5,13 +5,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Profile</title>
-    <link rel="stylesheet" href="..//public/css/.">
+    <link rel="stylesheet" href="../../public/css/styles.css"> <!-- Corrected path -->
 </head>
 <body>
     <div class="container">
         <h1>User Profile</h1>
         <p>Update your profile and password here.</p>
-        <form action="profile.php" method="post">
+        <?php
+        // Ensure variables are defined
+        $name = $name ?? '';
+        $phone = $phone ?? '';
+        $position = $position ?? '';
+        $user_type = $user_type ?? '';
+        $date_of_hire = $date_of_hire ?? '';
+        ?>
+        <form action="../public/Users/profile.php" method="post"> <!-- Updated form action -->
             <label for="name">Name:</label>
             <input type="text" id="name" name="name" value="<?php echo $name; ?>" required>
             <label for="phone">Phone:</label>

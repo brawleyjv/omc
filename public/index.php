@@ -8,13 +8,13 @@ use MyApp\Models\Database;
 use Globals\Config;
 
 // Ensure Database is instantiated with required arguments
-$database = new Database($host, $username, $password, $dbname);
+$database = new Database(Config::DB_HOST, Config::DB_USER, Config::DB_PASS, Config::DB_NAME);
 $controller = new ProjectController($database);
 
 $results = $controller->listProjects();
-$controller->closeConnection();
-?>
+// $controller->closeConnection(); // Removed as it is not needed
 
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

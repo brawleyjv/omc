@@ -18,8 +18,12 @@
                 <a href="../views/customers/index.php" class="btn styled-btn">Customers</a>
                 <a href="../views/equipment/index.php" class="btn styled-btn">Equipment</a>
                 <a href="../views/users/index.php" class="btn styled-btn">Users</a>
+                <a href="../views/vendors/index.php" class="btn styled-btn">Vendors</a>
+                <a href="../views/projects/boardfeet.php" class="btn styled-btn">Board Feet</a>
                 <a href="../views/setup.php" class="btn styled-btn">Setup</a>
-            
+                
+            </div>
+        </div>
     </div>
 </body>
 </html>
