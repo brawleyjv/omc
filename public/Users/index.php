@@ -8,20 +8,23 @@ use MyApp\Models\Database;
 
 // Ensure Database is instantiated with required arguments
 $database = new Database(DB_HOST, DB_NAME, DB_USER, DB_PASS);
+$conn = $database->getConnection(); // Get the connection
 
 $name = '';
 $phone = '';
 $position = '';
-$user_type = '';;
+$user_type = '';
 $date_of_hire = '';
 
 if (isset($_SESSION['username'])) {
     $username = $_SESSION['username'];
-    $sql = "SELECT * FROM users WHERE name='$username'";
-    $result = $conn->query($sql);
+    $sql = "SELECT * FROM users WHERE name=:username";
+    $stmt = $conn->prepare($sql);
+    $stmt->bindParam(':username', $username);
+    $stmt->execute();
 
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
+    if ($stmt->rowCount() > 0) { // Use rowCount() to check the number of rows
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
         $name = htmlspecialchars($row['name']);
         $phone = htmlspecialchars($row['phone']);
         $position = htmlspecialchars($row['position']);
@@ -29,4 +32,6 @@ if (isset($_SESSION['username'])) {
         $date_of_hire = htmlspecialchars($row['date_of_hire']);
     }
 }
+
+$conn = null; // Close the connection
 ?>

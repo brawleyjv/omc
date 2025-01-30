@@ -2,18 +2,17 @@
 namespace MyApp\Controllers;
 
 include_once '../Models/Database.php';
-include_once '../Config/Globals.php';
+include_once '../Globals/Config.php'; // Corrected path
 
 use MyApp\Models\Database;
-use MyApp\Config\Globals;
+use Globals\Config;
 
 class UserController {
     private $db;
 
     public function __construct() {
-        $this->db = new Database('localhost', 'database_name', 'username', 'password');
+        $this->db = new Database(Config::DB_HOST, Config::DB_NAME, Config::DB_USER, Config::DB_PASS); // Use Config constants
         $connection = $this->db->getConnection();
-        echo Globals\GLOBAL_VAR_1;
         // ...existing code using $connection...
     }
     // ...existing code...

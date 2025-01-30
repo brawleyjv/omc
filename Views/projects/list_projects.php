@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../Globals/Config.php';
+require_once __DIR__ . '/../../Globals/config.php';
 require_once __DIR__ . '/../../Models/Database.php';
 require_once __DIR__ . '/../../Controllers/ProjectController.php';
 

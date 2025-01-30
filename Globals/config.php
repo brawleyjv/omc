@@ -26,21 +26,18 @@ if (!defined('BASE_URL')) {
     define('BASE_URL', Config::BASE_URL);
 }
 
-$servername = Config::DB_HOST;
+$dsn = 'mysql:host=' . Config::DB_HOST . ';dbname=' . Config::DB_NAME;
 $username = Config::DB_USER;
 $password = Config::DB_PASS;
-$dbname = Config::DB_NAME;
+$options = [
+    \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+    \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+];
 
-// Create connection
-if (!extension_loaded('mysqli')) {
-    die("The mysqli extension is not loaded.");
-}
-
-$conn = new \mysqli($servername, $username, $password, $dbname);
-
-// Check connection
-if ($conn->connect_error) {
-    error_log("Connection failed: " . $conn->connect_error);
+try {
+    $connection = new \PDO($dsn, $username, $password, $options);
+} catch (\PDOException $e) {
+    error_log("Connection failed: " . $e->getMessage());
     die("Connection failed: Please check the server logs for more details.");
 }
 ?>
