@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scale Project</title>
+    <link rel="stylesheet" href="../public/css/styles.css">
+    <style>
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn.styled-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .btn.styled-btn:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+    <script>
+        function convertToImperial(value, unit) {
+            if (unit === 'metric') {
+                return value * 0.0393701; // Convert millimeters to inches
+            }
+            return value;
+        }
+
+        function calculateScale() {
+            const materialThickness = parseFloat(document.getElementById('material-thickness').value);
+            const materialUnit = document.getElementById('material-unit').value;
+            const drawingThickness = parseFloat(document.getElementById('drawing-thickness').value);
+            const drawingUnit = document.getElementById('drawing-unit').value;
+
+            const materialThicknessImperial = convertToImperial(materialThickness, materialUnit);
+            const drawingThicknessImperial = convertToImperial(drawingThickness, drawingUnit);
+
+            if (!isNaN(materialThicknessImperial) && !isNaN(drawingThicknessImperial)) {
+                if (Math.abs(materialThicknessImperial - drawingThicknessImperial) < 0.0001) {
+                    document.getElementById('result').innerText = 'No scaling is required.';
+                } else {
+                    const scalePercentage = (materialThicknessImperial / drawingThicknessImperial) * 100;
+                    if (scalePercentage >= 100) {
+                        document.getElementById('result').innerText = `Increase the percentage scale of the project by ${scalePercentage.toFixed(2)}%.`;
+                    } else {
+                        document.getElementById('result').innerText = `Reduce the percentage scale of the project by ${scalePercentage.toFixed(2)}%.`;
+                    }
+                }
+            } else {
+                document.getElementById('result').innerText = 'Please enter valid numbers for both thicknesses.';
+            }
+        }
+
+        function clearFields() {
+            document.getElementById('material-thickness').value = '';
+            document.getElementById('material-unit').value = 'imperial';
+            document.getElementById('drawing-thickness').value = '';
+            document.getElementById('drawing-unit').value = 'imperial';
+            document.getElementById('result').innerText = '';
+        }
+    </script>
+</head>
+<body>
+    <?php include 'header.php'; ?>
+    <div class="container">
+        <h1 class="title">Scale Project</h1>
+        <div class="form-group">
+            <label for="material-thickness">Material Thickness:</label>
+            <input type="number" step="0.01" id="material-thickness" name="material-thickness" required>
+            <select id="material-unit" name="material-unit">
+                <option value="imperial">Inches</option>
+                <option value="metric">Millimeters</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="drawing-thickness">Project Drawing Thickness:</label>
+            <input type="number" step="0.01" id="drawing-thickness" name="drawing-thickness" required>
+            <select id="drawing-unit" name="drawing-unit">
+                <option value="imperial">Inches</option>
+                <option value="metric">Millimeters</option>
+            </select>
+        </div>
+        <div class="button-container">
+            <button class="btn styled-btn" onclick="calculateScale()">Calculate</button>
+            <button class="btn styled-btn" onclick="clearFields()">Clear</button>
+            <button class="btn styled-btn" onclick="window.location.href='../main.php'">Main Menu</button>
+        </div>
+        <div class="result" id="result"></div>
+    </div>
+</body>
+</html>

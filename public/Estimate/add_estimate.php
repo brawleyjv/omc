@@ -29,5 +29,5 @@ foreach ($material_ids as $material_id) {
 $customer_name = htmlspecialchars($customer_name);
 $project_name = htmlspecialchars($project_name);
 
-include __DIR__ . '/../../Views/estimate/add_estimate.php';
+include __DIR__ . '/../../Views/estimate/estimate.php';
 ?>

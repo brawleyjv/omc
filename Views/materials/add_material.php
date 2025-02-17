@@ -64,6 +64,7 @@
     <h1 class="center-title">Add New Material</h1>
     <div class="button-container">
         <button class="btn styled-btn" onclick="document.getElementById('add-material-form').submit();">Add Material</button>
+        <button class="btn styled-btn" onclick="window.location.href='index.php'" style="margin-left: 10px; background-color: red; color: white;">Close</button>
     </div>
     <div class="form-container">
         <form id="add-material-form" action="../../public/materials/add_material.php" method="post">

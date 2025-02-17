@@ -21,7 +21,7 @@
                 <a href="../views/vendors/index.php" class="btn styled-btn">Vendors</a>
                 <a href="../views/projects/boardfeet.php" class="btn styled-btn">Board Feet</a>
                 <a href="../views/setup.php" class="btn styled-btn">Setup</a>
-                
+                <a href="../views/Scale.php" class="btn styled-btn">Scale Project</a>
             </div>
         </div>
     </div>

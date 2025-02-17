@@ -88,6 +88,11 @@ if (!empty($search_term)) {
             background-color: red;
             color: white;
         }
+        .btn-delete:hover {
+            background-color: white;
+            color: red;
+            border: 1px solid red;
+        }
     </style>
     <script>
         function promptForId(action) {
@@ -113,9 +118,10 @@ if (!empty($search_term)) {
     <?php include '../../Views/header.php'; ?>
     <div class="container">
         <h1>Search Materials</h1>
-        <form action="../../public/materials/search_materials.php" method="get">
+        <form action="../../public/materials/search_materials.php" method="get" style="display: flex; align-items: center;">
             <input type="text" name="search" placeholder="Search materials..." value="<?php echo htmlspecialchars($searchTerm ?? ''); ?>">
             <input type="submit" value="Search" class="btn styled-btn">
+            <button type="button" onclick="window.location.href='../../Views/materials/index.php'" class="btn styled-btn" style="margin-left: 10px;">Close</button>
         </form>
     </div>
     <?php if (!empty($materials)): ?>
@@ -153,7 +159,7 @@ if (!empty($search_term)) {
                             <td><img src="<?php echo htmlspecialchars($material['image_url']); ?>" class="thumbnail" alt="Image" onclick="openImage('<?php echo htmlspecialchars($material['image_url']); ?>')"></td>
                             <td class="action-buttons">
                                 <button class="btn btn-small styled-btn" onclick="window.location.href='../../views/materials/edit_material.php?id=<?php echo $material['id']; ?>'">Edit</button>
-                                <button class="btn btn-small btn-delete" onclick="if(confirm('Are you sure you want to delete this material?')) window.location.href='../../public/materials/delete_material.php?id=<?php echo $material['id']; ?>'">Delete</button>
+                                <button class="btn btn-small btn-delete styled-btn" style="padding: 4px 8px; background-color: red; color: white;" onclick="if(confirm('Are you sure you want to delete this material?')) window.location.href='../../public/materials/delete_material.php?id=<?php echo $material['id']; ?>'">Delete</button>
                             </td>
                         </tr>
                     <?php endforeach; ?>

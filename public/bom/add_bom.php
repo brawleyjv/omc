@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'quantity' => $quantities
     ]);
 
-    header("Location: /OMC/public/Estimate/estimate.php?$query_params");
+    header("Location: /OMC/Views/estimate/add_estimate.php?$query_params");
     exit();
 }
 ?>
