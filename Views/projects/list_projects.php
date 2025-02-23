@@ -1,4 +1,8 @@
 <?php
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once __DIR__ . '/../../Globals/config.php';
 require_once __DIR__ . '/../../Models/Database.php';
 require_once __DIR__ . '/../../Controllers/ProjectController.php';
@@ -10,10 +14,10 @@ use Globals\Config;
 $database = new Database(Config::DB_HOST, Config::DB_NAME, Config::DB_USER, Config::DB_PASS);
 $projectsController = new ProjectController($database);
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_project_id'])) {
-    $projectId = $_POST['delete_project_id'];
-    error_log("Deleting project with ID: $projectId"); // Log the project ID being deleted
-    $projectsController->deleteProject($projectId);
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_project_name'])) {
+    $projectName = $_POST['delete_project_name'];
+    error_log("Deleting project with name: $projectName"); // Log the project name being deleted
+    $projectsController->deleteProjectByName($projectName);
     header('Location: list_projects.php'); // Redirect to refresh the list after deletion
     exit;
 }
@@ -109,12 +113,12 @@ $projects = $projectsController->listProjects(); // Use the correct method to li
         }
     </style>
     <script>
-         function openImage(url) {
+        function openImage(url) {
             const imgWindow = window.open("", "_blank", "width=800,height=600");
             imgWindow.document.write(`
                 <html>
                 <head>
-                    <title>Image</title>
+                    <title>Image Viewer</title>
                     <style>
                         body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #000; }
                         img { max-width: 100%; max-height: 100%; }
@@ -154,7 +158,6 @@ $projects = $projectsController->listProjects(); // Use the correct method to li
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
                     <th>Project Name</th>
                     <th>Design Date</th>
                     <th>Customer Name</th>
@@ -172,7 +175,6 @@ $projects = $projectsController->listProjects(); // Use the correct method to li
             <tbody>
                 <?php foreach ($projects as $project): ?>
                     <tr>
-                        <td><?php echo htmlspecialchars($project['id']); ?></td>
                         <td><?php echo htmlspecialchars($project['project_name']); ?></td>
                         <td><?php echo htmlspecialchars($project['design_date']); ?></td>
                         <td><?php echo htmlspecialchars($project['customer_name']); ?></td>
@@ -196,25 +198,31 @@ $projects = $projectsController->listProjects(); // Use the correct method to li
                         <td>
                             <?php if (!empty($project['image_upload'])): ?>
                                 <?php
-                                $image_upload = basename($project['image_upload']);
-                                $image_upload_path = "http://localhost/OMC/projects/project_files/{$project['project_name']}/{$image_upload}";
-                                echo "<img src='{$image_upload_path}' alt='Project Image' class='thumbnail' onclick='openImage(\"{$image_upload_path}\")'>";
+                                $image_uploads = explode(',', $project['image_upload']);
+                                $first_image_upload = $image_uploads[0];
+                                $image_upload_paths = array_map(function($image) use ($project) {
+                                    return "http://localhost/OMC/projects/project_files/{$project['project_name']}/{$image}";
+                                }, $image_uploads);
+                                echo "<a href='javascript:void(0);' onclick='openImage(\"{$image_upload_paths[0]}\")'><img src='{$image_upload_paths[0]}' alt='Project Image' class='thumbnail'></a>";
                                 ?>
                             <?php endif; ?>
                         </td>
                         <td>
                             <?php if (!empty($project['design_file'])): ?>
                                 <?php
-                                $design_file = basename($project['design_file']);
-                                $design_file_path = "http://localhost/OMC/projects/project_files/{$project['project_name']}/{$design_file}";
-                                echo "<a href='{$design_file_path}' download>{$design_file}</a>";
+                                $design_files = explode(',', $project['design_file']);
+                                foreach ($design_files as $design_file) {
+                                    $design_file_label = pathinfo($design_file, PATHINFO_FILENAME);
+                                    $design_file_path = "http://localhost/OMC/projects/project_files/{$project['project_name']}/{$design_file}";
+                                    echo "<a href='{$design_file_path}' download>{$design_file_label}</a><br>";
+                                }
                                 ?>
                             <?php endif; ?>
                         </td>
                         <td>
-                            <a href="edit_projects.php?project_id=<?php echo $project['id']; ?>" class="btn styled-btn white">Edit</a>
+                            <a href="edit_projects.php?project_name=<?php echo urlencode($project['project_name']); ?>" class="btn styled-btn white">Edit</a>
                             <form action="list_projects.php" method="post" onsubmit="return confirm('Are you sure you want to delete this project?');" style="display:inline;">
-                                <input type="hidden" name="delete_project_id" value="<?php echo htmlspecialchars($project['id']); ?>">
+                                <input type="hidden" name="delete_project_name" value="<?php echo htmlspecialchars($project['project_name']); ?>">
                                 <input type="submit" class="btn styled-btn red" value="Delete">
                             </form>
                         </td>

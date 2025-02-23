@@ -1,30 +1,24 @@
 <?php
 require_once __DIR__ . '/../../Globals/Config.php';
+require_once __DIR__ . '/../../Models/Database.php';
+require_once __DIR__ . '/../../Models/Bom.php';
+require_once __DIR__ . '/../../Controllers/BomController.php';
+
+use MyApp\Controllers\BomController;
+use MyApp\Models\Database;
+use Globals\Config;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $project_id = $_POST['project_id'];
+    $database = new Database(Config::DB_HOST, Config::DB_NAME, Config::DB_USER, Config::DB_PASS);
+    $bomController = new BomController($database);
+
     $project_name = $_POST['project_name'];
-    $customer_name = $_POST['customer_name'];
-    $material_ids = $_POST['material_id'];
     $material_names = $_POST['material_name'];
     $lengths = $_POST['length'];
     $widths = $_POST['width'];
     $thicknesses = $_POST['thickness'];
     $quantities = $_POST['quantity'];
 
-    $query_params = http_build_query([
-        'project_id' => $project_id,
-        'project_name' => $project_name,
-        'customer_name' => $customer_name,
-        'material_id' => $material_ids,
-        'material_name' => $material_names,
-        'length' => $lengths,
-        'width' => $widths,
-        'thickness' => $thicknesses,
-        'quantity' => $quantities
-    ]);
-
-    header("Location: /OMC/Views/estimate/add_estimate.php?$query_params");
-    exit();
+    $bomController->addBom($project_name, $material_names, $lengths, $widths, $thicknesses, $quantities);
 }
 ?>

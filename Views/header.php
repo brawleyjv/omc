@@ -1,3 +1,8 @@
+<?php
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -31,6 +36,9 @@
         .user-info span {
             margin-right: 10px;
         }
+        .header {
+            padding-bottom: 20px; /* This is the padding under the buttons */
+        }
     </style>
 </head>
 <body>
@@ -42,22 +50,19 @@
             </div>
             <div>
                 <?php
-                if (session_status() == PHP_SESSION_NONE) {
-                    session_start();
-                }
                 if (isset($_SESSION['username'])): ?>
-                    <a href="/OMC/views/main.php" class="btn styled-btn">Home</a>
+                    <a href="/OMC/Views/main.php" class="btn styled-btn">Home</a>
                 <?php else: ?>
                     <a href="#" class="btn styled-btn disabled">Home</a> <!-- Inactive Home button -->
                 <?php endif; ?>
-                <a href="/OMC/views/about.php" class="btn styled-btn">About</a>
+                <a href="/OMC/Views/about.php" class="btn styled-btn">About</a>
                 <?php if (isset($_SESSION['username'])): ?>
                     <div class="user-info">
                         <span>Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?></span>
-                        <a href="/OMC/public/logout.php" class="btn styled-btn">Logout</a> <!-- Logout button to the right of the user's name -->
+                        <a href="/OMC/Views/logout.php" class="btn styled-btn">Logout</a> <!-- Logout button to the right of the user's name -->
                     </div>
                 <?php else: ?>
-                    <a href="/OMC/public/Users/register.php" class="btn styled-btn">Register</a> <!-- Registration button -->
+                    <a href="/OMC/Views/Users/register.php" class="btn styled-btn">Register</a> <!-- Registration button -->
                 <?php endif; ?>
             </div>
         </div>

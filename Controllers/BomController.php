@@ -14,9 +14,9 @@ class BomController {
         $this->bom = new Bom($database);
     }
 
-    public function addBom($project_id, $project_name, $customer_name, $material_names, $lengths, $widths, $thicknesses, $quantities) {
-        if (empty($project_id) || empty($project_name) || empty($customer_name)) {
-            echo "<script>alert('Project ID, Project Name, and Customer Name are required.'); window.history.back();</script>";
+    public function addBom($project_name, $material_names, $lengths, $widths, $thicknesses, $quantities) {
+        if (empty($project_name)) {
+            echo "<script>alert('Project Name is required.'); window.history.back();</script>";
             exit();
         }
 
@@ -26,15 +26,19 @@ class BomController {
             $thickness = $thicknesses[$index];
             $quantity = $quantities[$index];
 
-            $this->bom->addBom($project_id, $material_name, $length, $width, $thickness, $quantity);
+            $this->bom->addBom($project_name, $material_name, $length, $width, $thickness, $quantity);
         }
 
-        header("Location: /OMC/Views/estimate.php?project_id=$project_id&project_name=" . urlencode($project_name) . "&customer_name=" . urlencode($customer_name));
+        header("Location: /OMC/Views/estimate/add_estimate.php?project_name=$project_name");
         exit();
     }
 
-    public function getBomByProjectId($project_id) {
-        return $this->bom->getBomByProjectId($project_id);
+    public function getBomByProjectName($project_name) {
+        return $this->bom->getBomByProjectName($project_name);
+    }
+
+    public function getProjectAndCustomerDetails($project_name) {
+        return $this->bom->getProjectAndCustomerDetails($project_name);
     }
 }
 ?>

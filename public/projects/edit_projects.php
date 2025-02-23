@@ -102,7 +102,7 @@ require_once __DIR__ . '/../../Views/projects/edit_projects.php';
     <?php if ($project): ?>
         <h1 class="title" style="margin-top: 200px;">Edit Project</h1> <!-- Add margin to bring the title down -->
         <form id="project-form" action="../../public/projects/edit_projects.php" method="post" enctype="multipart/form-data" onsubmit="return validateForm()"> <!-- Update form action -->
-            <input type="hidden" name="id" value="<?php echo htmlspecialchars($project['id']); ?>">
+            <input type="hidden" name="project_name" value="<?php echo htmlspecialchars($project['project_name']); ?>">
             <div class="submit-container" style="justify-content: space-between; width: 100%;">
                 <button type="button" class="btn styled-btn" onclick="window.location.href='../../views/projects/list_projects.php'" style="margin-left: 0;">Cancel</button> <!-- Update cancel button -->
                 <input type="submit" class="btn styled-btn" value="Update" style="margin-right: 0;">

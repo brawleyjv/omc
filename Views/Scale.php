@@ -8,6 +8,7 @@
     <style>
         .form-group {
             margin-bottom: 15px;
+            position: relative;
         }
         .form-group label {
             display: block;
@@ -40,6 +41,22 @@
         .result {
             margin-top: 20px;
             text-align: center;
+        }
+        .help-dialog {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            padding: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            width: 200px;
+        }
+        .form-group:hover .help-dialog,
+        .button-container button:hover .help-dialog {
+            display: block;
         }
     </style>
     <script>
@@ -95,6 +112,7 @@
                 <option value="imperial">Inches</option>
                 <option value="metric">Millimeters</option>
             </select>
+            <div class="help-dialog">Enter the thickness of the material you are using.</div>
         </div>
         <div class="form-group">
             <label for="drawing-thickness">Project Drawing Thickness:</label>
@@ -103,11 +121,18 @@
                 <option value="imperial">Inches</option>
                 <option value="metric">Millimeters</option>
             </select>
+            <div class="help-dialog">Enter the thickness specified in the project drawing.</div>
         </div>
         <div class="button-container">
-            <button class="btn styled-btn" onclick="calculateScale()">Calculate</button>
-            <button class="btn styled-btn" onclick="clearFields()">Clear</button>
-            <button class="btn styled-btn" onclick="window.location.href='../main.php'">Main Menu</button>
+            <button class="btn styled-btn" onclick="calculateScale()">Calculate
+                <div class="help-dialog">Click to calculate the scaling percentage.</div>
+            </button>
+            <button class="btn styled-btn" onclick="clearFields()">Clear
+                <div class="help-dialog">Click to clear all input fields.</div>
+            </button>
+            <button class="btn styled-btn" onclick="window.location.href='../main.php'">Main Menu
+                <div class="help-dialog">Click to return to the main menu.</div>
+            </button>
         </div>
         <div class="result" id="result"></div>
     </div>

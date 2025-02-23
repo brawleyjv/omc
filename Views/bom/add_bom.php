@@ -157,12 +157,11 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
-            const projectId = urlParams.get('project_id');
             const projectName = urlParams.get('project_name');
             const customerName = urlParams.get('customer_name');
 
-            if (!projectId || !projectName || !customerName) {
-                alert('Project ID, Project Name, and Customer Name are required.');
+            if (!projectName || !customerName) {
+                alert('Project Name and Customer Name are required.');
                 window.location.href = '../../Views/projects/add_project.php';
             }
         });
@@ -181,23 +180,7 @@
         </div>
         <div class="column">
             <form action="../../public/bom/add_bom.php" method="post">
-                <?php
-                $project_id = isset($_GET['project_id']) ? htmlspecialchars($_GET['project_id']) : '';
-                $project_name = isset($_GET['project_name']) ? htmlspecialchars($_GET['project_name']) : '';
-                $customer_name = isset($_GET['customer_name']) ? htmlspecialchars($_GET['customer_name']) : '';
-                ?>
-                <div class="form-group">
-                    <label for="project_id">Project ID:</label>
-                    <input type="text" id="project_id" name="project_id" value="<?php echo $project_id; ?>" required readonly>
-                </div>
-                <div class="form-group">
-                    <label for="project_name">Project Name:</label>
-                    <input type="text" id="project_name" name="project_name" value="<?php echo $project_name; ?>" required readonly>
-                </div>
-                <div class="form-group">
-                    <label for="customer_name">Customer Name:</label>
-                    <input type="text" id="customer_name" name="customer_name" value="<?php echo $customer_name; ?>" required readonly>
-                </div>
+                <input type="hidden" name="project_name" value="<?php echo htmlspecialchars($_GET['project_name']); ?>">
                 <div id="material-container"></div>
                 <button type="submit">Submit</button>
             </form>

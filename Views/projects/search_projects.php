@@ -1,10 +1,9 @@
 <?php
-// filepath: /c:/xampp/htdocs/OMC/public/projects/search_projects.php
-
 require_once __DIR__ . '/../../Globals/Config.php';
 require_once __DIR__ . '/../../Models/Database.php';
 require_once __DIR__ . '/../../Models/Project.php';
 require_once __DIR__ . '/../../Controllers/ProjectController.php';
+
 use MyApp\Models\Database;
 use MyApp\Controllers\ProjectController;
 
@@ -119,7 +118,7 @@ if (!empty($search_term)) {
             imgWindow.document.write(`
                 <html>
                 <head>
-                    <title>Image</title>
+                    <title>Image Viewer</title>
                     <style>
                         body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #000; }
                         img { max-width: 100%; max-height: 100%; }
@@ -165,7 +164,6 @@ if (!empty($search_term)) {
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
                     <th>Project Name</th>
                     <th>Project Description</th>
                     <th>Design Date</th>
@@ -181,7 +179,6 @@ if (!empty($search_term)) {
             <tbody>
                 <?php foreach ($results as $row): ?>
                     <tr>
-                        <td><?php echo htmlspecialchars($row['id']); ?></td>
                         <td><?php echo htmlspecialchars($row['project_name']); ?></td>
                         <td><?php echo htmlspecialchars($row['project_description']); ?></td>
                         <td><?php echo htmlspecialchars($row['design_date']); ?></td>
@@ -204,9 +201,12 @@ if (!empty($search_term)) {
                         <td>
                             <?php if (!empty($row['image_upload'])): ?>
                                 <?php
-                                $image_upload = basename($row['image_upload']);
-                                $image_upload_path = "http://localhost/OMC/projects/project_files/{$row['project_name']}/{$image_upload}";
-                                echo "<img src='{$image_upload_path}' alt='Project Image' class='thumbnail' onclick='openImage(\"{$image_upload_path}\")'>";
+                                $image_uploads = explode(',', $row['image_upload']);
+                                $first_image_upload = $image_uploads[0];
+                                $image_upload_paths = array_map(function($image) use ($row) {
+                                    return "http://localhost/OMC/projects/project_files/{$row['project_name']}/{$image}";
+                                }, $image_uploads);
+                                echo "<a href='javascript:void(0);' onclick='openImage(\"{$image_upload_paths[0]}\")'><img src='{$image_upload_paths[0]}' alt='Project Image' class='thumbnail'></a>";
                                 ?>
                             <?php endif; ?>
                         </td>

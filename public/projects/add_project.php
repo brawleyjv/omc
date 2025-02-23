@@ -68,7 +68,7 @@ require_once __DIR__ . '/../../Globals/Config.php';
             <input type="submit" form="project-form" value="Submit" class="btn styled-btn" id="submit-button">
             <a href="../../public/projects/bom/add_bom.php" class="btn styled-btn">Add BOM</a>
         </div>
-        <form id="project-form" action="../../Views/projects/submit_project.php" method="post" enctype="multipart/form-data">
+        <form id="project-form" action="../../Views/projects/submit_project.php" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
             <div class="form-container">
                 <div class="form-group">
                     <label for="project_name">Project Name:</label>
@@ -113,5 +113,15 @@ require_once __DIR__ . '/../../Globals/Config.php';
             </div>
         </form>
     </div>
+    <script>
+        function validateForm() {
+            var projectName = document.getElementById('project_name').value.trim();
+            if (projectName === '') {
+                alert('Project name is required.');
+                return false;
+            }
+            return true;
+        }
+    </script>
 </body>
 </html>

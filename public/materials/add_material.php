@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data['image_url']
     );
 
-    header('Location: index.php');
+    header('Location: ../../Views/materials/index.php');
     exit;
 }
 

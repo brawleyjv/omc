@@ -3,6 +3,8 @@
 
 namespace MyApp\Models;
 
+use PDO;
+
 class Project {
     public $project_name;
     public $design_date;
@@ -15,8 +17,9 @@ class Project {
     public $file_upload;
     public $image_upload;
     public $design_file;
+    private $conn;
 
-    public function __construct($project_name, $design_date, $customer_name, $laser_time, $router_time, $labor_hours, $project_description, $due_date, $file_upload, $image_upload, $design_file) {
+    public function __construct($project_name, $design_date, $customer_name, $laser_time, $router_time, $labor_hours, $project_description, $due_date, $file_upload, $image_upload, $design_file, Database $database) {
         $this->project_name = $project_name;
         $this->design_date = $design_date;
         $this->customer_name = $customer_name;
@@ -28,6 +31,7 @@ class Project {
         $this->file_upload = $file_upload;
         $this->image_upload = $image_upload;
         $this->design_file = $design_file;
+        $this->conn = $database->getConnection();
     }
 
     public function getProjectName() {
@@ -77,6 +81,22 @@ class Project {
 
     public function getImageUpload() {
         return $this->image_upload;
+    }
+
+    public function getProjectById($id) {
+        $query = "SELECT * FROM projects WHERE id = :id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getProjectByName($project_name) {
+        $query = "SELECT * FROM projects WHERE project_name = :project_name";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindValue(':project_name', $project_name, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }
 ?>

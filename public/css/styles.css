@@ -47,26 +47,24 @@ body {
 /* Container styling */
 .container {
     background: #fff;
-    padding: 30px;
     border-radius: 10px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     text-align: center; /* Center the text */
     width: 80%;
-    max-width: 800px;
-    margin-top: 50px; /* Adjust the top margin to ensure the container is visible */
+    max-width: 1024px;
+    margin-top: 0px; /* Adjust the top margin to ensure the container is visible */
 }
 
 /* Title styling */
 .title {
     text-align: center;
-    margin-top: 50px; /* Adjust the top margin for the title */
+    margin-top: 0px; /* Adjust the top margin for the title */
     color: #333;
-    margin-bottom: 20px;
+    margin-bottom: 0px;
 }
 
 /* Form styling */
 form {
-    display: flex;
     flex-direction: column;
     align-items: center;
 }
