@@ -39,5 +39,13 @@ class Bom {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    public function getBomByProjectId($project_id) {
+        $query = "SELECT * FROM bom WHERE project_id = :project_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':project_id', $project_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
 ?>

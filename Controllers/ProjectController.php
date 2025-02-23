@@ -106,6 +106,40 @@ class ProjectController {
         }
     }
 
+    public function deleteProject($project_id) {
+        $conn = $this->db->getConnection();
+        try {
+            // Begin transaction
+            $conn->beginTransaction();
+
+            // Delete related records in the bom table
+            $stmt = $conn->prepare("DELETE FROM bom WHERE project_id = :project_id");
+            $stmt->bindParam(':project_id', $project_id, PDO::PARAM_INT);
+            $stmt->execute();
+
+            // Check if the estimate table exists and delete related records
+            $stmt = $conn->prepare("SHOW TABLES LIKE 'estimate'");
+            $stmt->execute();
+            if ($stmt->rowCount() > 0) {
+                $stmt = $conn->prepare("DELETE FROM estimate WHERE project_id = :project_id");
+                $stmt->bindParam(':project_id', $project_id, PDO::PARAM_INT);
+                $stmt->execute();
+            }
+
+            // Delete the project
+            $stmt = $conn->prepare("DELETE FROM projects WHERE project_id = :project_id");
+            $stmt->bindParam(':project_id', $project_id, PDO::PARAM_INT);
+            $stmt->execute();
+
+            // Commit transaction
+            $conn->commit();
+        } catch (\PDOException $e) {
+            // Rollback transaction if something failed
+            $conn->rollBack();
+            throw $e;
+        }
+    }
+
     public function searchProjects($searchTerm) {
         $conn = $this->db->getConnection();
         $query = "SELECT * FROM projects WHERE project_name LIKE :search_term OR customer_name LIKE :search_term";
