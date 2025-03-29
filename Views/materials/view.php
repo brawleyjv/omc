@@ -1,6 +1,5 @@
 <?php
-require_once __DIR__ . '/Config.php';
- // Updated path to config.php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Corrected path to config.php
 require_once BASE_PATH . '/Views/header.php';
 ?>
 <!DOCTYPE html>
@@ -25,5 +24,6 @@ require_once BASE_PATH . '/Views/header.php';
     <p><strong>Item URL:</strong> <?php echo htmlspecialchars($material['item_url']); ?></p>
     <p><strong>Image URL:</strong> <?php echo htmlspecialchars($material['image_url']); ?></p>
     <a href="<?php echo BASE_URL; ?>public/materials/list.php" class="button">Back to List</a>
+    <!-- Ensure BASE_URL points to localhost/omc -->
 </body>
 </html>

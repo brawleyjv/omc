@@ -61,7 +61,7 @@
 </head>
 <body>
     <?php
-    require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Corrected path to config.php
     require_once BASE_PATH . '/Views/header.php';
     ?>
     <h1 class="center-title">Add New Material</h1>

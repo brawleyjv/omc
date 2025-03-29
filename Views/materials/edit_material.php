@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Corrected path to config.php
 require_once BASE_PATH . '/Models/Database.php';
 require_once BASE_PATH . '/Controllers/MaterialController.php';
 
@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Material</title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>css/styles.css">
     <style>
         select {
             padding: 10px;

@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Corrected path to config.php
 require_once BASE_PATH . '/Views/header.php';
 ?>
 <!DOCTYPE html>
@@ -8,7 +8,7 @@ require_once BASE_PATH . '/Views/header.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Material</title>
-    <link rel="stylesheet" href="/css/styles.css"> <!-- Updated path to styles.css -->
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>css/styles.css"> <!-- Ensure BASE_URL points to localhost/omc -->
     <style>
         .title {
             text-align: center;

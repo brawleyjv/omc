@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Corrected path to config.php
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -7,7 +7,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to con
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search Results</title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>css/styles.css">
     <style>
         .close-button {
             position: absolute;

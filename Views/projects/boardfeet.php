@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Corrected path to config.php
 require_once BASE_PATH . '/Views/header.php';
 ?>
 <!DOCTYPE html>
@@ -11,7 +11,7 @@ require_once BASE_PATH . '/Views/header.php';
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>public/css/styles.css"> <!-- Corrected CSS path -->
 </head>
 <body>
-    <?php include $_SERVER['DOCUMENT_ROOT'] . '/Views/header.php'; ?> <!-- Corrected header path -->
+    <?php include $_SERVER['DOCUMENT_ROOT'] . '/OMC/Views/header.php'; ?> <!-- Corrected header path -->
     <div class="container">
         <h1 class="title">Board Feet Calculator</h1>
         <form method="post" action="">

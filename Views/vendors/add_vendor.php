@@ -1,10 +1,13 @@
+<?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Explicitly reference the OMC directory
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Vendor</title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>public/css/styles.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>public/css/styles.css"> <!-- Ensure BASE_URL is used correctly -->
     <script>
         function submitForm(event) {
             event.preventDefault();
@@ -65,8 +68,7 @@
     </style>
 </head>
 <body>
-    <?php include 
-__DIR__ . '/Views/header.php'; ?>
+    <?php include BASE_PATH . 'Views/header.php'; ?> <!-- Use BASE_PATH -->
     <div class="container">
         <div class="button-container">
             <input type="submit" value="Submit" class="btn styled-btn" onclick="submitForm(event)">

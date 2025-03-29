@@ -4,9 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Ensure BASE_URL is used correctly -->
 </head>
 <body>
-    <?php include __DIR__ . '/../Views/header.php'; ?> <!-- Ensure correct path to header -->
+    <?php
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Explicitly reference the OMC directory
+    include BASE_PATH . 'Views/header.php'; ?> <!-- Use BASE_PATH -->
     <div class="container">
         <h1 class="title">Login</h1>
         <?php if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($error)): ?> <!-- Display error only on failed login -->

@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Corrected path to config.php
 
 require_once BASE_PATH . '/Models/Database.php';
 require_once BASE_PATH . '/Models/Material.php';
@@ -29,7 +29,7 @@ if (!empty($search_term)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search Materials</title>
-    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>css/styles.css">
     <style>
         .container {
             margin-top: -50px; /* Reduced top margin */
@@ -118,7 +118,7 @@ if (!empty($search_term)) {
      include BASE_PATH . '/Views/header.php'; ?>
     <div class="container">
         <h1>Search Materials</h1>
-        <form action="../../public/materials/search_materials.php" method="get" style="display: flex; align-items: center;">
+        <form action="<?php echo BASE_URL; ?>public/materials/search_materials.php" method="get" style="display: flex; align-items: center;">
             <input type="text" name="search" placeholder="Search materials..." value="<?php echo htmlspecialchars($searchTerm ?? ''); ?>">
             <input type="submit" value="Search" class="btn styled-btn">
             <button type="button" onclick="window.location.href='../../Views/materials/index.php'" class="btn styled-btn" style="margin-left: 10px;">Close</button>

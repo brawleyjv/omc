@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Use $_SERVER['DOCUMENT_ROOT'] for config.php
-require_once BASE_PATH . 'Models/Database.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Updated path
+require_once BASE_PATH . '/Models/Database.php'; // Ensure consistent path
 
 use MyApp\Models\Database;
 
@@ -41,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $_SESSION['username'] = $name;
         $conn = null; // Close the connection
-        header("Location: " . BASE_URL . "Views/Users/login.php"); // Redirect to login.php after successful registration
+        header("Location: " . BASE_URL . "/Views/Users/login.php"); // Ensure correct BASE_URL
         exit();
     }
 }
@@ -52,7 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Corrected path -->
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/styles.css"> <!-- Ensure correct BASE_URL -->
 </head>
 <body>
     <!-- ...existing code... -->

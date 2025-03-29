@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Use $_SERVER['DOCUMENT_ROOT'] for config.php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Updated path to include /OMC
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -7,7 +7,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Use $_SERVER['DOCUMEN
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Registration</title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Corrected path -->
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/styles.css"> <!-- Added leading slash -->
 </head>
 <body>
     <?php include BASE_PATH . '/Views/header.php'; ?>
@@ -16,7 +16,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Use $_SERVER['DOCUMEN
         <?php if (isset($_GET['error'])): ?>
             <p style="color: red;"><?php echo htmlspecialchars($_GET['error']); ?></p>
         <?php endif; ?>
-        <form action="<?php echo BASE_URL; ?>public/Users/register_handler.php" method="post">
+        <form action="<?php echo BASE_URL; ?>/public/Users/register_handler.php" method="post"> <!-- Added leading slash -->
             <label for="name">Name:</label>
             <input type="text" id="name" name="name" required>
             <label for="phone">Phone:</label>

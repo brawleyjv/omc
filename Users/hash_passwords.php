@@ -1,7 +1,7 @@
 <?php
-require_once __DIR__ . '/../Config.php';
-require_once BASE_PATH . '/Models/Database.php';
-require_once BASE_PATH . '/Controllers/UserController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Models/Database.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Controllers/UserController.php';
 
 use MyApp\Models\Database;
 use MyApp\Controllers\UserController;

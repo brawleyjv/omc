@@ -1,11 +1,10 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Use $_SERVER['DOCUMENT_ROOT'] for config.php
-require_once BASE_PATH . 'Models/Database.php';
-require_once BASE_PATH . 'Controllers/ProjectController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Adjusted path for config.php
+require_once BASE_PATH . '/Models/Database.php';
+require_once BASE_PATH . '/Controllers/ProjectController.php';
 
 use MyApp\Controllers\ProjectController;
 use MyApp\Models\Database;
-use Globals\Config;
 
 // Ensure Database is instantiated with required arguments
 $database = new Database(Config::DB_HOST, Config::DB_USER, Config::DB_PASS, Config::DB_NAME);
@@ -29,7 +28,7 @@ $results = $controller->listProjects();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Corrected path -->
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/styles.css"> <!-- Adjusted path -->
 </head>
 <body>
     <h1>Home</h1>

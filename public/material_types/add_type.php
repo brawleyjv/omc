@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__  . '/Config.php';
-require_once BASE_PATH . '/Models/Database.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Models/Database.php';
 
 use MyApp\Models\Database;
 use Globals\Config;
@@ -17,6 +17,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt = $database->getConnection()->prepare("INSERT INTO material_types (type_name) VALUES (?)");
     $stmt->execute([$type_name]);
 
-    echo "<script>alert('Material Type added successfully.'); window.location.href = '" . BASE_URL . "Views/material_types/add_type.php';</script>";
+    echo "<script>alert('Material Type added successfully.'); window.location.href = 'http://localhost/omc/Views/material_types/add_type.php';</script>";
 }
 ?>

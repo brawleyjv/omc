@@ -1,11 +1,11 @@
-<?php include '../header.php'; ?> <!-- Corrected the path to the header file in the views directory -->
+<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; ?> <!-- Corrected path to config.php -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Delete Material</title>
-    <link rel="stylesheet" href="../../public/css/styles.css"> <!-- Corrected the path to the CSS file in the root directory -->
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>css/styles.css"> <!-- Ensure BASE_URL points to localhost/omc -->
 </head>
 <body>
     <h1>Delete Material</h1>
@@ -25,6 +25,6 @@
         <input type="hidden" name="id" value="<?php echo $material['id']; ?>">
         <input type="submit" value="Delete Material">
     </form>
-    <a href="../../public/materials/list.php" class="button">Back to List</a>
+    <a href="<?php echo BASE_URL; ?>public/materials/list.php" class="button">Back to List</a> <!-- Ensure BASE_URL points to localhost/omc -->
 </body>
 </html>

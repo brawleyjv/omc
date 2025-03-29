@@ -1,6 +1,6 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
-require_once BASE_PATH . '/Models/Database.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/config.php'; // Corrected path to config.php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/Models/Database.php'; // Updated to match site structure
 
 // ...existing code...
 ?>
@@ -10,7 +10,7 @@ require_once BASE_PATH . '/Models/Database.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Estimate</title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>css/styles.css"> <!-- Updated to use BASE_URL -->
+    <link rel="stylesheet" href="/omc/css/styles.css"> <!-- Updated to use correct BASE_URL -->
 </head>
 <body>
     <!-- ...existing code... -->

@@ -1,7 +1,7 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Use $_SERVER['DOCUMENT_ROOT'] for config.php
-require_once BASE_PATH . 'Models/Database.php';
-require_once BASE_PATH . 'Controllers/LoginController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Updated path
+require_once BASE_PATH . '/Models/Database.php'; // Ensure consistent path
+require_once BASE_PATH . '/Controllers/LoginController.php';
 
 use MyApp\Models\Database;
 use MyApp\Controllers\LoginController;

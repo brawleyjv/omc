@@ -1,7 +1,7 @@
 <?php 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Use $_SERVER['DOCUMENT_ROOT'] for config.php
-require_once BASE_PATH . 'Models/Database.php'; // Include the Database class
-include BASE_PATH . 'Views/header.php'; 
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Updated path to include /OMC
+require_once BASE_PATH . '/Models/Database.php'; // Ensure correct path
+include BASE_PATH . '/Views/header.php'; // Ensure correct path
 
 use MyApp\Models\Database;
 
@@ -56,7 +56,7 @@ $conn = null; // Close the connection
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Profile</title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Corrected path -->
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/styles.css"> <!-- Added leading slash -->
 </head>
 <body>
     <div class="container">
@@ -67,7 +67,7 @@ $conn = null; // Close the connection
             <input type="text" id="search_name" name="search_name" placeholder="Enter user name">
             <button type="submit" class="btn styled-btn">Search</button>
         </form>
-        <form action="<?php echo BASE_URL; ?>Users/profile.php" method="post">
+        <form action="<?php echo BASE_URL; ?>/Users/profile.php" method="post"> <!-- Added leading slash -->
             <label for="name">Name:</label>
             <input type="text" id="name" name="name" value="<?php echo $name; ?>" required>
             <label for="phone">Phone:</label>
@@ -85,7 +85,7 @@ $conn = null; // Close the connection
             <input type="password" id="password" name="password">
             <input type="submit" value="Update Profile" class="btn styled-btn">
         </form>
-        <a href="<?php echo BASE_URL; ?>views/main.php" class="btn styled-btn red">Return to Main</a>
+        <a href="<?php echo BASE_URL; ?>/views/main.php" class="btn styled-btn red">Return to Main</a> <!-- Added leading slash -->
     </div>
 </body>
 </html>

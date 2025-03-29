@@ -1,8 +1,13 @@
 <?php
 namespace MyApp\Controllers;
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/config.php'; // Corrected path to config.php
 require_once BASE_PATH . '/Models/Database.php';
+
+// Ensure DB_PASS is defined
+if (!defined('DB_PASS')) {
+    define('DB_PASS', 'your_database_password'); // Replace 'your_database_password' with the actual password
+}
 
 use MyApp\Models\Database;
 

@@ -1,14 +1,27 @@
 <?php
-require_once BASE_PATH . '/Globals/Config.php';
-require_once BASE_PATH . '/Models/Database.php';
-require_once BASE_PATH . '/Models/Bom.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/config.php'; // Ensure Config is included
+require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/Models/Database.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/Models/Bom.php';
 
 use MyApp\Models\Database;
 use MyApp\Models\Bom;
-use Globals\Config;
+// Remove the namespace import for Config if it is not in the MyApp namespace
+// use MyApp\Config;
+
+if (!class_exists('Config')) {
+    die('Config class not found. Please check the config.php file.');
+}
+
+if (!defined('BASE_URL')) {
+    die('BASE_URL constant not defined. Please check the config.php file.');
+}
+
+if (!defined('DB_HOST') || !defined('DB_USER') || !defined('DB_PASSWORD') || !defined('DB_NAME')) {
+    die('Database constants are not defined. Please check the config.php file.');
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $database = new Database(Config::DB_HOST, Config::DB_NAME, Config::DB_USER, Config::DB_PASS);
+    $database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME); // Updated to use constants directly
     $bom = new Bom($database);
 
     $project_id = $_POST['project_id'];
@@ -26,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $thickness = $thicknesses[$index];
         $quantity = $quantities[$index];
 
-        $bom->addBom($project_id, $material_name, $material_type, $length, $width, $thickness, $quantity);
+        $bom->addBom($material_name, $material_type, $length, $width, $thickness, $quantity);
     }
 
     header("Location: " . BASE_URL . "public/bom/estimate.php?project_id=$project_id");

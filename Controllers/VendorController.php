@@ -1,9 +1,9 @@
 <?php
 namespace MyApp\Controllers;
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
-require_once BASE_PATH . '/Models/Database.php'; // Include the Database model
-require_once BASE_PATH . '/Models/VendorModel.php'; // Include the VendorModel
+require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/config.php'; // Corrected path to config.php
+require_once BASE_PATH . '/Models/Database.php';
+require_once BASE_PATH . '/Models/VendorModel.php';
 
 class VendorController {
     public function addVendor() {
@@ -25,7 +25,7 @@ class VendorController {
                 echo 'Failed to add vendor';
             }
         } else {
-            include '../Views/vendors/add_vendor.php';
+            include BASE_PATH . '/Views/vendors/add_vendor.php'; // Corrected path
         }
     }
 

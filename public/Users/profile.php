@@ -1,7 +1,7 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Use $_SERVER['DOCUMENT_ROOT'] for config.php
-require_once BASE_PATH . 'Models/Database.php';
-require_once BASE_PATH . 'Controllers/UserController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Updated path
+require_once BASE_PATH . '/Models/Database.php'; // Ensure consistent path
+require_once BASE_PATH . '/Controllers/UserController.php';
 
 use MyApp\Models\Database;
 
@@ -39,7 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($stmt->execute()) {
         echo "<script>
                 alert('Profile updated successfully');
-                window.location.href = '" . BASE_URL . "views/main.php';
+                window.location.href = '" . BASE_URL . "/views/main.php'; // Ensure correct BASE_URL
               </script>";
     } else {
         echo "Error: " . $stmt->errorInfo()[2]; // Use errorInfo() to get the error message
@@ -54,7 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile</title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Corrected path -->
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/styles.css"> <!-- Ensure correct BASE_URL -->
 </head>
 <body>
     <!-- ...existing code... -->

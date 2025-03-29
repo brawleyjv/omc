@@ -1,5 +1,7 @@
 <?php
-require_once BASE_PATH . '/Controllers/VendorController.php'; 
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Explicitly reference the OMC directory
+require_once BASE_PATH . 'Controllers/VendorController.php'; // Use BASE_PATH for dynamic path resolution
+
 use MyApp\Controllers\VendorController; // Add namespace if applicable
 
 $vendorController = new VendorController();
@@ -37,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Vendor</title>
-    <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>public/css/styles.css">
+    <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>public/css/styles.css"> <!-- Ensure BASE_URL is used correctly -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const updateSuccess = "<?php echo $updateSuccess; ?>";
@@ -51,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </script>
 </head>
 <body>
-    <?php include BASE_PATH . '/Views/header.php'; ?>
+    <?php include BASE_PATH . 'Views/header.php'; ?> <!-- Use BASE_PATH -->
     <h1>Edit Vendor</h1>
     <?php if (isset($vendor) && $vendor): ?>
         <form action="edit_vendor.php" method="post">

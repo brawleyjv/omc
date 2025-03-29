@@ -9,10 +9,10 @@ use Models\Settings;
 use MyApp\Models\Database;
 use Globals\Config; // Ensure Config is imported
 
-require_once '../../Globals/Config.php';
-require_once '../../Controllers/InstallController.php';
-require_once '../../Models/Settings.php';
-require_once '../../Models/Database.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Globals/Config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Controllers/InstallController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Models/Settings.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Models/Database.php';
 
 // Ensure session is started only if not already active
 if (session_status() === PHP_SESSION_NONE) {

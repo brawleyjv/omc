@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start(); // Start session only if not already started
 }
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Use $_SERVER['DOCUMENT_ROOT'] for config.php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Explicitly reference the OMC directory
 
 // Remove or adjust this line if it causes redirection issues
 // require_once BASE_PATH . 'auth/check_auth.php'; 

@@ -1,7 +1,7 @@
 <?php
 namespace MyApp\Controllers;
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/config.php'; // Corrected path to config.php
 require_once BASE_PATH . '/Models/Database.php';
 require_once BASE_PATH . '/Models/Bom.php';
 
@@ -32,7 +32,7 @@ class BomController {
             $this->bom->addBom($project_name, $material_name, $length, $width, $thickness, $quantity);
         }
 
-        header("Location: /Views/estimate/add_estimate.php?project_name=$project_name");
+        header("Location: " . BASE_URL . "Views/estimate/add_estimate.php?project_name=$project_name");
         exit();
     }
 

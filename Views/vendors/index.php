@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../../config.php'; // Corrected path to config.php
-require_once BASE_PATH . '/Controllers/VendorController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Explicitly reference the OMC directory
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Controllers/VendorController.php'; // Corrected path to VendorController.php
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -8,10 +8,10 @@ require_once BASE_PATH . '/Controllers/VendorController.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vendors</title>
-    <link rel="stylesheet" href="/styles.css"> <!-- Updated path to root CSS file -->
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Ensure BASE_URL is used correctly -->
 </head>
 <body>
-    <?php include BASE_PATH . '/Views/header.php'; ?> <!-- Updated to use BASE_PATH -->
+    <?php include BASE_PATH . '/Views/header.php'; ?> <!-- Use BASE_PATH -->
     <div class="container">
         <h1>Vendors</h1>
         <p>Manage your vendors here.</p>

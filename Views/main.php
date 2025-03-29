@@ -5,7 +5,12 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start(); // Start session only if not already started
 }
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Use $_SERVER['DOCUMENT_ROOT'] for config.php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Explicitly reference the OMC directory
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Models/Database.php'; // Include the Database class
+
+use MyApp\Models\Database; // Add this to use the Database class from the namespace
+
+$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME); // Ensure required arguments are passed
 
 // Ensure user is authenticated
 if (!isset($_SESSION['username'])) {
@@ -19,7 +24,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 // Dynamically resolve paths
-require_once BASE_PATH . 'auth/check_auth.php'; // Use BASE_PATH for dynamic path resolution
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/auth/check_auth.php'; // Corrected path to check_auth.php
 
 // Log session details for debugging
 error_log("Main.php: Session username: " . (isset($_SESSION['username']) ? $_SESSION['username'] : "Not set"));
@@ -30,10 +35,10 @@ error_log("Main.php: Session username: " . (isset($_SESSION['username']) ? $_SES
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Main</title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Corrected path -->
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Ensure BASE_URL is used correctly -->
 </head>
 <body>
-    <?php include BASE_PATH . 'Views/header.php'; ?> <!-- Include the header -->
+    <?php include BASE_PATH . '/Views/header.php'; ?> <!-- Corrected path to header.php -->
     <div class="container">
         <h1 class="title">Ozark Made Project Management System</h1>
         <h1 class="title">Main Menu</h1>
@@ -50,6 +55,7 @@ error_log("Main.php: Session username: " . (isset($_SESSION['username']) ? $_SES
                 <a href="<?php echo BASE_URL; ?>Views/Scale.php" class="btn styled-btn">Scale Project</a>
                 <a href="<?php echo BASE_URL; ?>Views/estimate/estimate.php" class="btn styled-btn">Estimate</a>
                 <a href="<?php echo BASE_URL; ?>Views/Chipload/chipload.php" class="btn styled-btn">Chipload</a>
+                <a href="<?php echo BASE_URL; ?>public/update.php" class="btn styled-btn">Update</a>
             </div>
         </div>
     </div>

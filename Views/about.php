@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/config.php'; 
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Explicitly reference the OMC directory
 // Use __DIR__ for includes
 ?>
 <!DOCTYPE html>
@@ -8,10 +8,10 @@ require_once __DIR__ . '/config.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Us</title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>public/css/styles.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>public/css/styles.css"> <!-- Ensure BASE_URL is used correctly -->
 </head>
 <body>
-<?php include '../Views/header.php'; ?>
+<?php include BASE_PATH . 'Views/header.php'; ?> <!-- Use BASE_PATH -->
     <div class="container">
         <img src="../public/images/login-image.png" alt="Login Image Thumbnail" class="thumbnail-image" style="max-width: 150px;"> <!-- Add thumbnail image -->
         <h1>About This Program</h1>

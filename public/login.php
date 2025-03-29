@@ -4,9 +4,9 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Use $_SERVER['DOCUMENT_ROOT'] for config.php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Adjusted path for config.php
 
 // Redirect directly to the main page
-header("Location: " . BASE_URL . "Views/main.php"); // Corrected path
+header("Location: " . BASE_URL . "/Views/main.php"); // Adjusted path
 exit();
 ?>

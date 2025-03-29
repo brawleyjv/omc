@@ -1,7 +1,7 @@
 <?php
-require_once __DIR__ . '/../../Globals/Config.php';
-require_once __DIR__ . '/../../Models/Database.php';
-require_once __DIR__ . '/../../Controllers/MaterialController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Corrected path to config.php
+require_once BASE_PATH . '/Models/Database.php';
+require_once BASE_PATH . '/Controllers/MaterialController.php';
 
 use MyApp\Controllers\MaterialController;
 use MyApp\Models\Database;
@@ -26,7 +26,7 @@ $image_url = $_POST['image_url'];
 $success = $controller->updateMaterial($id, $material_name, $length, $width, $thickness, $price, $quantity_on_hand, $type, $vendor, $item_no, $item_url, $image_url);
 
 if ($success) {
-    header('Location: ../../public/materials/index.php');
+    header('Location: ' . BASE_URL . 'public/materials/index.php');
     exit;
 } else {
     echo "Failed to update material.";

@@ -1,7 +1,6 @@
 <?php
-require_once __DIR__ . '/config.php';
-// Use __DIR__ for includes
-require_once __DIR__ . '/Controllers/VendorController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Explicitly reference the OMC directory
+require_once BASE_PATH . 'Controllers/VendorController.php'; // Use BASE_PATH for dynamic path resolution
 
 use MyApp\Controllers\VendorController; // Use the correct namespace
 
@@ -23,7 +22,7 @@ $vendors = $vendorController->getVendors();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>List of Vendors</title>
-    <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>public/css/styles.css">
+    <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>public/css/styles.css"> <!-- Ensure BASE_URL is used correctly -->
     <style>
         .top-buttons {
             display: flex;
@@ -101,7 +100,7 @@ $vendors = $vendorController->getVendors();
     </style>
 </head>
 <body>
-    <?php include BASE_PATH . '/Views/header.php'; ?> <!-- Ensure dynamic header inclusion -->
+    <?php include BASE_PATH . 'Views/header.php'; ?> <!-- Use BASE_PATH -->
     <h1 class="center-title">List of Vendors</h1>
     <div class="top-buttons">
         <button class="btn styled-btn" style="margin-right: 20px;" onclick="window.location.href='add_vendor.php'">Add Vendor</button>

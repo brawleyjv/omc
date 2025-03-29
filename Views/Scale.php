@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Updated to use document root
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Explicitly reference the OMC directory
 require_once BASE_PATH . '/Views/header.php'; // Ensure BASE_PATH is used correctly
 ?>
 <!DOCTYPE html>
