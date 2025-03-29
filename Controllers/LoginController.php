@@ -1,49 +1,22 @@
 <?php
-namespace Controllers;
+namespace MyApp\Controllers;
 
-use Globals\Config;
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
+require_once BASE_PATH . '/Models/Database.php';
+require_once BASE_PATH . '/Models/User.php';
+
+use MyApp\Models\Database;
+use MyApp\Models\User;
 
 class LoginController {
-    private $conn;
+    private $user;
 
-    public function __construct() {
-        $this->conn = new \mysqli(Config::DB_HOST, Config::DB_USER, Config::DB_PASS, Config::DB_NAME);
-        if ($this->conn->connect_error) {
-            die("Connection failed: " . $this->conn->connect_error);
-        }
+    public function __construct($database) {
+        $this->user = new User($database); // Pass Database instance to User model
     }
 
-    public function login($name) {
-        $stmt = $this->conn->prepare("SELECT * FROM users WHERE name = ?");
-        if (!$stmt) {
-            error_log("Prepared statement failed: " . $this->conn->error);
-            echo "Prepared statement failed: " . $this->conn->error; // Debug output
-            header("Location: home.php?error=An unexpected error occurred");
-            exit();
-        }
-
-        $stmt->bind_param("s", $name);
-
-        if ($stmt->execute()) {
-            $result = $stmt->get_result();
-
-            if ($result->num_rows > 0) {
-                $_SESSION['username'] = $name;
-                $stmt->close();
-                header("Location: ../Public/main.php");
-                exit();
-            } else {
-                $stmt->close();
-                header("Location: ../Users/register.php?name=" . urlencode($name));
-                exit();
-            }
-        } else {
-            error_log("Database error: " . $this->conn->error);
-            echo "Database error: " . $this->conn->error; // Debug output
-            $stmt->close();
-            header("Location: home.php?error=An unexpected error occurred");
-            exit();
-        }
+    public function login($username, $password) {
+        return $this->user->login($username, $password); // Return user data or false
     }
 }
 ?>

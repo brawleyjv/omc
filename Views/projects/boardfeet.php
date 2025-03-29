@@ -1,13 +1,17 @@
+<?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
+require_once BASE_PATH . '/Views/header.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Board Feet Calculator</title>
-    <link rel="stylesheet" href="../../css/styles.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>public/css/styles.css"> <!-- Corrected CSS path -->
 </head>
 <body>
-    <?php include '../../Views/header.php'; ?>
+    <?php include $_SERVER['DOCUMENT_ROOT'] . '/Views/header.php'; ?> <!-- Corrected header path -->
     <div class="container">
         <h1 class="title">Board Feet Calculator</h1>
         <form method="post" action="">

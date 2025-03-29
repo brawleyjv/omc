@@ -2,6 +2,8 @@
 
 namespace MyApp\Models;
 
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
+
 use PDO;
 
 class Bom {
@@ -9,9 +11,16 @@ class Bom {
 
     public function __construct(Database $database) {
         $this->conn = $database->getConnection();
+
+        if (!$this->conn) {
+            throw new \Exception("Database connection failed.");
+        }
     }
 
     public function addBom($project_name, $material_name, $length, $width, $thickness, $quantity) {
+        if (!$this->conn) {
+            throw new \Exception("Database connection is null.");
+        }
         $query = "INSERT INTO bom (project_name, material_name, length, width, thickness, quantity) 
                   VALUES (:project_name, :material_name, :length, :width, :thickness, :quantity)";
         $stmt = $this->conn->prepare($query);
@@ -25,6 +34,9 @@ class Bom {
     }
 
     public function getBomByProjectName($project_name) {
+        if (!$this->conn) {
+            throw new \Exception("Database connection is null.");
+        }
         $query = "SELECT * FROM bom WHERE project_name = :project_name";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(':project_name', $project_name, PDO::PARAM_STR);
@@ -33,6 +45,9 @@ class Bom {
     }
 
     public function getProjectAndCustomerDetails($project_name) {
+        if (!$this->conn) {
+            throw new \Exception("Database connection is null.");
+        }
         $query = "SELECT p.project_name, p.customer_name FROM projects p WHERE p.project_name = :project_name";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(':project_name', $project_name, PDO::PARAM_STR);
@@ -41,6 +56,9 @@ class Bom {
     }
 
     public function getBomByProjectId($project_id) {
+        if (!$this->conn) {
+            throw new \Exception("Database connection is null.");
+        }
         $query = "SELECT * FROM bom WHERE project_id = :project_id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':project_id', $project_id, PDO::PARAM_INT);

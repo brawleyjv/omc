@@ -1,16 +1,24 @@
 <?php
-// filepath: /c:/xampp/htdocs/OMC/public/materials/list_materials.php
-
-require_once __DIR__ . '/../../Globals/Config.php';
-require_once __DIR__ . '/../../Models/Database.php';
-require_once __DIR__ . '/../../Models/Material.php';
-require_once __DIR__ . '/../../Controllers/MaterialController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
+require_once BASE_PATH . '/Models/Database.php';
+require_once BASE_PATH . '/Models/Material.php';
+require_once BASE_PATH . '/Controllers/MaterialController.php';
 use MyApp\Controllers\MaterialController;
 use MyApp\Models\Database;
 
-$database = new Database(DB_HOST, DB_NAME, DB_USER, DB_PASS);
+$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME); // Updated initialization
 $materialsController = new MaterialController($database);
 $materials = $materialsController->getAllMaterials();
 
-include __DIR__ . '/../../views/materials/list_materials.php';
+include BASE_PATH . '/Views/materials/list_materials.php';
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- ...existing code... -->
+    <link rel="stylesheet" href="/styles.css"> <!-- Updated path to root CSS file -->
+</head>
+<body>
+    <!-- ...existing code... -->
+</body>
+</html>

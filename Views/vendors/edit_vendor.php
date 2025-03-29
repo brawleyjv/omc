@@ -1,5 +1,6 @@
 <?php
-include '../../controllers/VendorController.php';
+require_once BASE_PATH . '/Controllers/VendorController.php'; 
+use MyApp\Controllers\VendorController; // Add namespace if applicable
 
 $vendorController = new VendorController();
 $vendor = null;
@@ -36,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Vendor</title>
-    <link rel="stylesheet" type="text/css" href="../../public/css/styles.css">
+    <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>public/css/styles.css">
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const updateSuccess = "<?php echo $updateSuccess; ?>";
@@ -50,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </script>
 </head>
 <body>
-    <?php include '../header.php'; ?>
+    <?php include BASE_PATH . '/Views/header.php'; ?>
     <h1>Edit Vendor</h1>
     <?php if (isset($vendor) && $vendor): ?>
         <form action="edit_vendor.php" method="post">

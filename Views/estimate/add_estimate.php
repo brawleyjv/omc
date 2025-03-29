@@ -1,16 +1,15 @@
 <?php
-require_once __DIR__ . '/../../Globals/Config.php';
-require_once __DIR__ . '/../../Models/Database.php';
-require_once __DIR__ . '/../../Controllers/ProjectController.php';
-require_once __DIR__ . '/../../Models/Bom.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
+require_once BASE_PATH . '/Models/Database.php';
+require_once BASE_PATH . '/Controllers/ProjectController.php';
+require_once BASE_PATH . '/Models/Bom.php';
 
 use MyApp\Models\Database;
 use MyApp\Controllers\ProjectController;
 use MyApp\Models\Bom;
-use Globals\Config;
 
 // Establish database connection
-$database = new Database(Config::DB_HOST, Config::DB_NAME, Config::DB_USER, Config::DB_PASS);
+$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 $conn = $database->getConnection();
 $projectController = new ProjectController($database);
 $bomModel = new Bom($database);
@@ -35,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['project_id'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Estimate</title>
-    <link rel="stylesheet" href="/OMC/public/css/styles.css?v=<?php echo time(); ?>"> <!-- Add version query string -->
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>public/css/styles.css?v=<?php echo time(); ?>"> <!-- Add version query string -->
     <style>
         .container {
             background: #fff;
@@ -113,15 +112,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['project_id'])) {
     </style>
 </head>
 <body>
-    <?php include '../../Views/header.php'; ?>
+    <?php include BASE_PATH . '/Views/header.php'; ?>
     <div class="container">
         <h1 class="title">Add Estimate</h1>
-        <form action="add_estimate.php" method="post">
+        <form action="<?php echo BASE_URL; ?>Views/estimate/add_estimate.php" method="post">
             <label for="search_term">Search Project Name:</label>
             <input type="text" id="search_term" name="search_term" required>
             <input type="submit" value="Search" class="btn styled-btn">
         </form>
-        <button class="btn styled-btn" onclick="window.location.href='add_estimate.php'">Start New Estimate</button> <!-- Start New Estimate button -->
+        <button class="btn styled-btn" onclick="window.location.href='<?php echo BASE_URL; ?>Views/estimate/add_estimate.php'">Start New Estimate</button> <!-- Start New Estimate button -->
         <?php if (!empty($projects)): ?>
             <h2>Select a Project</h2>
             <ul class="project-list">
@@ -158,7 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['project_id'])) {
                     <p>No BOM found for this project.</p>
                 <?php endif; ?>
             </div>
-            <form action="add_estimate.php" method="post">
+            <form action="<?php echo BASE_URL; ?>Views/estimate/add_estimate.php" method="post">
                 <input type="hidden" name="project_id" value="<?php echo htmlspecialchars($selectedProject['id']); ?>">
                 <label for="project_name">Project Name:</label>
                 <input type="text" id="project_name" name="project_name" value="<?php echo htmlspecialchars($selectedProject['project_name'] ?? ''); ?>" required>
@@ -171,7 +170,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['project_id'])) {
                 <input type="submit" value="Start Estimate" class="btn styled-btn">
             </form>
         <?php endif; ?>
-        <form id="select-project-form" action="add_estimate.php" method="post" style="display: none;">
+        <form id="select-project-form" action="<?php echo BASE_URL; ?>Views/estimate/add_estimate.php" method="post" style="display: none;">
             <input type="hidden" id="project_id" name="project_id">
             <input type="hidden" id="project_name" name="project_name">
             <input type="hidden" id="project_description" name="project_description">

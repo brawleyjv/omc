@@ -3,15 +3,14 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-require_once __DIR__ . '/../../Globals/config.php';
-require_once __DIR__ . '/../../Models/Database.php';
-require_once __DIR__ . '/../../Controllers/ProjectController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
+require_once BASE_PATH . '/Models/Database.php';
+require_once BASE_PATH . '/Controllers/ProjectController.php';
 
 use MyApp\Controllers\ProjectController;
 use MyApp\Models\Database;
-use Globals\Config;
 
-$database = new Database(Config::DB_HOST, Config::DB_NAME, Config::DB_USER, Config::DB_PASS);
+$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME); // Use correct config values
 $projectsController = new ProjectController($database);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_project_name'])) {
@@ -31,7 +30,7 @@ $projects = $projectsController->listProjects(); // Use the correct method to li
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>List Projects</title>
-    <link rel="stylesheet" href="../../public/css/styles.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>public/css/styles.css"> <!-- Corrected CSS path -->
     <style>
         .top-buttons {
             display: flex;
@@ -149,10 +148,10 @@ $projects = $projectsController->listProjects(); // Use the correct method to li
     </script>
 </head>
 <body>
-    <?php include '../../Views/header.php'; ?>
+    <?php include $_SERVER['DOCUMENT_ROOT'] . '/Views/header.php'; ?> <!-- Corrected header path -->
     <h1 class="center-title">List of Projects</h1>
     <div class="top-buttons">
-        <button class="btn styled-btn" style="margin-right: 20px;" onclick="window.location.href='ProjMain.php'">Close</button>
+        <button class="btn styled-btn" style="margin-right: 20px;" onclick="window.location.href='<?php echo BASE_URL; ?>Views/main.php'">Close</button>
     </div>
     <div class="content">
         <table>
@@ -189,7 +188,7 @@ $projects = $projectsController->listProjects(); // Use the correct method to li
                                 $file_uploads = explode(',', $project['file_upload']);
                                 foreach ($file_uploads as $file_upload) {
                                     $file_upload_label = pathinfo($file_upload, PATHINFO_FILENAME);
-                                    $file_upload_path = "http://localhost/OMC/projects/project_files/{$project['project_name']}/{$file_upload}";
+                                    $file_upload_path = BASE_URL . "projects/project_files/{$project['project_name']}/{$file_upload}";
                                     echo "<a href='{$file_upload_path}' download>{$file_upload_label}</a><br>";
                                 }
                                 ?>
@@ -201,7 +200,7 @@ $projects = $projectsController->listProjects(); // Use the correct method to li
                                 $image_uploads = explode(',', $project['image_upload']);
                                 $first_image_upload = $image_uploads[0];
                                 $image_upload_paths = array_map(function($image) use ($project) {
-                                    return "http://localhost/OMC/projects/project_files/{$project['project_name']}/{$image}";
+                                    return BASE_URL . "projects/project_files/{$project['project_name']}/{$image}";
                                 }, $image_uploads);
                                 echo "<a href='javascript:void(0);' onclick='openImage(\"{$image_upload_paths[0]}\")'><img src='{$image_upload_paths[0]}' alt='Project Image' class='thumbnail'></a>";
                                 ?>
@@ -213,15 +212,15 @@ $projects = $projectsController->listProjects(); // Use the correct method to li
                                 $design_files = explode(',', $project['design_file']);
                                 foreach ($design_files as $design_file) {
                                     $design_file_label = pathinfo($design_file, PATHINFO_FILENAME);
-                                    $design_file_path = "http://localhost/OMC/projects/project_files/{$project['project_name']}/{$design_file}";
+                                    $design_file_path = BASE_URL . "projects/project_files/{$project['project_name']}/{$design_file}";
                                     echo "<a href='{$design_file_path}' download>{$design_file_label}</a><br>";
                                 }
                                 ?>
                             <?php endif; ?>
                         </td>
                         <td>
-                            <a href="edit_projects.php?project_name=<?php echo urlencode($project['project_name']); ?>" class="btn styled-btn white">Edit</a>
-                            <form action="list_projects.php" method="post" onsubmit="return confirm('Are you sure you want to delete this project?');" style="display:inline;">
+                            <a href="<?php echo BASE_URL; ?>Views/projects/edit_project.php?project_name=<?php echo urlencode($project['project_name']); ?>" class="btn styled-btn white">Edit</a>
+                            <form action="<?php echo BASE_URL; ?>public/projects/list_projects.php" method="post" onsubmit="return confirm('Are you sure you want to delete this project?');" style="display:inline;">
                                 <input type="hidden" name="delete_project_name" value="<?php echo htmlspecialchars($project['project_name']); ?>">
                                 <input type="submit" class="btn styled-btn red" value="Delete">
                             </form>

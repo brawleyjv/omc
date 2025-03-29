@@ -1,14 +1,17 @@
 <?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Use $_SERVER['DOCUMENT_ROOT'] for config.php
+require_once BASE_PATH . '/Models/Database.php';
+require_once BASE_PATH . '/Controllers/UserController.php';
 
-require_once __DIR__ . '/../../Globals/Config.php';
-require_once __DIR__ . '/../../Models/Database.php';
-// require_once __DIR__ . '/../../Controllers/UserController.php';
 use MyApp\Models\Database;
-// use MyApp\Controllers\UserController;
 
-// Ensure Database is instantiated with required arguments
-$database = new Database(DB_HOST, DB_NAME, DB_USER, DB_PASS);
-$conn = $database->getConnection(); // Get the connection
+$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+
+try {
+    $conn = $database->getConnection(); // Ensure the connection is established
+} catch (PDOException $e) {
+    die("Database connection failed: " . $e->getMessage()); // Handle connection errors
+}
 
 $name = '';
 $phone = '';
@@ -35,3 +38,14 @@ if (isset($_SESSION['username'])) {
 
 $conn = null; // Close the connection
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Corrected path -->
+</head>
+<body>
+</body>
+</html>

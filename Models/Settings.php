@@ -1,15 +1,14 @@
 <?php
 namespace Models;
 
-require_once __DIR__ . '/../Globals/Config.php'; // Include the configuration file
-
-use Globals\Config;
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
 
 class Settings {
     private $conn;
 
     public function __construct() {
-        $this->conn = new \mysqli(Config::DB_HOST, Config::DB_USER, Config::DB_PASS, Config::DB_NAME);
+        // Use constants directly instead of Globals\Config
+        $this->conn = new \mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
         if ($this->conn->connect_error) {
             die("Connection failed: " . $this->conn->connect_error);
         }

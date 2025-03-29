@@ -1,58 +1,32 @@
 <?php
-require_once __DIR__ . '/../../Globals/Config.php';
-require_once __DIR__ . '/../../Models/Database.php';
-require_once __DIR__ . '/../../Controllers/ProjectController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
+require_once BASE_PATH . '/Models/Database.php';
+require_once BASE_PATH . '/Controllers/ProjectController.php';
 
 use MyApp\Controllers\ProjectController;
 use MyApp\Models\Database;
-use Globals\Config;
 
-$database = new Database(Config::DB_HOST, Config::DB_NAME, Config::DB_USER, Config::DB_PASS);
+// Pass the required arguments to the Database constructor
+$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 $controller = new ProjectController($database);
 
-$project_name = isset($_GET['project_name']) ? $_GET['project_name'] : '';
-$project = $controller->getProjectByName($project_name);
+$projectId = $_GET['project_id'] ?? null;
+
+if ($projectId) {
+    $project = $controller->getProjectById($projectId);
+    if (!$project) {
+        echo "<script>alert('Project not found.'); window.location.href='" . BASE_URL . "Views/projects/list_projects.php';</script>";
+        exit;
+    }
+} else {
+    echo "<script>alert('No project ID provided.'); window.location.href='" . BASE_URL . "Views/projects/list_projects.php';</script>";
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Handle file uploads
-    $project_name = $_POST['project_name'];
-    $file_uploads = !empty($_FILES['file_upload']['name'][0]) ? $_FILES['file_upload']['name'] : explode(',', $project['file_upload']);
-    $image_upload = !empty($_FILES['image_upload']['name']) ? $_FILES['image_upload']['name'] : $project['image_upload'];
-    $design_file = !empty($_FILES['design_file']['name']) ? $_FILES['design_file']['name'] : $project['design_file'];
-
-    $upload_dir = 'C:/xampp/htdocs/OMC/projects/project_files/' . $project_name . '/';
-    if (!is_dir($upload_dir)) {
-        mkdir($upload_dir, 0777, true);
-    }
-
-    if (!empty($_FILES['file_upload']['name'][0])) {
-        $file_upload_paths = [];
-        foreach ($_FILES['file_upload']['name'] as $key => $name) {
-            $tmp_name = $_FILES['file_upload']['tmp_name'][$key];
-            $file_upload_path = $upload_dir . $name;
-            move_uploaded_file($tmp_name, $file_upload_path);
-            $file_upload_paths[] = basename($file_upload_path);
-        }
-        $file_uploads = implode(',', $file_upload_paths);
-    } else {
-        $file_uploads = is_array($file_uploads) ? implode(',', $file_uploads) : $file_uploads;
-    }
-
-    if (!empty($_FILES['image_upload']['name'])) {
-        $image_upload_path = $upload_dir . $image_upload;
-        move_uploaded_file($_FILES['image_upload']['tmp_name'], $image_upload_path);
-        $image_upload = basename($image_upload_path);
-    }
-
-    if (!empty($_FILES['design_file']['name'])) {
-        $design_file_path = $upload_dir . $design_file;
-        move_uploaded_file($_FILES['design_file']['tmp_name'], $design_file_path);
-        $design_file = basename($design_file_path);
-    }
-
-    // Update project with file paths if files were uploaded
-    $controller->updateProject(
-        $project_name,
+    $success = $controller->updateProject(
+        $_POST['project_id'],
+        $_POST['project_name'],
         $_POST['design_date'],
         $_POST['customer_name'],
         $_POST['laser_time'],
@@ -60,12 +34,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_POST['labor_hours'],
         $_POST['project_description'],
         $_POST['due_date'],
-        $file_uploads,
-        $image_upload,
-        $design_file
+        $_POST['file_upload'],
+        $_POST['image_upload']
     );
 
-    header('Location: ../../Views/projects/list_projects.php'); // Corrected redirect path
+    if ($success) {
+        echo "<script>alert('Project updated successfully.'); window.location.href='" . BASE_URL . "Views/projects/list_projects.php';</script>";
+    } else {
+        echo "<script>alert('Failed to update project.');</script>";
+    }
     exit;
 }
 ?>
@@ -76,15 +53,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Project</title>
-    <link rel="stylesheet" href="../../public/css/styles.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>public/css/styles.css"> <!-- Corrected CSS path -->
 </head>
 <body>
-    <?php include '../../Views/header.php'; ?>
+    <?php include BASE_PATH . '/Views/header.php'; ?> <!-- Corrected header path -->
 
     <?php if ($project): ?>
         <h1 class="center-title">Edit Project</h1>
         <form id="project-form" action="../../Views/projects/edit_projects.php" method="post" enctype="multipart/form-data">
-            <input type="hidden" name="project_name" value="<?php echo htmlspecialchars($project['project_name']); ?>">
+            <input type="hidden" name="project_id" value="<?php echo htmlspecialchars($project['id']); ?>">
             <div class="submit-container" style="justify-content: space-between; width: 100%;">
                 <button type="button" class="btn styled-btn" onclick="window.location.href='../../Views/projects/list_projects.php'" style="margin-left: 0;">Cancel</button>
                 <input type="submit" class="btn styled-btn" value="Update" style="margin-right: 0;">

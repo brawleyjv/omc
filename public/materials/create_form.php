@@ -6,7 +6,7 @@ error_reporting(E_ALL);
 
 use Globals\Config;
 
-require_once '../../Globals/Config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
 
 // Ensure session is started only if not already active
 if (session_status() === PHP_SESSION_NONE) {
@@ -20,7 +20,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Material</title>
-    <link rel="stylesheet" href="<?php echo Config::BASE_URL; ?>public/css/styles.css"> <!-- Corrected path -->
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>css/styles.css">
     <style>
         .title {
             text-align: center;
@@ -61,7 +61,7 @@ if (session_status() === PHP_SESSION_NONE) {
     </style>
 </head>
 <body>
-    <?php include '../../views/header.php'; ?> <!-- Corrected path to header file -->
+    <?php include BASE_PATH . '/Views/header.php'; ?>
     <h1 class="title">Add Material</h1> <!-- Center the title -->
     <form id="materialForm" action="../../public/materials/create.php" method="post">
         <div class="form-buttons">

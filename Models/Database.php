@@ -1,55 +1,61 @@
 <?php
+
 namespace MyApp\Models;
+
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
 
 use PDO;
 use PDOException;
 
 class Database {
     private $host;
-    private $db_name;
-    private $username;
+    private $user;
     private $password;
-    private $conn;
+    private $dbname;
+    private $connection;
 
-    public function __construct($host, $db_name, $username, $password) {
+    public function __construct($host, $user, $password, $dbname) {
         $this->host = $host;
-        $this->db_name = $db_name;
-        $this->username = $username;
+        $this->user = $user;
         $this->password = $password;
+        $this->dbname = $dbname;
+        $this->connection = null; // Initialize connection as null
+    }
+
+    private function connect() {
+        try {
+            $dsn = "mysql:host={$this->host};dbname={$this->dbname};charset=utf8mb4";
+            $this->connection = new PDO($dsn, $this->user, $this->password);
+            $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Database connection error: " . $e->getMessage());
+            throw new PDOException("Database connection failed: " . $e->getMessage());
+        }
     }
 
     public function getConnection() {
-        $this->conn = null;
-
-        try {
-            $this->conn = new PDO("mysql:host=" . $this->host . ";dbname=" . $this->db_name, $this->username, $this->password);
-            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $this->conn->exec("set names utf8");
-        } catch(PDOException $exception) {
-            echo "Connection error: " . $exception->getMessage();
+        if ($this->connection === null) {
+            $this->connect();
         }
-
-        return $this->conn;
+        return $this->connection;
     }
 
-    public function insertProject(Project $project) {
-        $this->getConnection(); // Ensure the connection is established
-        $query = "INSERT INTO projects (project_name, design_date, customer_name, laser_time, router_time, labor_hours, project_description, due_date, file_upload, image_upload) 
-                  VALUES (:project_name, :design_date, :customer_name, :laser_time, :router_time, :labor_hours, :project_description, :due_date, :file_upload, :image_upload)";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindValue(':project_name', $project->getProjectName());
-        $stmt->bindValue(':design_date', $project->getDesignDate());
-        $stmt->bindValue(':customer_name', $project->getCustomerName());
-        $stmt->bindValue(':laser_time', $project->getLaserTime());
-        $stmt->bindValue(':router_time', $project->getRouterTime());
-        $stmt->bindValue(':labor_hours', $project->getLaborHours());
-        $stmt->bindValue(':project_description', $project->getProjectDescription());
-        $stmt->bindValue(':due_date', $project->getDueDate());
-        $stmt->bindValue(':file_upload', json_encode($project->getFileUpload())); // Handle multiple file paths
-        $stmt->bindValue(':image_upload', json_encode($project->getImageUpload())); // Handle multiple image paths
-        $stmt->execute();
+    // Add a public getter for private members if needed
+    public function getHost() {
+        return $this->host;
+    }
 
-        return $this->conn->lastInsertId();
+    public function getUser() {
+        return $this->user;
+    }
+
+    public function getPassword() {
+        return $this->password;
+    }
+
+    public function getDbName() {
+        return $this->dbname;
     }
 }
 ?>

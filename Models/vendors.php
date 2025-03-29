@@ -1,5 +1,5 @@
 <?php
-include __DIR__ . '/../Globals/config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
 
 class VendorModel {
     private $conn;

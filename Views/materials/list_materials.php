@@ -1,19 +1,21 @@
 <?php
-require_once __DIR__ . '/../../Globals/Config.php';
-require_once __DIR__ . '/../../Models/Database.php';
-require_once __DIR__ . '/../../Models/Material.php';
-require_once __DIR__ . '/../../Controllers/MaterialController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
+require_once BASE_PATH . '/Models/Database.php';
+require_once BASE_PATH . '/Models/Material.php';
+require_once BASE_PATH . '/Controllers/MaterialController.php';
+
 use MyApp\Controllers\MaterialController;
 use MyApp\Models\Database;
 
-$database = new Database(DB_HOST, DB_NAME, DB_USER, DB_PASS);
+// Instantiate the Database class with arguments
+$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME); // Updated initialization
 $materialsController = new MaterialController($database);
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_material_id'])) {
-    $materialId = $_POST['delete_material_id'];
-    error_log("Deleting material with ID: $materialId"); // Log the material ID being deleted
-    $materialsController->deleteMaterial($materialId);
-    header('Location: list_materials.php'); // Redirect to refresh the list after deletion
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_material_name'])) {
+    $materialName = $_POST['delete_material_name'];
+    error_log("Deleting material with name: $materialName"); // Log the material name being deleted
+    $materialsController->deleteMaterialByName($materialName);
+    header('Location: ' . BASE_URL . 'Views/materials/list_materials.php'); // Redirect to refresh the list after deletion
     exit;
 }
 
@@ -26,7 +28,7 @@ $materials = $materialsController->getAllMaterials();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>List Materials</title>
-    <link rel="stylesheet" href="../../public/css/styles.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Updated to use BASE_URL -->
     <style>
         .top-buttons {
             display: flex;
@@ -142,10 +144,10 @@ $materials = $materialsController->getAllMaterials();
     </script>
 </head>
 <body>
-    <?php include '../../views/header.php'; ?>
+    <?php include BASE_PATH . '/Views/header.php'; ?>
     <h1 class="center-title">List of Materials</h1>
     <div class="top-buttons">
-        <button class="btn styled-btn" style="margin-right: 20px;" onclick="window.location.href='index.php'">Close</button>
+        <button class="btn styled-btn" style="margin-right: 20px;" onclick="window.location.href='<?php echo BASE_URL; ?>Views/materials/index.php'">Close</button>
     </div>
     <div class="content">
         <table>
@@ -169,26 +171,26 @@ $materials = $materialsController->getAllMaterials();
             <tbody>
                 <?php foreach ($materials as $material): ?>
                     <tr>
-                        <td><?php echo htmlspecialchars($material['id']); ?></td>
+                        <td><?php echo htmlspecialchars($material['id'] ?? ''); ?></td>
                         <td><?php echo htmlspecialchars($material['material_name'] ?? ''); ?></td>
-                        <td><?php echo htmlspecialchars($material['Length']); ?></td>
-                        <td><?php echo htmlspecialchars($material['Width']); ?></td>
-                        <td><?php echo htmlspecialchars($material['Thickness']); ?></td>
-                        <td><?php echo htmlspecialchars($material['Price']); ?></td>
-                        <td><?php echo htmlspecialchars($material['Quantity_on_Hand']); ?></td>
-                        <td><?php echo htmlspecialchars($material['type']); ?></td>
-                        <td><?php echo htmlspecialchars($material['vendor_name']); ?></td>
-                        <td><?php echo htmlspecialchars($material['Item_no']); ?></td>
-                        <td><a href="<?php echo htmlspecialchars($material['item_url']); ?>" target="_blank">Link</a></td>
+                        <td><?php echo htmlspecialchars($material['Length'] ?? ''); ?></td>
+                        <td><?php echo htmlspecialchars($material['Width'] ?? ''); ?></td>
+                        <td><?php echo htmlspecialchars($material['Thickness'] ?? ''); ?></td>
+                        <td><?php echo htmlspecialchars($material['Price'] ?? ''); ?></td>
+                        <td><?php echo htmlspecialchars($material['Quantity_on_Hand'] ?? ''); ?></td>
+                        <td><?php echo htmlspecialchars($material['type'] ?? ''); ?></td>
+                        <td><?php echo htmlspecialchars($material['vendor_name'] ?? ''); ?></td>
+                        <td><?php echo htmlspecialchars($material['Item_no'] ?? ''); ?></td>
+                        <td><a href="<?php echo htmlspecialchars($material['item_url'] ?? ''); ?>" target="_blank">Link</a></td>
                         <td>
                             <?php if (!empty($material['image_url'])): ?>
                                 <img src="<?php echo htmlspecialchars($material['image_url']); ?>" alt="Material Image" class="thumbnail" onclick="openImage('<?php echo htmlspecialchars($material['image_url']); ?>')" onerror="handleImageError(this)">
                             <?php endif; ?>
                         </td>
                         <td class="action-buttons">
-                            <button class="btn styled-btn" onclick="window.location.href='edit_material.php?id=<?php echo htmlspecialchars($material['id']); ?>'">Edit</button>
+                            <button class="btn styled-btn" onclick="window.location.href='<?php echo BASE_URL; ?>Views/materials/edit_material.php?id=<?php echo urlencode($material['id'] ?? ''); ?>'">Edit</button>
                             <form action="list_materials.php" method="post" onsubmit="return confirm('Are you sure you want to delete this material?');">
-                                <input type="hidden" name="delete_material_id" value="<?php echo htmlspecialchars($material['id']); ?>">
+                                <input type="hidden" name="delete_material_name" value="<?php echo htmlspecialchars($material['material_name'] ?? ''); ?>">
                                 <input type="submit" class="btn styled-btn red" value="Delete">
                             </form>
                         </td>

@@ -1,7 +1,8 @@
 <?php
-// filepath: /c:/xampp/htdocs/OMC/Models/Project.php
 
 namespace MyApp\Models;
+
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
 
 use PDO;
 
@@ -32,6 +33,10 @@ class Project {
         $this->image_upload = $image_upload;
         $this->design_file = $design_file;
         $this->conn = $database->getConnection();
+
+        if (!$this->conn) {
+            throw new \Exception("Database connection is null.");
+        }
     }
 
     public function getProjectName() {
@@ -84,6 +89,9 @@ class Project {
     }
 
     public function getProjectById($id) {
+        if (!$this->conn) {
+            throw new \Exception("Database connection is null.");
+        }
         $query = "SELECT * FROM projects WHERE id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
@@ -92,6 +100,9 @@ class Project {
     }
 
     public function getProjectByName($project_name) {
+        if (!$this->conn) {
+            throw new \Exception("Database connection is null.");
+        }
         $query = "SELECT * FROM projects WHERE project_name = :project_name";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(':project_name', $project_name, PDO::PARAM_STR);

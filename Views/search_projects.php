@@ -1,10 +1,8 @@
 <?php
-require_once '../Globals/config.php'; // Include the configuration file for database connection
-
-use Globals\Config;
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Use $_SERVER['DOCUMENT_ROOT'] for config.php
 
 try {
-    $conn = new PDO("mysql:host=" . Config::DB_HOST . ";dbname=" . Config::DB_NAME, Config::DB_USER, Config::DB_PASS);
+    $conn = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS); // Use direct config values
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     $search_term = isset($_GET['search_term']) ? $_GET['search_term'] : '';
@@ -27,7 +25,7 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search Projects</title>
-    <link rel="stylesheet" href="../public/css/styles.css"> <!-- Corrected the path to the CSS file in the root directory -->
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Corrected path -->
     <style>
         .project {
             display: flex;
@@ -116,7 +114,7 @@ try {
     </script>
 </head>
 <body>
-    <?php include '../views/header.php'; ?> <!-- Corrected the path to the header file in the views directory -->
+    <?php include BASE_PATH . 'Views/header.php'; ?> <!-- Use BASE_PATH -->
     <h1>Search Projects</h1>
     <form action="search_projects.php" method="get">
         <input type="text" name="search_term" placeholder="Search by project name or customer name" value="<?php echo htmlspecialchars($search_term); ?>">

@@ -1,8 +1,11 @@
 <?php
-include '../../controllers/VendorController.php';
-include '../header.php';
+require_once __DIR__ . '/config.php';
+// Use __DIR__ for includes
+require_once __DIR__ . '/Controllers/VendorController.php';
 
-$vendorController = new VendorController();
+use MyApp\Controllers\VendorController; // Use the correct namespace
+
+$vendorController = new VendorController(); // Instantiate the VendorController
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_vendor_id'])) {
     $vendorId = $_POST['delete_vendor_id'];
@@ -20,7 +23,7 @@ $vendors = $vendorController->getVendors();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>List of Vendors</title>
-    <link rel="stylesheet" type="text/css" href="../../public/css/styles.css">
+    <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>public/css/styles.css">
     <style>
         .top-buttons {
             display: flex;
@@ -98,7 +101,7 @@ $vendors = $vendorController->getVendors();
     </style>
 </head>
 <body>
-    <?php include '../header.php'; ?>
+    <?php include BASE_PATH . '/Views/header.php'; ?> <!-- Ensure dynamic header inclusion -->
     <h1 class="center-title">List of Vendors</h1>
     <div class="top-buttons">
         <button class="btn styled-btn" style="margin-right: 20px;" onclick="window.location.href='add_vendor.php'">Add Vendor</button>

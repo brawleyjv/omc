@@ -1,13 +1,15 @@
 <?php
-namespace Controllers;
+namespace MyApp\Controllers;
+
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
 
 class LogoutController {
     public function logout() {
         session_start();
         session_unset();
         session_destroy();
-        header("Location: ../public/login.php"); // Corrected path to login.php
-        exit(); // Ensure no further code is executed
+        header("Location: " . BASE_URL . "Views/login.php");
+        exit();
     }
 }
 ?>

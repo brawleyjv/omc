@@ -1,10 +1,14 @@
+<?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Updated to use document root
+require_once BASE_PATH . '/Views/header.php'; // Ensure BASE_PATH is used correctly
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scale Project</title>
-    <link rel="stylesheet" href="../public/css/styles.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>public/css/styles.css"> <!-- Ensure BASE_URL is used correctly -->
     <style>
         .form-group {
             margin-bottom: 15px;
@@ -102,7 +106,7 @@
     </script>
 </head>
 <body>
-    <?php include 'header.php'; ?>
+    <?php include BASE_PATH . '/Views/header.php'; ?> <!-- Ensure BASE_PATH is used correctly -->
     <div class="container">
         <h1 class="title">Scale Project</h1>
         <div class="form-group">
@@ -130,7 +134,7 @@
             <button class="btn styled-btn" onclick="clearFields()">Clear
                 <div class="help-dialog">Click to clear all input fields.</div>
             </button>
-            <button class="btn styled-btn" onclick="window.location.href='../main.php'">Main Menu
+            <button class="btn styled-btn" onclick="window.location.href='<?php echo BASE_URL; ?>views/main.php'">Main Menu
                 <div class="help-dialog">Click to return to the main menu.</div>
             </button>
         </div>

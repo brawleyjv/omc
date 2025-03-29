@@ -1,127 +1,76 @@
 <?php
-require_once __DIR__ . '/../../Globals/Config.php';
-?>
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
+require_once BASE_PATH . '/Models/Database.php';
+require_once BASE_PATH . '/Controllers/ProjectController.php';
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Project</title>
-    <link rel="stylesheet" href="../../css/styles.css">
-    <style>
-        .title {
-            text-align: center;
-            margin-top: 50px; /* Adjust margin to bring the title up */
-        }
-        .form-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            margin-top: 20px; /* Adjust margin to bring the form up */
-            gap: 20px; /* Add space between form groups */
-        }
-        .form-group {
-            flex: 1 1 45%; /* Adjust the percentage to control the width of each column */
-            margin: 10px 0; /* Add vertical margin for better spacing */
-        }
-        .form-group label, .form-group input, .form-group textarea {
-            display: block;
-            width: 100%;
-        }
-        .form-group input[type="date"],
-        .form-group input[type="number"] {
-            width: 100%; /* Ensure the input fields take full width */
-        }
-        .file-group {
-            flex: 1 1 100%; /* Make file upload fields take full width */
-            margin: 10px 0; /* Add vertical margin for better spacing */
-        }
-        .submit-container {
-            display: flex;
-            justify-content: center; /* Center the buttons */
-            align-items: center;
-            margin: 20px 0; /* Add vertical margin for better spacing */
-            gap: 20px; /* Add space between buttons */
-        }
-        .btn.styled-btn {
-            padding: 10px 20px;
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            cursor: pointer;
-            text-decoration: none;
-            text-align: center;
-            border-radius: 5px;
-        }
-        .btn.styled-btn:hover {
-            background-color: #0056b3;
-        }
-    </style>
-</head>
-<body>
-    <?php include '../../Views/header.php'; ?>
-    <div class="container">
-        <h1 class="title">Add Project</h1>
-        <div class="submit-container">
-            <a href="../../public/projects/ProjMain.php" class="btn styled-btn">Cancel</a>
-            <input type="submit" form="project-form" value="Submit" class="btn styled-btn" id="submit-button">
-            <a href="../../public/projects/bom/add_bom.php" class="btn styled-btn">Add BOM</a>
-        </div>
-        <form id="project-form" action="../../Views/projects/submit_project.php" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
-            <div class="form-container">
-                <div class="form-group">
-                    <label for="project_name">Project Name:</label>
-                    <input type="text" id="project_name" name="project_name" required>
-                </div>
-                <div class="form-group">
-                    <label for="design_date">Design Date:</label>
-                    <input type="date" id="design_date" name="design_date" required>
-                </div>
-                <div class="form-group">
-                    <label for="customer_name">Customer Name:</label>
-                    <input type="text" id="customer_name" name="customer_name">
-                </div>
-                <div class="form-group">
-                    <label for="laser_time">Laser Time (minutes):</label>
-                    <input type="number" id="laser_time" name="laser_time" max="9999">
-                </div>
-                <div class="form-group">
-                    <label for="router_time">Router Time (minutes):</label>
-                    <input type="number" id="router_time" name="router_time" max="9999">
-                </div>
-                <div class="form-group">
-                    <label for="labor_hours">Labor Hours:</label>
-                    <input type="number" id="labor_hours" name="labor_hours" max="9999">
-                </div>
-                <div class="form-group">
-                    <label for="project_description">Project Description:</label>
-                    <textarea id="project_description" name="project_description" rows="5"></textarea>
-                </div>
-                <div class="file-group">
-                    <label for="file_upload">File Upload:</label>
-                    <input type="file" id="file_upload" name="file_upload">
-                </div>
-                <div class="file-group">
-                    <label for="image_upload">Image Upload:</label>
-                    <input type="file" id="image_upload" name="image_upload" accept="image/*">
-                </div>
-                <div class="form-group">
-                    <label for="due_date">Project Due By Date:</label>
-                    <input type="date" id="due_date" name="due_date">
-                </div>
-            </div>
-        </form>
-    </div>
-    <script>
-        function validateForm() {
-            var projectName = document.getElementById('project_name').value.trim();
-            if (projectName === '') {
-                alert('Project name is required.');
-                return false;
+use MyApp\Controllers\ProjectController;
+use MyApp\Models\Database;
+
+$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+$controller = new ProjectController($database);
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $project_name = $_POST['project_name'] ?? '';
+    $design_date = $_POST['design_date'] ?? '';
+    $customer_name = $_POST['customer_name'] ?? '';
+    $laser_time = $_POST['laser_time'] ?? 0;
+    $router_time = $_POST['router_time'] ?? 0;
+    $labor_hours = $_POST['labor_hours'] ?? 0;
+    $project_description = $_POST['project_description'] ?? '';
+    $due_date = $_POST['due_date'] ?? '';
+
+    $file_uploads = [];
+    $image_uploads = [];
+    $design_files = [];
+    $upload_dir = BASE_PATH . 'projects/project_files/' . $project_name . '/';
+
+    if (!is_dir($upload_dir)) {
+        mkdir($upload_dir, 0777, true);
+    }
+
+    foreach (['file_upload', 'image_upload', 'design_file'] as $type) {
+        if (!empty($_FILES[$type]['name'][0])) {
+            foreach ($_FILES[$type]['name'] as $key => $name) {
+                $tmp_name = $_FILES[$type]['tmp_name'][$key];
+                $file_path = $upload_dir . $name;
+                if (move_uploaded_file($tmp_name, $file_path)) {
+                    ${$type . 's'}[] = basename($file_path);
+                } else {
+                    echo "Failed to upload $type: $name";
+                    exit;
+                }
             }
-            return true;
         }
-    </script>
-</body>
-</html>
+    }
+
+    try {
+        $controller->addProject(
+            $project_name,
+            $design_date,
+            $customer_name,
+            $laser_time,
+            $router_time,
+            $labor_hours,
+            $project_description,
+            $due_date,
+            implode(',', $file_uploads),
+            implode(',', $image_uploads),
+            implode(',', $design_files)
+        );
+        header('Location: ' . BASE_URL . 'Views/projects/view_project.php?project_name=' . urlencode($project_name));
+        exit;
+    } catch (Exception $e) {
+        if (strpos($e->getMessage(), 'Duplicate entry') !== false) {
+            echo "<script>
+                alert('A project with this name already exists. Please choose a different name.');
+                window.location.href = '" . BASE_URL . "Views/projects/add_project.php';
+            </script>";
+        } else {
+            echo 'Failed to add project: ', $e->getMessage();
+        }
+    }
+} else {
+    header('Location: ' . BASE_URL . 'Views/projects/add_project.php');
+    exit();
+}
+?>

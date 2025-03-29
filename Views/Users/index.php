@@ -1,25 +1,73 @@
-<?php include __DIR__ . '/../header.php'; ?>
+<?php 
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Use $_SERVER['DOCUMENT_ROOT'] for config.php
+require_once BASE_PATH . 'Models/Database.php'; // Include the Database class
+include BASE_PATH . 'Views/header.php'; 
+
+use MyApp\Models\Database;
+
+$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+$conn = $database->getConnection();
+
+if (!$conn) {
+    throw new Exception("Database connection failed.");
+}
+
+$name = '';
+$phone = '';
+$position = '';
+$user_type = '';
+$date_of_hire = '';
+
+// Handle search functionality
+if (isset($_GET['search_name'])) {
+    $search_name = $_GET['search_name'];
+    if ($conn) {
+        $stmt = $conn->prepare("SELECT * FROM users WHERE name LIKE :search_name LIMIT 1");
+        if (!$stmt) {
+            error_log("Prepared statement failed: " . $conn->errorInfo()[2]);
+            header("Location: index.php?error=An unexpected error occurred");
+            exit();
+        }
+        $stmt->bindValue(':search_name', '%' . $search_name . '%', PDO::PARAM_STR);
+        $stmt->execute();
+
+        if ($stmt->rowCount() > 0) {
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $name = htmlspecialchars($row['name']);
+            $phone = htmlspecialchars($row['phone']);
+            $position = htmlspecialchars($row['position']);
+            $user_type = htmlspecialchars($row['user_type']);
+            $date_of_hire = htmlspecialchars($row['date_of_hire']);
+        } else {
+            echo "<script>alert('No user found with that name.');</script>";
+        }
+    } else {
+        error_log("Database connection is null.");
+        header("Location: index.php?error=Database connection failed");
+        exit();
+    }
+}
+
+$conn = null; // Close the connection
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Profile</title>
-    <link rel="stylesheet" href="../../public/css/styles.css"> <!-- Corrected path -->
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Corrected path -->
 </head>
 <body>
     <div class="container">
         <h1>User Profile</h1>
-        <p>Update your profile and password here.</p>
-        <?php
-        // Ensure variables are defined
-        $name = $name ?? '';
-        $phone = $phone ?? '';
-        $position = $position ?? '';
-        $user_type = $user_type ?? '';
-        $date_of_hire = $date_of_hire ?? '';
-        ?>
-        <form action="../public/Users/profile.php" method="post"> <!-- Updated form action -->
+        <p>Search for a user and update their profile.</p>
+        <form action="" method="get">
+            <label for="search_name">Search by Name:</label>
+            <input type="text" id="search_name" name="search_name" placeholder="Enter user name">
+            <button type="submit" class="btn styled-btn">Search</button>
+        </form>
+        <form action="<?php echo BASE_URL; ?>Users/profile.php" method="post">
             <label for="name">Name:</label>
             <input type="text" id="name" name="name" value="<?php echo $name; ?>" required>
             <label for="phone">Phone:</label>
@@ -35,9 +83,9 @@
             <input type="date" id="date_of_hire" name="date_of_hire" value="<?php echo $date_of_hire; ?>" required>
             <label for="password">Password (leave blank to keep current password):</label>
             <input type="password" id="password" name="password">
-            <input type="submit" value="Update Profile">
+            <input type="submit" value="Update Profile" class="btn styled-btn">
         </form>
-        <a href="../main.php" class="button">Return to Main</a>
+        <a href="<?php echo BASE_URL; ?>views/main.php" class="btn styled-btn red">Return to Main</a>
     </div>
 </body>
 </html>

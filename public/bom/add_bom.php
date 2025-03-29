@@ -1,8 +1,8 @@
 <?php
-require_once __DIR__ . '/../../Globals/Config.php';
-require_once __DIR__ . '/../../Models/Database.php';
-require_once __DIR__ . '/../../Models/Bom.php';
-require_once __DIR__ . '/../../Controllers/BomController.php';
+require_once BASE_PATH . '/Globals/Config.php';
+require_once BASE_PATH . '/Models/Database.php';
+require_once BASE_PATH . '/Models/Bom.php';
+require_once BASE_PATH . '/Controllers/BomController.php';
 
 use MyApp\Controllers\BomController;
 use MyApp\Models\Database;

@@ -1,13 +1,59 @@
+<?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
+require_once BASE_PATH . '/Models/Database.php';
+require_once BASE_PATH . '/Controllers/MaterialController.php';
+
+use MyApp\Controllers\MaterialController;
+use MyApp\Models\Database;
+
+$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME); // Updated initialization
+$controller = new MaterialController($database);
+
+$material_name = isset($_GET['material_name']) ? $_GET['material_name'] : null;
+
+if ($material_name) {
+    $material = $controller->getMaterialByName($material_name);
+    $types = $controller->getDistinctTypes();
+    $vendors = $controller->getAllVendors();
+} else {
+    echo "No material name provided.";
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $success = $controller->updateMaterialByName(
+        $_POST['material_name'] ?? null,
+        $_POST['length'] ?? null,
+        $_POST['width'] ?? null,
+        $_POST['thickness'] ?? null,
+        $_POST['price'] ?? null,
+        $_POST['quantity_on_hand'] ?? null,
+        $_POST['type'] ?? null,
+        $_POST['vendor'] ?? null,
+        $_POST['item_no'] ?? null,
+        $_POST['item_url'] ?? null,
+        $_POST['image_url'] ?? null
+    );
+    if ($success) {
+        echo "<script>alert('Material updated successfully.'); window.location.href='../../public/materials/list_materials.php';</script>";
+    } else {
+        error_log("Failed to update material with name: " . $_POST['material_name']);
+        echo "<script>alert('Failed to update material.');</script>";
+    }
+    exit;
+}
+
+$controller->closeConnection();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Material</title>
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Updated to use BASE_URL -->
     <style>
         select {
-            width: 80px;
             padding: 10px;
             font-size: 16px;
             text-align: center;
@@ -21,84 +67,27 @@
             width: 100%;
             max-width: 600px;
         }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
-    <?php 
-    error_reporting(E_ALL);
-    ini_set('display_errors', 1);
-    include '../../Views/header.php'; 
-    ?>
+    <?php include BASE_PATH . '/Views/header.php'; ?>
     <div class="container">
-        <div class="button-container">
-            <form action="../../Views/materials/update_material.php" method="post">
-                <input type="hidden" name="id" value="<?php echo htmlspecialchars($_GET['id']); ?>">
-                <input type="submit" value="Update Material" class="btn styled-btn">
-            </form>
-            <a href="javascript:history.back()" class="btn styled-btn">Cancel</a>
-        </div>
         <h1>Edit Material</h1>
-        <?php
-        error_reporting(E_ALL);
-        ini_set('display_errors', 1);
-
-        require_once __DIR__ . '/../../Globals/Config.php';
-        require_once __DIR__ . '/../../Models/Database.php';
-        require_once __DIR__ . '/../../Controllers/MaterialController.php';
-
-        use MyApp\Controllers\MaterialController;
-        use MyApp\Models\Database;
-        use Globals\Config;
-
-        $database = new Database(Config::DB_HOST, Config::DB_NAME, Config::DB_USER, Config::DB_PASS);
-        $controller = new MaterialController($database);
-
-        $id = isset($_GET['id']) ? $_GET['id'] : null;
-
-        if ($id) {
-            $material = $controller->getMaterialById($id);
-            if ($material) {
-                $types = $controller->getDistinctTypes();
-                $vendors = $controller->getAllVendors();
-            } else {
-                echo "<p>Material not found.</p>";
-                exit;
-            }
-        } else {
-            echo "<p>No material ID provided.</p>";
-            exit;
-        }
-
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $success = $controller->updateMaterial(
-                $_POST['id'] ?? null,
-                $_POST['material_name'] ?? null,
-                $_POST['length'] ?? null,
-                $_POST['width'] ?? null,
-                $_POST['thickness'] ?? null,
-                $_POST['price'] ?? null,
-                $_POST['quantity_on_hand'] ?? null,
-                $_POST['type'] ?? null,
-                $_POST['vendor'] ?? null,
-                $_POST['item_no'] ?? null,
-                $_POST['item_url'] ?? null,
-                $_POST['image_url'] ?? null
-            );
-            if ($success) {
-                echo "<script>alert('Material updated successfully.'); window.location.href='../../Views/materials/index.php';</script>";
-            } else {
-                error_log("Failed to update material with ID: " . $_POST['id']);
-                echo "<script>alert('Failed to update material.');</script>";
-            }
-            exit;
-        }
-
-        include __DIR__ . '/../../Views/materials/edit_material.php';
-        ?>
         <?php if (isset($material) && $material): ?>
             <div class="form-container">
                 <form action="" method="post">
-                    <input type="hidden" name="id" value="<?php echo htmlspecialchars($material['id']); ?>">
+                    <div class="button-container">
+                        <input type="submit" value="Update Material" class="btn styled-btn">
+                        <a href="javascript:history.back()" class="btn styled-btn">Cancel</a>
+                    </div>
+                    <input type="hidden" name="material_name" value="<?php echo htmlspecialchars($material['material_name']); ?>">
                     <label for="material_name">Material Name:</label>
                     <input type="text" name="material_name" value="<?php echo htmlspecialchars($material['material_name']); ?>" required>
                     <label for="length">Length:</label>
@@ -112,15 +101,15 @@
                     <label for="quantity_on_hand">Quantity on Hand:</label>
                     <input type="text" name="quantity_on_hand" value="<?php echo htmlspecialchars($material['Quantity_on_Hand']); ?>">
                     <label for="type">Type:</label>
-                    <select name="type">
+                    <select name="type" style="width: auto;">
                         <?php foreach ($types as $type): ?>
-                            <option value="<?php echo htmlspecialchars($type); ?>" <?php echo $type == $material['type'] ? 'selected' : ''; ?>>
-                                <?php echo htmlspecialchars($type); ?>
+                            <option value="<?php echo htmlspecialchars($type['type_name']); ?>" <?php echo $type['type_name'] == $material['type'] ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($type['type_name']); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
                     <label for="vendor">Vendor Name:</label>
-                    <select name="vendor">
+                    <select name="vendor" style="width: auto;">
                         <?php foreach ($vendors as $vendor): ?>
                             <option value="<?php echo htmlspecialchars($vendor['id']); ?>" <?php echo $vendor['id'] == $material['vendor'] ? 'selected' : ''; ?>>
                                 <?php echo htmlspecialchars($vendor['vendor']); ?>
@@ -133,9 +122,10 @@
                     <input type="text" name="item_url" value="<?php echo htmlspecialchars($material['item_url']); ?>">
                     <label for="image_url">Image URL:</label>
                     <input type="text" name="image_url" value="<?php echo htmlspecialchars($material['image_url']); ?>">
-                    <input type="submit" value="Update Material" class="btn styled-btn">
                 </form>
             </div>
+        <?php else: ?>
+            <p>Material not found.</p>
         <?php endif; ?>
     </div>
 </body>

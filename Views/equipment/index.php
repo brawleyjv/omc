@@ -1,15 +1,20 @@
+<?php
+require_once __DIR__ . '/../../config.php'; // Corrected path to config.php
+require_once BASE_PATH . '/Views/header.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Equipment Management</title>
-    <link rel="stylesheet" href="..//public/css/">
+    <title>Equipment</title>
+    <link rel="stylesheet" href="/styles.css"> <!-- Updated path to root CSS file -->
 </head>
 <body>
     <div class="container">
-        <h1>Equipment Management</h1>
+        <h1>Equipment</h1>
         <p>Manage your equipment here.</p>
+        <a href="<?php echo BASE_URL; ?>views/main.php" class="btn styled-btn">Return to Main</a> <!-- Updated to use BASE_URL -->
     </div>
 </body>
 </html>

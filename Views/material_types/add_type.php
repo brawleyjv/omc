@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Material Type</title>
-    <link rel="stylesheet" href="/OMC/public/css/styles.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>public/css/styles.css">
 </head>
 <body>
-    <?php include '../../Views/header.php'; ?>
+    <?php include BASE_PATH . '/Views/header.php'; ?>
     <h1 class="title">Add Material Type</h1>
-    <form action="../../public/material_types/add_type.php" method="post">
+    <form action="<?php echo BASE_URL; ?>public/material_types/add_type.php" method="post">
         <div class="form-group">
             <label for="type_name">Type Name:</label>
             <input type="text" id="type_name" name="type_name" required>

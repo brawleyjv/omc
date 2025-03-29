@@ -1,24 +1,28 @@
 <?php
-require_once '../../controllers/MaterialController.php';
-require_once '../../Globals/Config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
+require_once BASE_PATH . '/Models/Database.php'; // Added to include the Database class
+require_once BASE_PATH . '/Controllers/MaterialController.php'; // Include the MaterialController
 
 use MyApp\Controllers\MaterialController;
-use Globals\Config;
+use MyApp\Models\Database;
 
-$controller = new MaterialController();
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+// Pass the required argument to the MaterialController constructor
+$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME); // Updated initialization
+$materialController = new MaterialController($database);
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = [
         'name' => $_POST['name'],
         'description' => $_POST['description'],
         'quantity' => $_POST['quantity'],
         'price' => $_POST['price']
     ];
-    $result = $controller->createMaterial($data);
+    $result = $materialController->createMaterial($data);
     if ($result) {
         echo "<script>alert('Material added successfully.'); window.location.href = 'index.php';</script>";
     }
 } else {
-    include '../../views/materials/create_form.php'; // Updated the include path
+    include BASE_PATH . '/Views/materials/create_form.php';
 }
 ?>
 <!DOCTYPE html>
@@ -27,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Material</title>
-    <link rel="stylesheet" href="<?php echo Config::BASE_URL; ?>Public/css/styles.css"> <!-- Corrected the path to the CSS file -->
+    <link rel="stylesheet" href="/css/styles.css"> <!-- Updated path to styles.css -->
     <style>
         .title {
             text-align: center;
@@ -35,6 +39,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </style>
 </head>
 <body>
-    <?php include '../../views/header.php'; ?> <!-- Include the header file -->
+    <?php include BASE_PATH . '/Views/header.php'; ?>
 </body>
 </html>

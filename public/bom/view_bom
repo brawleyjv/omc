@@ -1,0 +1,6 @@
+<?php
+require_once BASE_PATH . '/Globals/Config.php';
+require_once BASE_PATH . '/Models/Database.php';
+
+// ...existing code...
+?>

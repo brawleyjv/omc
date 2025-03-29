@@ -1,5 +1,7 @@
 <?php
-include '../config.php';
+require_once __DIR__  . '/Config.php';
+require_once BASE_PATH . '/Models/Database.php';
+require_once BASE_PATH . '/Controllers/VendorController.php';
 
 $vendor = $_POST['vendor'];
 

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Vendor</title>
-    <link rel="stylesheet" href="../../public/css/styles.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>public/css/styles.css">
     <script>
         function submitForm(event) {
             event.preventDefault();
@@ -65,7 +65,8 @@
     </style>
 </head>
 <body>
-    <?php include '../../Views/header.php'; ?>
+    <?php include 
+__DIR__ . '/Views/header.php'; ?>
     <div class="container">
         <div class="button-container">
             <input type="submit" value="Submit" class="btn styled-btn" onclick="submitForm(event)">

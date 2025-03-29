@@ -1,5 +1,5 @@
 <?php
-// filepath: /c:/xampp/htdocs/OMC/public/materials/index.php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 ?>
@@ -9,7 +9,7 @@ error_reporting(E_ALL);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Materials Menu</title>
-    <link rel="stylesheet" href="../../public/css/styles.css">
+    <link rel="stylesheet" href="/css/styles.css"> <!-- Updated path to styles.css -->
     <style>
         .center-title {
             text-align: center;
@@ -26,15 +26,14 @@ error_reporting(E_ALL);
     </style>
 </head>
 <body>
-    <?php include '../../views/header.php'; ?>
+    <?php require_once BASE_PATH . '/Views/header.php'; ?>
     <div class="container">
     <h1 class="title">Ozark Made Project Management System</h1>
         <h1 class="title">Material Menu</h1>
         <div class="button-container">
-            <a href="add_material.php" class="btn styled-btn">Add Material</a>
-            <a href="search_materials.php" class="btn styled-btn">Search Material</a>
-            
-            <a href="list_materials.php" class="btn styled-btn">List Material</a>
-                </div>
+            <a href="<?php echo BASE_URL; ?>public/materials/add_material.php" class="btn styled-btn">Add Material</a>
+            <a href="<?php echo BASE_URL; ?>public/materials/search_materials.php" class="btn styled-btn">Search Material</a>
+            <a href="<?php echo BASE_URL; ?>public/materials/list_materials.php" class="btn styled-btn">List Material</a>
+        </div>
 </body>
 </html>

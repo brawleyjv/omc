@@ -1,8 +1,11 @@
 <?php
-require_once '../Controllers/LogoutController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Use $_SERVER['DOCUMENT_ROOT'] for config.php
 
-use Controllers\LogoutController;
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
-$logoutController = new LogoutController();
-$logoutController->logout();
-?>
+// Destroy the session and redirect to the login page
+session_destroy();
+header("Location: " . BASE_URL . "Views/Users/login.php"); // Corrected path
+exit();

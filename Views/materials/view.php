@@ -1,11 +1,15 @@
-<?php include '../header.php'; ?> <!-- Corrected the path to the header file in the views directory -->
+<?php
+require_once __DIR__ . '/Config.php';
+ // Updated path to config.php
+require_once BASE_PATH . '/Views/header.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Material</title>
-    <link rel="stylesheet" href="../../public/css/styles.css"> <!-- Corrected the path to the CSS file in the root directory -->
+    <link rel="stylesheet" href="/css/styles.css"> <!-- Updated path to styles.css -->
 </head>
 <body>
     <h1>View Material</h1>
@@ -20,6 +24,6 @@
     <p><strong>Item No:</strong> <?php echo htmlspecialchars($material['item_no']); ?></p>
     <p><strong>Item URL:</strong> <?php echo htmlspecialchars($material['item_url']); ?></p>
     <p><strong>Image URL:</strong> <?php echo htmlspecialchars($material['image_url']); ?></p>
-    <a href="../../public/materials/list.php" class="button">Back to List</a>
+    <a href="<?php echo BASE_URL; ?>public/materials/list.php" class="button">Back to List</a>
 </body>
 </html>

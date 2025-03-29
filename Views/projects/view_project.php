@@ -1,13 +1,12 @@
 <?php
-require_once __DIR__ . '/../../Globals/Config.php';
-require_once __DIR__ . '/../../Models/Database.php';
-require_once __DIR__ . '/../../Controllers/ProjectController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
+require_once BASE_PATH . '/Models/Database.php';
+require_once BASE_PATH . '/Controllers/ProjectController.php';
 
 use MyApp\Controllers\ProjectController;
 use MyApp\Models\Database;
-use Globals\Config;
 
-$database = new Database(Config::DB_HOST, Config::DB_NAME, Config::DB_USER, Config::DB_PASS);
+$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME); // Use correct config values
 $controller = new ProjectController($database);
 
 $search_term = isset($_GET['search_term']) ? $_GET['search_term'] : '';
@@ -24,7 +23,7 @@ if (!empty($search_term)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Project</title>
-    <link rel="stylesheet" href="../../public/css/styles.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>public/css/styles.css"> <!-- Corrected CSS path -->
     <style>
         .container {
             margin-top: 50px;
@@ -85,7 +84,7 @@ if (!empty($search_term)) {
     </style>
 </head>
 <body>
-    <?php include '../../Views/header.php'; ?>
+    <?php include $_SERVER['DOCUMENT_ROOT'] . '/Views/header.php'; ?> <!-- Corrected header path -->
     <div class="container">
         <div class="search-container">
             <form action="view_project.php" method="get">
@@ -100,7 +99,7 @@ if (!empty($search_term)) {
                     <?php if (!empty($project['image_upload'])): ?>
                         <?php
                         $image_upload = basename($project['image_upload']);
-                        $image_upload_path = "http://localhost/OMC/projects/project_files/{$project['project_name']}/{$image_upload}";
+                        $image_upload_path = "http://localhost/projects/project_files/{$project['project_name']}/{$image_upload}";
                         ?>
                         <img src="<?php echo $image_upload_path; ?>" alt="Project Image" class="project-image">
                     <?php endif; ?>
@@ -112,7 +111,7 @@ if (!empty($search_term)) {
                         $file_uploads = explode(',', $project['file_upload']);
                         foreach ($file_uploads as $file_upload) {
                             $file_upload = basename($file_upload);
-                            $file_upload_path = "http://localhost/OMC/projects/project_files/{$project['project_name']}/{$file_upload}";
+                            $file_upload_path = "http://localhost/projects/project_files/{$project['project_name']}/{$file_upload}";
                             echo "<li><a href='{$file_upload_path}' download>{$file_upload}</a></li>";
                         }
                         ?>
@@ -125,7 +124,7 @@ if (!empty($search_term)) {
                         $design_files = explode(',', $project['design_file']);
                         foreach ($design_files as $design_file) {
                             $design_file = basename($design_file);
-                            $design_file_path = "http://localhost/OMC/projects/project_files/{$project['project_name']}/{$design_file}";
+                            $design_file_path = "http://localhost/projects/project_files/{$project['project_name']}/{$design_file}";
                             echo "<li><a href='{$design_file_path}' download>{$design_file}</a></li>";
                         }
                         ?>
@@ -136,7 +135,7 @@ if (!empty($search_term)) {
             <p>Project not found.</p>
         <?php endif; ?>
         <div class="button-container">
-            <a href="ProjMain.php" class="btn styled-btn">Back to Main</a>
+            <a href="<?php echo BASE_URL; ?>Views/main.php" class="btn styled-btn">Back to Main</a>
         </div>
     </div>
 </body>

@@ -1,17 +1,17 @@
 <?php
-// filepath: /c:/xampp/htdocs/OMC/public/materials/add_material.php
+// filepath: /c:/xampp/htdocs/public/materials/add_material.php
 
-require_once __DIR__ . '/../../Globals/Config.php';
-require_once __DIR__ . '/../../Models/Database.php';
-require_once __DIR__ . '/../../Models/Material.php';
-require_once __DIR__ . '/../../Controllers/MaterialController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
+require_once BASE_PATH . '/Models/Database.php';
+require_once BASE_PATH . '/Models/Material.php';
+require_once BASE_PATH . '/Controllers/MaterialController.php';
 
 use MyApp\Controllers\MaterialController;
 use MyApp\Models\Database;
 use Globals\Config;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $database = new Database(Config::DB_HOST, Config::DB_NAME, Config::DB_USER, Config::DB_PASS);
+    $database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME); // Updated initialization
     $materialsController = new MaterialController($database);
 
     $data = [
@@ -42,9 +42,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data['image_url']
     );
 
-    header('Location: ../../Views/materials/index.php');
+    header('Location: ' . BASE_URL . 'Views/materials/index.php');
     exit;
 }
 
 include __DIR__ . '/../../views/materials/add_material.php';
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- ...existing code... -->
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Updated to use BASE_URL -->
+</head>
+<body>
+    <!-- ...existing code... -->
+</body>
+</html>

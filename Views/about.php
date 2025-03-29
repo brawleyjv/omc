@@ -1,10 +1,14 @@
+<?php
+require_once __DIR__ . '/config.php'; 
+// Use __DIR__ for includes
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Us</title>
-    <link rel="stylesheet" href="public\css\styles.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>public/css/styles.css">
 </head>
 <body>
 <?php include '../Views/header.php'; ?>
@@ -15,7 +19,7 @@
         <p>Ozark Made Crafts is an ambition of Jack, his wife Kathie, his brother Tim, and Tim's wife Angie. Each of them plays a crucial role in the success of OMC. This program aims to help keep the team organized and achieve the success they are striving for.</p>
         <p>We hope this program serves you well in managing your business and contributes to your success.</p>
     </div>
-    <script src="/public/js/scripts.js"></script>
+    <script src="<?php echo BASE_URL; ?>public/js/scripts.js"></script>
 </body>
 </html>
 

@@ -1,13 +1,23 @@
 <?php
-require_once __DIR__ . '/../Globals/Config.php';
-require_once __DIR__ . '/../Models/Database.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Use $_SERVER['DOCUMENT_ROOT'] for config.php
+require_once BASE_PATH . 'Models/Database.php'; // Use BASE_PATH for dynamic path resolution
 
 use MyApp\Models\Database;
-use Globals\Config;
+
+// Start the session if not already started
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Check if the user is logged in
+//if (!isset($_SESSION['user_id'])) {
+    // Redirect to login page if not logged in
+   // header("Location: " . BASE_URL . "Views/settings.php");
+    //exit();
+//}
 
 // Establish database connection
-$database = new Database(Config::DB_HOST, Config::DB_NAME, Config::DB_USER, Config::DB_PASS);
-$conn = $database->getConnection();
+$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);$conn = $database->getConnection();
 
 // Fetch existing setup values
 $query = "SELECT * FROM setup LIMIT 1";
@@ -76,10 +86,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Setup</title>
-    <link rel="stylesheet" href="/OMC/public/css/styles.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Corrected path -->
 </head>
 <body>
-    <?php include '../Views/header.php'; ?>
+    <?php include BASE_PATH . 'Views/header.php'; ?> <!-- Use BASE_PATH -->
     <div class="container">
         <h1 class="title">Setup</h1>
         <form action="setup.php" method="post">
@@ -115,7 +125,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label for="packaging_rate">Packaging Rate:</label>
                 <input type="text" id="packaging_rate" name="packaging_rate" value="<?php echo htmlspecialchars($packaging_rate); ?>">
             </div>
-            <button type="submit" class="btn styled-btn">Update</button>
+            <div class="button-container">
+                <button type="submit" class="btn styled-btn">Save Changes</button>
+                <button type="button" class="btn styled-btn red" onclick="window.location.href='<?php echo BASE_URL; ?>index.php'">Close</button>
+            </div>
         </form>
     </div>
 </body>

@@ -1,6 +1,9 @@
 <?php
-
 namespace MyApp\Controllers;
+
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
+require_once BASE_PATH . '/Models/Database.php';
+require_once BASE_PATH . '/Models/Bom.php';
 
 use MyApp\Models\Database;
 use MyApp\Models\Bom;
@@ -29,7 +32,7 @@ class BomController {
             $this->bom->addBom($project_name, $material_name, $length, $width, $thickness, $quantity);
         }
 
-        header("Location: /OMC/Views/estimate/add_estimate.php?project_name=$project_name");
+        header("Location: /Views/estimate/add_estimate.php?project_name=$project_name");
         exit();
     }
 

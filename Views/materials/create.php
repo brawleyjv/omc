@@ -1,11 +1,14 @@
-<?php include __DIR__ . '/../header.php'; ?> <!-- Corrected the path to the header file -->
+<?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
+require_once BASE_PATH . '/Views/header.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Material</title>
-    <link rel="stylesheet" href="../../public/css/styles.css"> <!-- Corrected the path to the CSS file in the root directory -->
+    <link rel="stylesheet" href="/css/styles.css"> <!-- Updated path to styles.css -->
     <style>
         .title {
             text-align: center;

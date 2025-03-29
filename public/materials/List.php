@@ -1,16 +1,21 @@
 <?php
-include '../header.php';
-include '../config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
+require_once BASE_PATH . '/Models/Database.php'; // Ensure Database class is included
 
-$connection = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+use MyApp\Models\Database; // Import Database class
+
+$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME); // Updated initialization
+$connection = $database->getConnection(); // Assuming getConnection() returns a PDO instance
 
 if (!$connection) {
-    die("Connection failed: " . mysqli_connect_error());
+    die("Connection failed.");
 }
 
 $sql = "SELECT materials.*, vendors.Vendor AS vendor_name FROM materials 
         LEFT JOIN vendors ON materials.vendor = vendors.Vendor_ID";
-$result = mysqli_query($connection, $sql);
+$stmt = $connection->prepare($sql); // Use PDO's prepare method
+$stmt->execute(); // Execute the query
+$result = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all results as an associative array
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -18,7 +23,7 @@ $result = mysqli_query($connection, $sql);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>List of Materials</title>
-    <link rel="stylesheet" href="..//public/css/">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Updated to use BASE_URL -->
     <style>
         .container {
             width: 100%;
@@ -80,7 +85,7 @@ $result = mysqli_query($connection, $sql);
     <div class="container">
         <div class="action-buttons">
             <button class="print-button" onclick="window.print()">Print</button>
-            <button class="close-button" onclick="window.location.href='index.php'">Close</button>
+            <button class="close-button" onclick="window.location.href='<?php echo BASE_URL; ?>public/materials/index.php'">Close</button>
         </div>
         <h1>List of Materials</h1>
         <table>
@@ -100,19 +105,19 @@ $result = mysqli_query($connection, $sql);
             </thead>
             <tbody>
                 <?php
-                if (mysqli_num_rows($result) > 0) {
-                    while($row = mysqli_fetch_assoc($result)) {
+                if (!empty($result)) {
+                    foreach ($result as $row) {
                         echo "<tr>
-                                <td>" . (isset($row['Item_no']) ? $row['Item_no'] : '') . "</td>
-                                <td>" . (isset($row['Description']) ? $row['Description'] : '') . "</td>
-                                <td>" . (isset($row['Length']) ? $row['Length'] : '') . "</td>
-                                <td>" . (isset($row['Width']) ? $row['Width'] : '') . "</td>
-                                <td>" . (isset($row['Thickness']) ? $row['Thickness'] : '') . "</td>
-                                <td>" . (isset($row['Price']) ? $row['Price'] : '') . "</td>
-                                <td>" . (isset($row['Quantity_on_Hand']) ? $row['Quantity_on_Hand'] : '') . "</td>
-                                <td>" . (isset($row['vendor_name']) ? $row['vendor_name'] : '') . "</td>
-                                <td>" . (isset($row['type']) ? $row['type'] : '') . "</td>
-                                <td><a href='material.php?material_id=" . $row['id'] . "' class='open-button'>Open</a></td>
+                                <td>" . htmlspecialchars($row['Item_no'] ?? '') . "</td>
+                                <td>" . htmlspecialchars($row['Description'] ?? '') . "</td>
+                                <td>" . htmlspecialchars($row['Length'] ?? '') . "</td>
+                                <td>" . htmlspecialchars($row['Width'] ?? '') . "</td>
+                                <td>" . htmlspecialchars($row['Thickness'] ?? '') . "</td>
+                                <td>" . htmlspecialchars($row['Price'] ?? '') . "</td>
+                                <td>" . htmlspecialchars($row['Quantity_on_Hand'] ?? '') . "</td>
+                                <td>" . htmlspecialchars($row['vendor_name'] ?? '') . "</td>
+                                <td>" . htmlspecialchars($row['type'] ?? '') . "</td>
+                                <td><a href='" . BASE_URL . "public/materials/material.php?material_id=" . htmlspecialchars($row['id'] ?? '') . "' class='open-button'>Open</a></td>
                               </tr>";
                     }
                 } else {
@@ -125,5 +130,5 @@ $result = mysqli_query($connection, $sql);
 </body>
 </html>
 <?php
-mysqli_close($connection);
+// No need to close the PDO connection explicitly; it will close automatically when the script ends.
 ?>

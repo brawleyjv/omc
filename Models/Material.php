@@ -1,15 +1,22 @@
 <?php
-// filepath: /c:/xampp/htdocs/OMC/Models/Material.php
+// filepath: /c:/xampp/htdocs/Models/Material.php
 
 namespace MyApp\Models;
+
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
 
 use PDO;
 
 class Material {
     private $db;
 
-    public function __construct(Database $database) {
+    public function __construct() {
+        $database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME); // Updated initialization
         $this->db = $database->getConnection();
+
+        if (!$this->db) {
+            throw new \Exception("Database connection failed.");
+        }
     }
 
     public static function getById($conn, $material_id) {
@@ -87,8 +94,8 @@ class Material {
 
     public static function fetchAll(Database $database) {
         $conn = $database->getConnection();
-        if ($conn === null) {
-            throw new \Exception("Database connection failed.");
+        if (!$conn) {
+            throw new \Exception("Database connection is null.");
         }
         $query = "SELECT materials.id, materials.material_name, materials.Length, materials.Width, materials.Thickness, materials.Price, materials.Quantity_on_Hand, materials.type, vendors.vendor AS vendor_name, materials.Item_no, materials.item_url, materials.image_url 
                   FROM materials 
@@ -100,6 +107,9 @@ class Material {
     }
 
     public function getPriceById($material_id) {
+        if (!$this->db) {
+            throw new \Exception("Database connection is null.");
+        }
         $stmt = $this->db->prepare("SELECT price FROM materials WHERE id = ?");
         $stmt->execute([$material_id]);
         $result = $stmt->fetch();

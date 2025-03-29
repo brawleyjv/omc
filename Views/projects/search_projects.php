@@ -1,14 +1,13 @@
 <?php
-require_once __DIR__ . '/../../Globals/Config.php';
-require_once __DIR__ . '/../../Models/Database.php';
-require_once __DIR__ . '/../../Models/Project.php';
-require_once __DIR__ . '/../../Controllers/ProjectController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
+require_once BASE_PATH . '/Models/Database.php';
+require_once BASE_PATH . '/Controllers/ProjectController.php';
 
 use MyApp\Models\Database;
 use MyApp\Controllers\ProjectController;
 
 // Ensure Database is instantiated with required arguments
-$database = new Database(DB_HOST, DB_NAME, DB_USER, DB_PASS);
+$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 $projectsController = new ProjectController($database);
 
 $search_term = isset($_GET['search_term']) ? $_GET['search_term'] : '';
@@ -29,7 +28,7 @@ if (!empty($search_term)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search Projects</title>
-    <link rel="stylesheet" href="../../public/css/styles.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>public/css/styles.css"> <!-- Corrected CSS path -->
     <style>
         .close-button {
             position: absolute;
@@ -149,13 +148,12 @@ if (!empty($search_term)) {
     </script>
 </head>
 <body>
-    <?php include '../../Views/header.php'; ?>
+    <?php include $_SERVER['DOCUMENT_ROOT'] . '/Views/header.php'; ?> <!-- Corrected header path -->
     <h1 class="center-title">Search Projects</h1>
     <form action="search_projects.php" method="get" style="text-align: center;" onsubmit="return validateSearchForm()">
         <input type="text" name="search_term" placeholder="Search for projects" value="<?php echo htmlspecialchars($search_term); ?>">
         <div style="display: inline-block; margin-top: 20px;">
             <button type="submit" class="btn styled-btn" style="margin-right: 20px;">Search</button>
-            <button type="button" class="btn styled-btn" onclick="promptEdit()" style="margin-right: 20px;">Edit Project</button>
             <button type="button" class="btn styled-btn" onclick="window.location.href='projmain.php'">Cancel</button>
         </div>
     </form>
@@ -174,6 +172,7 @@ if (!empty($search_term)) {
                     <th>Machine File</th>
                     <th>Project Image</th>
                     <th>Due Date</th>
+                    <th>Actions</th> <!-- Add Actions column -->
                 </tr>
             </thead>
             <tbody>
@@ -192,7 +191,7 @@ if (!empty($search_term)) {
                                 $file_uploads = explode(',', $row['file_upload']);
                                 foreach ($file_uploads as $file_upload) {
                                     $file_upload_label = pathinfo($file_upload, PATHINFO_FILENAME);
-                                    $file_upload_path = "http://localhost/OMC/projects/project_files/{$row['project_name']}/{$file_upload}";
+                                    $file_upload_path = "http://localhost/projects/project_files/{$row['project_name']}/{$file_upload}";
                                     echo "<a href='{$file_upload_path}' download>{$file_upload_label}</a><br>";
                                 }
                                 ?>
@@ -204,13 +203,21 @@ if (!empty($search_term)) {
                                 $image_uploads = explode(',', $row['image_upload']);
                                 $first_image_upload = $image_uploads[0];
                                 $image_upload_paths = array_map(function($image) use ($row) {
-                                    return "http://localhost/OMC/projects/project_files/{$row['project_name']}/{$image}";
+                                    return "http://localhost/projects/project_files/{$row['project_name']}/{$image}";
                                 }, $image_uploads);
                                 echo "<a href='javascript:void(0);' onclick='openImage(\"{$image_upload_paths[0]}\")'><img src='{$image_upload_paths[0]}' alt='Project Image' class='thumbnail'></a>";
                                 ?>
                             <?php endif; ?>
                         </td>
                         <td><?php echo htmlspecialchars($row['due_date']); ?></td>
+                        <td>
+                            <!-- Add Edit and Delete buttons -->
+                            <a href="<?php echo BASE_URL; ?>Views/projects/edit_project.php?project_name=<?php echo urlencode($row['project_name']); ?>" class="btn styled-btn white">Edit</a>
+                            <form action="<?php echo BASE_URL; ?>public/projects/list_projects.php" method="post" onsubmit="return confirm('Are you sure you want to delete this project?');" style="display:inline;">
+                                <input type="hidden" name="delete_project_name" value="<?php echo htmlspecialchars($row['project_name']); ?>">
+                                <input type="submit" class="btn styled-btn red" value="Delete">
+                            </form>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>

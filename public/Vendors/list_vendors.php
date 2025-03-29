@@ -1,5 +1,7 @@
 <?php
-include '../../controllers/VendorController.php';
+require_once __DIR__ . '/Config.php';
+require_once BASE_PATH . '/Models/Database.php';
+require_once BASE_PATH . '/Controllers/VendorController.php';
 
 $vendorController = new VendorController();
 
@@ -13,5 +15,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_vendor_id'])) 
 $vendors = $vendorController->getVendors();
 
 // Pass data to the view
-include '../../Views/vendors/list_vendors.php';
+include BASE_PATH . '/Views/vendors/list_vendors.php';
 ?>

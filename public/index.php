@@ -1,7 +1,7 @@
 <?php
-require_once __DIR__ . '/../Globals/Config.php';
-require_once __DIR__ . '/../Models/Database.php';
-require_once __DIR__ . '/../Controllers/ProjectController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Use $_SERVER['DOCUMENT_ROOT'] for config.php
+require_once BASE_PATH . 'Models/Database.php';
+require_once BASE_PATH . 'Controllers/ProjectController.php';
 
 use MyApp\Controllers\ProjectController;
 use MyApp\Models\Database;
@@ -9,6 +9,14 @@ use Globals\Config;
 
 // Ensure Database is instantiated with required arguments
 $database = new Database(Config::DB_HOST, Config::DB_USER, Config::DB_PASS, Config::DB_NAME);
+
+// Access the connection using the public method
+$conn = $database->getConnection(); // Use getConnection instead of connect
+
+// Example usage of getter methods if needed
+$host = $database->getHost();
+$user = $database->getUser();
+
 $controller = new ProjectController($database);
 
 $results = $controller->listProjects();
@@ -21,7 +29,7 @@ $results = $controller->listProjects();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
-    <link rel="stylesheet" href="../../public/css/styles.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Corrected path -->
 </head>
 <body>
     <h1>Home</h1>

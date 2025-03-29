@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Material</title>
-    <link rel="stylesheet" href="../../public/css/styles.css">
+    <link rel="stylesheet" href="/css/styles.css">
     <style>
         .center-title {
             text-align: center;
@@ -60,14 +60,17 @@
     </style>
 </head>
 <body>
-    <?php include '../../views/header.php'; ?>
+    <?php
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
+    require_once BASE_PATH . '/Views/header.php';
+    ?>
     <h1 class="center-title">Add New Material</h1>
     <div class="button-container">
         <button class="btn styled-btn" onclick="document.getElementById('add-material-form').submit();">Add Material</button>
-        <button class="btn styled-btn" onclick="window.location.href='index.php'" style="margin-left: 10px; background-color: red; color: white;">Close</button>
+        <button class="btn styled-btn" onclick="window.location.href='<?php echo BASE_URL; ?>Views/materials/index.php'" style="margin-left: 10px; background-color: red; color: white;">Close</button>
     </div>
     <div class="form-container">
-        <form id="add-material-form" action="../../public/materials/add_material.php" method="post">
+        <form id="add-material-form" action="<?php echo BASE_URL; ?>public/materials/add_material.php" method="post">
             <div class="form-group">
                 <label for="material_name">Material Name</label>
                 <input type="text" id="material_name" name="material_name" required>

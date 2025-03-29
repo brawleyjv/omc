@@ -1,10 +1,13 @@
+<?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search Results</title>
-    <link rel="stylesheet" href="../../public/css/styles.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css">
     <style>
         .close-button {
             position: absolute;
@@ -24,26 +27,14 @@
         function clearResults() {
             document.getElementById('results').innerHTML = '';
         }
-
-        function confirmEdit(materialId) {
-            if (confirm('Do you want to edit the material with ID ' + materialId + '?')) {
-                window.location.href = 'edit.php?material_id=' + materialId;
-            }
-        }
-
-        window.onload = function() {
-            if (<?php echo json_encode($noResults); ?>) {
-                alert('No materials found.');
-            }
-        }
     </script>
 </head>
 <body>
-    <?php include '../../views/header.php'; ?>
-    <button class="close-button" onclick="window.location.href='search_materials.php'">Close</button>
+    <?php include BASE_PATH . '/Views/header.php'; ?>
+    <button class="close-button" onclick="window.location.href='<?php echo BASE_URL; ?>public/materials/search_materials.php'">Close</button>
     <h1 class="center-title">Search Results</h1>
-    <form action="../../public/materials/search_results.php" method="get" style="text-align: center;">
-        <input type="text" name="search_term" placeholder="Search for material" value="<?php echo htmlspecialchars($search_term); ?>">
+    <form action="<?php echo BASE_URL; ?>public/materials/search_results.php" method="get" style="text-align: center;">
+        <input type="text" name="search_term" placeholder="Search for material" value="<?php echo htmlspecialchars($searchTerm); ?>">
         <button type="submit">Search</button>
     </form>
     <div id="results">
@@ -51,8 +42,7 @@
             <table>
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Description</th>
+                        <th>Material Name</th>
                         <th>Length</th>
                         <th>Width</th>
                         <th>Thickness</th>
@@ -69,8 +59,7 @@
                 <tbody>
                     <?php foreach ($results as $row): ?>
                         <tr>
-                            <td><?php echo htmlspecialchars($row['id']); ?></td>
-                            <td><?php echo htmlspecialchars($row['Description']); ?></td>
+                            <td><?php echo htmlspecialchars($row['material_name']); ?></td>
                             <td><?php echo htmlspecialchars($row['Length']); ?></td>
                             <td><?php echo htmlspecialchars($row['Width']); ?></td>
                             <td><?php echo htmlspecialchars($row['Thickness']); ?></td>
@@ -81,7 +70,22 @@
                             <td><?php echo htmlspecialchars($row['Item_no']); ?></td>
                             <td><a href="<?php echo htmlspecialchars($row['item_url']); ?>" target="_blank">Link</a></td>
                             <td><a href="<?php echo htmlspecialchars($row['image_url']); ?>" target="_blank">Link</a></td>
-                            <td><button onclick="confirmEdit(<?php echo $row['id']; ?>)">Edit</button></td>
+                            <td>
+                                <form action="<?php echo BASE_URL; ?>Views/materials/edit_material.php" method="get">
+                                    <input type="hidden" name="material_name" value="<?php echo htmlspecialchars($row['material_name']); ?>">
+                                    <input type="hidden" name="length" value="<?php echo htmlspecialchars($row['Length']); ?>">
+                                    <input type="hidden" name="width" value="<?php echo htmlspecialchars($row['Width']); ?>">
+                                    <input type="hidden" name="thickness" value="<?php echo htmlspecialchars($row['Thickness']); ?>">
+                                    <input type="hidden" name="price" value="<?php echo htmlspecialchars($row['Price']); ?>">
+                                    <input type="hidden" name="quantity_on_hand" value="<?php echo htmlspecialchars($row['Quantity_on_Hand']); ?>">
+                                    <input type="hidden" name="type" value="<?php echo htmlspecialchars($row['type']); ?>">
+                                    <input type="hidden" name="vendor" value="<?php echo htmlspecialchars($row['vendor_name']); ?>">
+                                    <input type="hidden" name="item_no" value="<?php echo htmlspecialchars($row['Item_no']); ?>">
+                                    <input type="hidden" name="item_url" value="<?php echo htmlspecialchars($row['item_url']); ?>">
+                                    <input type="hidden" name="image_url" value="<?php echo htmlspecialchars($row['image_url']); ?>">
+                                    <button type="submit">Edit</button>
+                                </form>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>

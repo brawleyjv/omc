@@ -1,13 +1,12 @@
 <?php
 session_start();
-require_once __DIR__ . '/../../Globals/Config.php';
-require_once __DIR__ . '/../../Models/Database.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Use $_SERVER['DOCUMENT_ROOT'] for config.php
+require_once BASE_PATH . 'Models/Database.php';
 
 use MyApp\Models\Database;
-use Globals\Config;
 
-// Establish database connection
-$database = new Database(Config::DB_HOST, Config::DB_NAME, Config::DB_USER, Config::DB_PASS);
+// Establish database connection using the correct constructor
+$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 $conn = $database->getConnection();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -42,9 +41,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $_SESSION['username'] = $name;
         $conn = null; // Close the connection
-        header("Location: ../login.php"); // Redirect to login.php after successful registration
+        header("Location: " . BASE_URL . "Views/Users/login.php"); // Redirect to login.php after successful registration
         exit();
     }
 }
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Corrected path -->
+</head>
+<body>
+    <!-- ...existing code... -->
+</body>
+</html>
 

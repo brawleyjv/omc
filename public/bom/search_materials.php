@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../../Globals/Config.php';
-require_once __DIR__ . '/../../Models/Database.php';
+require_once BASE_PATH . '/Globals/Config.php';
+require_once BASE_PATH . '/Models/Database.php';
 
 use MyApp\Models\Database;
 use Globals\Config;

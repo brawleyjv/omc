@@ -1,27 +1,45 @@
 <?php
-// filepath: /c:/xampp/htdocs/OMC/public/projects/search_projects.php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
+require_once BASE_PATH . '/Models/Database.php';
+require_once BASE_PATH . '/Controllers/ProjectController.php';
 
-require_once __DIR__ . '/../../Globals/Config.php';
-require_once __DIR__ . '/../../Models/Database.php';
-require_once __DIR__ . '/../../Controllers/ProjectController.php';
 use MyApp\Models\Database;
 use MyApp\Controllers\ProjectController;
 
-// Ensure Database is instantiated with required arguments
-$database = new Database(DB_HOST, DB_NAME, DB_USER, DB_PASS);
-$projectsController = new ProjectController($database);
+// Instantiate the Database class with required arguments
+$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME); // Ensure required arguments are passed
+$projectController = new ProjectController($database);
 
-$search_term = isset($_GET['search_term']) ? $_GET['search_term'] : '';
+$searchTerm = $_GET['search_term'] ?? '';
 
-$results = [];
-$noResults = false;
-if (!empty($search_term)) {
-    // Ensure searchProjects method exists in ProjectController
-    $results = $projectsController->searchProjects($search_term);
-    if (empty($results)) {
-        $noResults = true;
-    }
+$projects = [];
+if (!empty($searchTerm)) {
+    $projects = $projectController->searchProjects($searchTerm);
 }
-
-include __DIR__ . '/../../Views/projects/search_projects.php';
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Projects</title>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Updated to use BASE_URL -->
+</head>
+<body>
+    <?php include BASE_PATH . '/Views/header.php'; ?>
+    <h1>Search Projects</h1>
+    <form action="<?php echo BASE_URL; ?>public/projects/search_projects.php" method="get"></form>
+        <input type="text" name="search_term" placeholder="Search for a project" value="<?php echo htmlspecialchars($searchTerm); ?>">
+        <button type="submit">Search</button>
+    </form>
+    <?php if (!empty($projects)): ?>
+        <ul>
+            <?php foreach ($projects as $project): ?>
+                <li><?php echo htmlspecialchars($project['project_name']); ?></li>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <li>No projects found.</li>
+        <?php endif; ?>
+    </ul>
+</body>
+</html>

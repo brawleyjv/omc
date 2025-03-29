@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add BOM</title>
-    <link rel="stylesheet" href="/OMC/public/css/styles.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>public/css/styles.css">
     <style>
         .container {
             display: flex;
@@ -168,7 +168,7 @@
     </script>
 </head>
 <body>
-    <?php include '../../Views/header.php'; ?>
+    <?php include BASE_PATH . '/Views/header.php'; ?>
     <h1 class="title">Add Bill of Materials</h1>
     <div class="container">
         <div class="column">

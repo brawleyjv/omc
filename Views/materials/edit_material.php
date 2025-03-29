@@ -1,53 +1,61 @@
 <?php
-// filepath: /c:/xampp/htdocs/OMC/Views/materials/edit.php
-
-require_once __DIR__ . '/../../Globals/Config.php';
-require_once __DIR__ . '/../../Models/Database.php';
-require_once __DIR__ . '/../../Controllers/MaterialController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
+require_once BASE_PATH . '/Models/Database.php';
+require_once BASE_PATH . '/Controllers/MaterialController.php';
 
 use MyApp\Controllers\MaterialController;
 use MyApp\Models\Database;
-use Globals\Config;
 
-$database = new Database(Config::DB_HOST, Config::DB_NAME, Config::DB_USER, Config::DB_PASS);
+$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 $controller = new MaterialController($database);
 
-$id = isset($_GET['id']) ? $_GET['id'] : null;
+$id = $_GET['id'] ?? null;
 
 if ($id) {
-    $material = $controller->getMaterialById($id);
-    $types = $controller->getDistinctTypes();
-    $vendors = $controller->getAllVendors();
+    $material = $controller->getMaterialById($id); // Fetch material data by ID
+    if ($material) {
+        $material_name = $material['material_name'];
+        $length = $material['Length'];
+        $width = $material['Width'];
+        $thickness = $material['Thickness'];
+        $price = $material['Price'];
+        $quantity_on_hand = $material['Quantity_on_Hand'];
+        $type = $material['type'];
+        $vendor = $material['vendor_name'];
+        $item_no = $material['Item_no'];
+        $item_url = $material['item_url'];
+        $image_url = $material['image_url'];
+    } else {
+        echo "<script>alert('Material not found.'); window.location.href='" . BASE_URL . "public/materials/list_materials.php';</script>";
+        exit;
+    }
 } else {
-    echo "No material ID provided.";
+    echo "<script>alert('No material ID provided.'); window.location.href='" . BASE_URL . "public/materials/list_materials.php';</script>";
     exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $success = $controller->updateMaterial(
-        $_POST['id'] ?? null,
-        $_POST['material_name'] ?? null,
-        $_POST['length'] ?? null,
-        $_POST['width'] ?? null,
-        $_POST['thickness'] ?? null,
-        $_POST['price'] ?? null,
-        $_POST['quantity_on_hand'] ?? null,
-        $_POST['type'] ?? null,
-        $_POST['vendor'] ?? null,
-        $_POST['item_no'] ?? null,
-        $_POST['item_url'] ?? null,
-        $_POST['image_url'] ?? null
+    $success = $controller->updateMaterialByName(
+        $_POST['material_name'],
+        $_POST['length'],
+        $_POST['width'],
+        $_POST['thickness'],
+        $_POST['price'],
+        $_POST['quantity_on_hand'],
+        $_POST['type'],
+        $_POST['vendor'],
+        $_POST['item_no'],
+        $_POST['item_url'],
+        $_POST['image_url']
     );
+
     if ($success) {
-        echo "<script>alert('Material updated successfully.'); window.location.href='../../public/materials/list_materials.php';</script>";
+        echo "<script>alert('Material updated successfully.'); window.location.href='" . BASE_URL . "public/materials/list_materials.php';</script>";
     } else {
-        error_log("Failed to update material with ID: " . $_POST['id']);
         echo "<script>alert('Failed to update material.');</script>";
     }
     exit;
 }
-
-$controller->closeConnection();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -55,7 +63,7 @@ $controller->closeConnection();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Material</title>
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css">
     <style>
         select {
             padding: 10px;
@@ -81,54 +89,38 @@ $controller->closeConnection();
     </style>
 </head>
 <body>
-    <?php include '../../Views/header.php'; ?>
+    <?php include BASE_PATH . '/Views/header.php'; ?>
     <div class="container">
         <h1>Edit Material</h1>
-        <?php if (isset($material) && $material): ?>
-            <div class="form-container">
-                <form action="../../public/materials/edit_material.php?id=<?php echo htmlspecialchars($material['id']); ?>" method="post">
-                    <div class="button-container">
-                        <input type="submit" value="Update Material" class="btn styled-btn">
-                        <a href="javascript:history.back()" class="btn styled-btn">Cancel</a>
-                    </div>
-                    <input type="hidden" name="id" value="<?php echo htmlspecialchars($material['id']); ?>">
-                    <label for="material_name">Material Name:</label>
-                    <input type="text" name="material_name" value="<?php echo htmlspecialchars($material['material_name']); ?>" required>
-                    <label for="length">Length:</label>
-                    <input type="number" step="0.01" name="length" value="<?php echo htmlspecialchars($material['Length']); ?>">
-                    <label for="width">Width:</label>
-                    <input type="number" step="0.01" name="width" value="<?php echo htmlspecialchars($material['Width']); ?>">
-                    <label for="thickness">Thickness:</label>
-                    <input type="number" step="0.01" name="thickness" value="<?php echo htmlspecialchars($material['Thickness']); ?>">
-                    <label for="price">Price:</label>
-                    <input type="text" name="price" value="<?php echo htmlspecialchars($material['Price']); ?>">
-                    <label for="quantity_on_hand">Quantity on Hand:</label>
-                    <input type="text" name="quantity_on_hand" value="<?php echo htmlspecialchars($material['Quantity_on_Hand']); ?>">
-                    <label for="type">Type:</label>
-                    <select name="type" style="width: auto;">
-                        <?php foreach ($types as $type): ?>
-                            <option value="<?php echo htmlspecialchars($type['type_name']); ?>" <?php echo $type['type_name'] == $material['type'] ? 'selected' : ''; ?>>
-                                <?php echo htmlspecialchars($type['type_name']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <label for="vendor">Vendor Name:</label>
-                    <select name="vendor" style="width: auto;">
-                        <?php foreach ($vendors as $vendor): ?>
-                            <option value="<?php echo htmlspecialchars($vendor['id']); ?>" <?php echo $vendor['id'] == $material['vendor'] ? 'selected' : ''; ?>>
-                                <?php echo htmlspecialchars($vendor['vendor']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <label for="item_no">Item No:</label>
-                    <input type="text" name="item_no" value="<?php echo htmlspecialchars($material['Item_no']); ?>">
-                    <label for="item_url">Item URL:</label>
-                    <input type="text" name="item_url" value="<?php echo htmlspecialchars($material['item_url']); ?>">
-                    <label for="image_url">Image URL:</label>
-                    <input type="text" name="image_url" value="<?php echo htmlspecialchars($material['image_url']); ?>">
-                </form>
+        <form action="<?php echo BASE_URL; ?>public/materials/update_material.php" method="post">
+            <input type="hidden" name="id" value="<?php echo htmlspecialchars($id); ?>">
+            <label for="material_name">Material Name:</label>
+            <input type="text" name="material_name" value="<?php echo htmlspecialchars($material_name); ?>" required>
+            <label for="length">Length:</label>
+            <input type="number" step="0.01" name="length" value="<?php echo htmlspecialchars($length); ?>">
+            <label for="width">Width:</label>
+            <input type="number" step="0.01" name="width" value="<?php echo htmlspecialchars($width); ?>">
+            <label for="thickness">Thickness:</label>
+            <input type="number" step="0.01" name="thickness" value="<?php echo htmlspecialchars($thickness); ?>">
+            <label for="price">Price:</label>
+            <input type="text" name="price" value="<?php echo htmlspecialchars($price); ?>">
+            <label for="quantity_on_hand">Quantity on Hand:</label>
+            <input type="text" name="quantity_on_hand" value="<?php echo htmlspecialchars($quantity_on_hand); ?>">
+            <label for="type">Type:</label>
+            <input type="text" name="type" value="<?php echo htmlspecialchars($type); ?>">
+            <label for="vendor">Vendor:</label>
+            <input type="text" name="vendor" value="<?php echo htmlspecialchars($vendor); ?>">
+            <label for="item_no">Item No:</label>
+            <input type="text" name="item_no" value="<?php echo htmlspecialchars($item_no); ?>">
+            <label for="item_url">Item URL:</label>
+            <input type="url" name="item_url" value="<?php echo htmlspecialchars($item_url); ?>">
+            <label for="image_url">Image URL:</label>
+            <input type="url" name="image_url" value="<?php echo htmlspecialchars($image_url); ?>">
+            <div class="button-container">
+                <button type="submit" class="btn styled-btn">Update Material</button>
+                <button type="button" class="btn styled-btn red" onclick="window.location.href='<?php echo BASE_URL; ?>Views/materials/index.php'">Close</button>
             </div>
-        <?php endif; ?>
+        </form>
     </div>
 </body>
 </html>

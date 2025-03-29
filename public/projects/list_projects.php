@@ -1,28 +1,24 @@
 <?php
-error_log("Test log entry: list_projects.php loaded");
-
-// filepath: /c:/xampp/htdocs/OMC/Views/projects/list_projects.php
-
-require_once __DIR__ . '/../../Globals/Config.php';
-require_once __DIR__ . '/../../Models/Database.php';
-require_once __DIR__ . '/../../Models/Project.php';
-require_once __DIR__ . '/../../Controllers/ProjectController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php'; // Corrected path to config.php
+require_once BASE_PATH . '/Models/Database.php';
+require_once BASE_PATH . '/Controllers/ProjectController.php';
 
 use MyApp\Controllers\ProjectController;
 use MyApp\Models\Database;
-use Globals\Config;
 
-// Ensure Database is instantiated with required arguments
-$database = new Database(Config::DB_HOST, Config::DB_NAME, Config::DB_USER, Config::DB_PASS);
+$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME); // Use correct config values
 $projectsController = new ProjectController($database);
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_project_id'])) {
-    $projectId = $_POST['delete_project_id'];
-    error_log("Deleting project with ID: $projectId"); // Log the project ID being deleted
-    $projectsController->deleteProject($projectId);
-    header('Location: ../../public/projects/list_projects.php'); // Redirect to refresh the list after deletion
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_project_name'])) {
+    $projectName = $_POST['delete_project_name'];
+    error_log("Deleting project with name: $projectName"); // Log the project name being deleted
+    $projectsController->deleteProjectByName($projectName);
+    header('Location: ' . BASE_URL . 'public/projects/list_projects.php'); // Redirect to refresh the list after deletion
     exit;
 }
 
 $projects = $projectsController->listProjects(); // Use the correct method to list projects
+
+// Pass the data to the HTML view
+require_once BASE_PATH . '/Views/projects/list_projects.php';
 ?>
