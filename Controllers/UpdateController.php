@@ -22,6 +22,9 @@ class UpdateController {
             $savePath = $_SERVER['DOCUMENT_ROOT'] . '/OMC/main.zip';
             $extractPath = $_SERVER['DOCUMENT_ROOT'] . '/OMC';
 
+            // Assign a value to $githubApiUrl
+            $githubApiUrl = 'https://api.github.com'; // Example URL, replace with the actual value if needed
+
             // Step 1: Download the ZIP file
             error_log("UpdateController: Attempting to download file from $zipUrl to $savePath.");
             $this->fileManager->downloadFile($zipUrl, $savePath);
@@ -47,13 +50,12 @@ class UpdateController {
     public function updateDatabase() {
         error_log("UpdateController: updateDatabase() method called."); // Log method call
         try {
-            echo "<p style='color: blue; text-align: center;'>Starting database update process...</p>";
+            echo "<p style='color: blue; text-align: center;'>Starting database backup process...</p>";
             ob_flush();
             flush();
 
             $savePath = $_SERVER['DOCUMENT_ROOT'] . '/OMC/';
             $backupPath = $savePath . 'backup_' . date('Y-m-d_H-i-s') . '.sql';
-            $sqlFilePath = $savePath . 'omc_db.sql'; // Use the local omc_db.sql file
 
             // Step 1: Backup the current database
             error_log("UpdateController: Creating a backup of the current database.");
@@ -65,18 +67,10 @@ class UpdateController {
             ob_flush();
             flush();
 
-            // Step 2: Check if the omc_db.sql file exists
-            if (!file_exists($sqlFilePath)) {
-                throw new Exception("The file omc_db.sql was not found in the directory: $savePath");
-            }
-
-            // Step 3: Drop all tables and execute the omc_db.sql file
-            error_log("UpdateController: Updating the database with omc_db.sql.");
-            echo "<p style='color: blue; text-align: center;'>Updating the database with omc_db.sql...</p>";
-            ob_flush();
-            flush();
-            $this->dbManager->importDatabase($sqlFilePath);
-            echo "<p style='color: green; text-align: center;'>Database updated successfully using omc_db.sql</p>";
+            // Add a return button
+            echo "<div style='text-align: center; margin-top: 20px;'>
+                    <a href='/OMC/Views/update.php' style='display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;'>Return to Update Page</a>
+                  </div>";
             ob_flush();
             flush();
         } catch (Exception $e) {
@@ -87,27 +81,49 @@ class UpdateController {
         }
     }
 
-    public function restoreBackup() {
-        if (isset($_POST['backup_file']) && !empty($_POST['backup_file'])) {
-            $backupFile = $_SERVER['DOCUMENT_ROOT'] . '/OMC/' . basename($_POST['backup_file']);
-            try {
-                $this->dbManager->restoreDatabase($backupFile);
-                echo "<p style='color: green; text-align: center;'>Database restored successfully from: $backupFile</p>";
-            } catch (Exception $e) {
-                echo "<p style='color: red; text-align: center;'>Error: " . $e->getMessage() . "</p>";
-            }
-        } else {
-            echo "<p style='color: red; text-align: center;'>No backup file selected for restoration.</p>";
-        }
-    }
-
     public function manualBackup() {
-        $backupPath = $_SERVER['DOCUMENT_ROOT'] . '/OMC/backup_' . date('Y-m-d_H-i-s') . '.sql';
         try {
-            $this->dbManager->backupDatabase($backupPath);
-            echo "<p style='color: green; text-align: center;'>Manual database backup created successfully: $backupPath</p>";
+            error_log("UpdateController: manualBackup() method called."); // Log method call
+            echo "<p style='color: blue; text-align: center;'>Database update process initiated...</p>";
+            ob_flush();
+            flush();
+
+            // Find the .sql file with the newest timestamp in the /OMC/ directory
+            $directory = $_SERVER['DOCUMENT_ROOT'] . '/OMC/';
+            $files = glob($directory . '*.sql');
+            if (empty($files)) {
+                throw new Exception("No .sql files found in the directory: $directory");
+            }
+
+            // Sort files by modification time, newest first
+            usort($files, function ($a, $b) {
+                return filemtime($b) - filemtime($a);
+            });
+
+            $newestSqlFile = $files[0];
+            error_log("UpdateController: Newest .sql file found: $newestSqlFile");
+            echo "<p style='color: blue; text-align: center;'>Processing the newest SQL file: " . basename($newestSqlFile) . "</p>";
+            ob_flush();
+            flush();
+
+            // Process the SQL file into the database
+            $this->dbManager->importDatabase($newestSqlFile);
+
+            echo "<p style='color: green; text-align: center;'>Database updated successfully using: " . basename($newestSqlFile) . "</p>";
+            ob_flush();
+            flush();
+
+            // Add a return button
+            echo "<div style='text-align: center; margin-top: 20px;'>
+                    <a href='/OMC/Views/update.php' style='display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;'>Return to Update Page</a>
+                  </div>";
+            ob_flush();
+            flush();
         } catch (Exception $e) {
-            echo "<p style='color: red; text-align: center;'>Error: " . $e->getMessage() . "</p>";
+            error_log("UpdateController: Error in manualBackup(): " . $e->getMessage()); // Log the error
+            echo "<p style='color: red; text-align: center;'>Error: " . htmlspecialchars($e->getMessage()) . "</p>";
+            ob_flush();
+            flush();
         }
     }
 }

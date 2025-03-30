@@ -13,6 +13,12 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Views/header.php'; // Include the
 <body>
     <div class="container">
         <h1 class="title">Update System</h1>
+        
+        <!-- Notice for stable internet connection -->
+        <div class="alert alert-info" style="background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; padding: 10px; border-radius: 5px; margin-bottom: 20px; text-align: center;">
+            <strong>Notice:</strong> Please ensure a stable internet connection before starting the update process.
+        </div>
+
         <p>Use the buttons below to update, restore, or manually back up the system.</p>
         <p><strong>Instructions:</strong></p>
         <ul>
@@ -23,7 +29,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Views/header.php'; // Include the
         </ul>
         <div class="button-container">
             <a href="<?php echo BASE_URL; ?>public/update.php?action=download_zip" class="btn styled-btn">Download and Extract Update Package</a>
-            <a href="?action=update_database" class="btn styled-btn">Update Database</a>
+            <a href="<?php echo BASE_URL; ?>public/update.php?action=update_database" class="btn styled-btn">Update Database</a>
             <form action="?action=restore_backup" method="post" style="display: inline;">
                 <select name="backup_file" class="btn styled-btn">
                     <?php

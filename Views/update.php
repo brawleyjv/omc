@@ -26,26 +26,17 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Views/header.php'; // Include the
             <li><strong>Update Database:</strong> Creates a backup of the current database, downloads the latest database update file, and applies it to the system.</li>
             <li><strong>Restore Database:</strong> Allows you to restore the database from a previously created backup file.</li>
             <li><strong>Manual Backup:</strong> Creates a manual backup of the current database, which can be restored later if needed.</li>
+            <li><strong>Export Database:</strong> Exports the database to a clean SQL file for testing or backup purposes.</li>
         </ul>
         <div class="button-container">
             <a href="<?php echo BASE_URL; ?>public/update.php?action=download_zip" class="btn styled-btn">Download and Extract Update Package</a>
-            <a href="<?php echo BASE_URL; ?>public/update.php?action=update_database" class="btn styled-btn">Update Database</a>
-            <form action="?action=restore_backup" method="post" style="display: inline;">
-                <select name="backup_file" class="btn styled-btn">
-                    <?php
-                    // List all backup files in the OMC directory
-                    $backupFiles = glob($_SERVER['DOCUMENT_ROOT'] . '/OMC/backup_*.sql');
-                    foreach ($backupFiles as $file) {
-                        $fileName = basename($file);
-                        echo "<option value=\"$fileName\">$fileName</option>";
-                    }
-                    ?>
-                </select>
-                <button type="submit" class="btn styled-btn">Restore Backup</button>
-            </form>
-            <a href="?action=manual_backup" class="btn styled-btn">Manual Backup</a>
+            <a href="<?php echo BASE_URL; ?>public/update.php?action=manual_backup" class="btn styled-btn">Update Database</a> <!-- Changed label -->
+            <a href="<?php echo BASE_URL; ?>public/update.php?action=update_database" class="btn styled-btn">Backup Database</a> <!-- Changed label -->
             <a href="<?php echo BASE_URL; ?>Views/main.php" class="btn cancel-btn">Cancel</a>
         </div>
+        <form method="post" action="update.php">
+            
+        </form>
     </div>
 </body>
 </html>

@@ -1,7 +1,32 @@
 <?php
 class DatabaseManager {
     public function backupDatabase($backupPath) {
-        // ...existing backup logic from update.php...
+        try {
+            $mysqldumpPath = 'C:\\xampp\\mysql\\bin\\mysqldump.exe'; // Full path to mysqldump
+            $dbHost = 'localhost';
+            $dbUser = 'root';
+            $dbPassword = ''; // Replace with your MySQL root password
+            $dbName = 'omc_db'; // Replace with your database name
+
+            $command = "\"$mysqldumpPath\" -h $dbHost -u $dbUser --password=$dbPassword $dbName > \"$backupPath\"";
+            error_log("DatabaseManager: Executing backup command: $command"); // Log the command for debugging
+
+            $output = [];
+            $returnVar = null;
+            exec($command, $output, $returnVar);
+
+            if ($returnVar !== 0) {
+                // Log the output and return code for debugging
+                error_log("DatabaseManager: mysqldump failed with return code $returnVar");
+                error_log("DatabaseManager: Command output: " . implode("\n", $output));
+                throw new Exception("Failed to create database backup. Command: $command");
+            }
+
+            error_log("DatabaseManager: Backup created successfully at $backupPath");
+        } catch (Exception $e) {
+            error_log("DatabaseManager: Error in backupDatabase(): " . $e->getMessage()); // Log the error
+            throw $e; // Re-throw the exception to propagate it
+        }
     }
 
     public function dropAllTables() {
