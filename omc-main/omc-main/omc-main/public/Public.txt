@@ -1,0 +1,10 @@
+The "public" folder is used to store files that are accessible to the public via the web server. This includes all the entry points to the application, such as index.php, as well as assets like images, CSS, and JavaScript files.
+
+Typical contents of the "public" folder:
+- index.php (main entry point of the application)
+- CSS files
+- JavaScript files
+- Images
+- Subfolders for different sections of the application (e.g., projects, materials)
+
+The public folder ensures that only the necessary files are exposed to the web server, enhancing the security and organization of the application.
