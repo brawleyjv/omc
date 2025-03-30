@@ -38,7 +38,7 @@ error_log("Main.php: Session username: " . (isset($_SESSION['username']) ? $_SES
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Ensure BASE_URL is used correctly -->
 </head>
 <body>
-    <?php include BASE_PATH . '/Views/header.php'; ?> <!-- Corrected path to header.php -->
+    <?php include $_SERVER['DOCUMENT_ROOT'] . '/OMC/Views/header.php'; ?> <!-- Include the header -->
     <div class="container">
         <h1 class="title">Ozark Made Project Management System</h1>
         <h1 class="title">Main Menu</h1>
@@ -55,7 +55,7 @@ error_log("Main.php: Session username: " . (isset($_SESSION['username']) ? $_SES
                 <a href="<?php echo BASE_URL; ?>Views/Scale.php" class="btn styled-btn">Scale Project</a>
                 <a href="<?php echo BASE_URL; ?>Views/estimate/estimate.php" class="btn styled-btn">Estimate</a>
                 <a href="<?php echo BASE_URL; ?>Views/Chipload/chipload.php" class="btn styled-btn">Chipload</a>
-                <a href="<?php echo BASE_URL; ?>public/update.php" class="btn styled-btn">Update</a>
+                <a href="<?php echo BASE_URL; ?>Views/update.php" class="btn styled-btn">Update</a>
             </div>
         </div>
     </div>

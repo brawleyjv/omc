@@ -1,25 +1,3 @@
-CREATE TABLE `bom` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `project_name` varchar(20) NOT NULL,
-  `material_name` varchar(255) NOT NULL,
-  `material_type` int(11) NOT NULL,
-  `length` decimal(10,2) NOT NULL,
-  `width` decimal(10,2) NOT NULL,
-  `thickness` decimal(10,2) NOT NULL,
-  `quantity` int(11) NOT NULL,
-  `material_id` int(11) NOT NULL,
-  `materials` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`materials`)),
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-INSERT INTO `bom` (`id`, `project_name`, `material_name`, `material_type`, `length`, `width`, `thickness`, `quantity`, `material_id`, `materials`) VALUES ('1', '', '', '0', '0.00', '0.00', '0.00', '0', '0', '[\"5\",\"5\"]');
-INSERT INTO `bom` (`id`, `project_name`, `material_name`, `material_type`, `length`, `width`, `thickness`, `quantity`, `material_id`, `materials`) VALUES ('2', '', '', '0', '0.00', '0.00', '0.00', '0', '0', '[\"100\",\"100\"]');
-INSERT INTO `bom` (`id`, `project_name`, `material_name`, `material_type`, `length`, `width`, `thickness`, `quantity`, `material_id`, `materials`) VALUES ('3', '', '', '0', '0.00', '0.00', '0.00', '0', '0', '[\"118\",\"118\"]');
-INSERT INTO `bom` (`id`, `project_name`, `material_name`, `material_type`, `length`, `width`, `thickness`, `quantity`, `material_id`, `materials`) VALUES ('4', '', '', '0', '0.00', '0.00', '0.00', '0', '0', '[{\"material_id\":\"5\",\"material_name\":\"2x2 pine\",\"length\":\"96.00\",\"width\":\"1.50\",\"thickness\":\"1.50\",\"quantity\":\"1\"},{\"material_id\":\"5\",\"material_name\":null,\"length\":null,\"width\":null,\"thickness\":null,\"quantity\":null}]');
-INSERT INTO `bom` (`id`, `project_name`, `material_name`, `material_type`, `length`, `width`, `thickness`, `quantity`, `material_id`, `materials`) VALUES ('5', '', '', '0', '0.00', '0.00', '0.00', '0', '0', '[{\"material_id\":\"118\",\"material_name\":\"Birch Plywood\",\"length\":\"96.00\",\"width\":\"48.00\",\"thickness\":\"0.75\",\"quantity\":\"1\"},{\"material_id\":\"118\",\"material_name\":null,\"length\":null,\"width\":null,\"thickness\":null,\"quantity\":null}]');
-INSERT INTO `bom` (`id`, `project_name`, `material_name`, `material_type`, `length`, `width`, `thickness`, `quantity`, `material_id`, `materials`) VALUES ('6', '', '', '0', '0.00', '0.00', '0.00', '0', '0', '[{\"material_id\":\"100\",\"material_name\":\"2x4x10\' Ground Contact Green Pressure Treated\",\"length\":\"96.00\",\"width\":\"3.50\",\"thickness\":\"1.50\",\"quantity\":\"1\"},{\"material_id\":\"100\",\"material_name\":null,\"length\":null,\"width\":null,\"thickness\":null,\"quantity\":null}]');
-INSERT INTO `bom` (`id`, `project_name`, `material_name`, `material_type`, `length`, `width`, `thickness`, `quantity`, `material_id`, `materials`) VALUES ('7', '', '2x2 pine', '0', '96.00', '1.50', '1.50', '1', '0', NULL);
-
 CREATE TABLE `customers` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(20) NOT NULL,
