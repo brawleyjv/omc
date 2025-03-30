@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Designer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="designer">
+        <h1>Design Your Project</h1>
+        <div class="controls">
+            <label for="category">Choose Category:</label>
+            <select id="category" name="category" onchange="updateImageTable()">
+                <option value="frames">Frames</option>
+                <option value="scenes">Scenes</option>
+                <option value="clipArt">ClipArt</option>
+                <!-- Add more categories as needed -->
+            </select>
+            <button id="add-layer">Add Layer</button>
+            <button id="undo">Undo</button>
+            <button id="add-text-layer">Add Text Layer</button>
+        </div>
+        <div class="layout">
+            <div class="image-table-container">
+                <div id="image-table"></div>
+            </div>
+        </div>
+    </div>
+    <script src="js/config.js"></script>
+    <script src="js/LayerManager.js"></script>
+    <script src="js/TextLayerManager.js"></script>
+    <script src="js/UndoManager.js"></script>
+    <script src="js/CategoryManager.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        function updateImageTable() {
+            const category = document.getElementById('category').value;
+            fetch(`getImages.php?category=${category}`)
+                .then(response => response.json())
+                .then(images => {
+                    const imageTable = document.getElementById('image-table');
+                    imageTable.innerHTML = '';
+                    const table = document.createElement('table');
+                    table.classList.add('image-table');
+                    const tbody = document.createElement('tbody');
+                    let row = document.createElement('tr');
+                    images.forEach((image, index) => {
+                        const cell = document.createElement('td');
+                        cell.classList.add('image-cell');
+                        const img = document.createElement('img');
+                        img.src = `images/${category}/${image}`;
+                        img.alt = image;
+                        img.addEventListener('click', () => {
+                            console.log(`Selected image: images/${category}/${image}`); // Debugging log
+                        });
+                        const caption = document.createElement('div');
+                        caption.textContent = image;
+                        cell.appendChild(img);
+                        cell.appendChild(caption);
+                        row.appendChild(cell);
+                        if ((index + 1) % 3 === 0) {
+                            tbody.appendChild(row);
+                            row = document.createElement('tr');
+                        }
+                    });
+                    if (row.children.length > 0) {
+                        tbody.appendChild(row);
+                    }
+                    table.appendChild(tbody);
+                    imageTable.appendChild(table);
+                })
+                .catch(error => console.error('Error fetching images:', error));
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateImageTable();
+        });
+    </script>
+</body>
+</html>

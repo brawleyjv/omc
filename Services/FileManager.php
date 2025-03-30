@@ -1,4 +1,7 @@
 <?php
+ini_set('memory_limit', '1024M'); // Increase memory limit to 1GB
+ini_set('max_execution_time', '300'); // Increase execution time to 300 seconds (5 minutes)
+
 class FileManager {
     public function downloadFile($url, $savePath) {
         $fileData = file_get_contents($url);
@@ -20,7 +23,7 @@ class FileManager {
         if ($zip->open($zipPath) === true) {
             $zip->extractTo($extractPath);
             $zip->close();
-            unlink($zipPath); // Delete the zip file after extraction
+            // unlink($zipPath); // Do not delete the zip file after extraction
         } else {
             throw new Exception("Failed to open the zip file for extraction.");
         }

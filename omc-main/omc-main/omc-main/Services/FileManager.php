@@ -12,6 +12,10 @@ class FileManager {
     }
 
     public function extractZip($zipPath, $extractPath) {
+        if (!class_exists('ZipArchive')) {
+            throw new Exception("The ZipArchive class is not available. Please enable the zip extension in your PHP configuration.");
+        }
+
         $zip = new ZipArchive();
         if ($zip->open($zipPath) === true) {
             $zip->extractTo($extractPath);
