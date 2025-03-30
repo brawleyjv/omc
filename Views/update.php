@@ -22,7 +22,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Views/header.php'; // Include the
             <li><strong>Manual Backup:</strong> Creates a manual backup of the current database, which can be restored later if needed.</li>
         </ul>
         <div class="button-container">
-            <a href="?action=download_zip" class="btn styled-btn">Download and Extract Update Package</a>
+            <a href="<?php echo BASE_URL; ?>public/update.php?action=download_zip" class="btn styled-btn">Download and Extract Update Package</a>
             <a href="?action=update_database" class="btn styled-btn">Update Database</a>
             <form action="?action=restore_backup" method="post" style="display: inline;">
                 <select name="backup_file" class="btn styled-btn">

@@ -12,17 +12,35 @@ class UpdateController {
     }
 
     public function downloadZip() {
+        error_log("UpdateController: downloadZip() method called."); // Log method call
         try {
+            echo "<p style='color: blue; text-align: center;'>Download process started...</p>";
+            ob_flush();
+            flush();
+
             $zipUrl = "https://github.com/brawleyjv/omc/archive/refs/heads/main.zip";
             $savePath = $_SERVER['DOCUMENT_ROOT'] . '/OMC/main.zip';
             $extractPath = $_SERVER['DOCUMENT_ROOT'] . '/OMC';
 
+            // Step 1: Download the ZIP file
+            error_log("UpdateController: Attempting to download file from $zipUrl to $savePath.");
             $this->fileManager->downloadFile($zipUrl, $savePath);
-            $this->fileManager->extractZip($savePath, $extractPath);
+            echo "<p style='color: green; text-align: center;'>Download complete. File saved to: $savePath</p>";
+            ob_flush();
+            flush();
 
-            echo "<p style='color: green; text-align: center;'>Update package downloaded and extracted successfully to: $extractPath</p>";
+            // Step 2: Extract the ZIP file
+            error_log("UpdateController: Attempting to extract file to $extractPath.");
+            $this->fileManager->extractZip($savePath, $extractPath);
+            echo "<p style='color: green; text-align: center;'>Extraction complete. Files extracted to: $extractPath</p>";
+            ob_flush();
+            flush();
         } catch (Exception $e) {
-            echo "<p style='color: red; text-align: center;'>Error: " . $e->getMessage() . "</p>";
+            // Log and display error message
+            error_log("UpdateController: Error in downloadZip(): " . $e->getMessage());
+            echo "<p style='color: red; font-weight: bold; text-align: center;'>Error: " . htmlspecialchars($e->getMessage()) . "</p>";
+            ob_flush();
+            flush();
         }
     }
 
