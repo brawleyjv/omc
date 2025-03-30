@@ -46,19 +46,58 @@ class UpdateController {
 
     public function updateDatabase() {
         try {
-            $sqlUrl = "https://raw.githubusercontent.com/brawleyjv/omc/main/omc_db.sql";
-            $savePath = $_SERVER['DOCUMENT_ROOT'] . '/OMC/omc_db.sql';
-            $backupPath = $_SERVER['DOCUMENT_ROOT'] . '/OMC/backup_' . date('Y-m-d_H-i-s') . '.sql';
+            $githubApiUrl = "https://api.github.com/repos/brawleyjv/omc/contents/"; // GitHub API URL for the repository
+            $savePath = $_SERVER['DOCUMENT_ROOT'] . '/OMC/';
+            $backupPath = $savePath . 'backup_' . date('Y-m-d_H-i-s') . '.sql';
 
+            // Step 1: Backup the current database
             $this->dbManager->backupDatabase($backupPath);
             echo "<p style='color: green; text-align: center;'>Database backup created successfully: $backupPath</p>";
 
-            $this->fileManager->downloadFile($sqlUrl, $savePath);
-            $this->dbManager->importDatabase($savePath);
+            // Step 2: Fetch the list of files from the GitHub repository
+            $context = stream_context_create([
+                "http" => [
+                    "header" => "User-Agent: PHP"
+                ]
+            ]);
+            $response = file_get_contents($githubApiUrl, false, $context);
+            if ($response === false) {
+                throw new Exception("Failed to fetch the file list from GitHub.");
+            }
 
-            echo "<p style='color: green; text-align: center;'>Database updated successfully using: $savePath</p>";
+            $files = json_decode($response, true);
+            if (!is_array($files)) {
+                throw new Exception("Invalid response from GitHub API.");
+            }
+
+            // Step 3: Find the newest .sql file
+            $newestSqlFile = null;
+            $newestTimestamp = 0;
+            foreach ($files as $file) {
+                if (isset($file['name']) && pathinfo($file['name'], PATHINFO_EXTENSION) === 'sql') {
+                    $timestamp = strtotime($file['name']);
+                    if ($timestamp > $newestTimestamp) {
+                        $newestTimestamp = $timestamp;
+                        $newestSqlFile = $file;
+                    }
+                }
+            }
+
+            if ($newestSqlFile === null) {
+                throw new Exception("No .sql files found in the GitHub repository.");
+            }
+
+            // Step 4: Download the newest .sql file
+            $sqlUrl = $newestSqlFile['download_url'];
+            $sqlFilePath = $savePath . basename($newestSqlFile['name']);
+            $this->fileManager->downloadFile($sqlUrl, $sqlFilePath);
+            echo "<p style='color: green; text-align: center;'>Downloaded the newest .sql file: $sqlFilePath</p>";
+
+            // Step 5: Drop all tables and execute the .sql file
+            $this->dbManager->importDatabase($sqlFilePath);
+            echo "<p style='color: green; text-align: center;'>Database updated successfully using: $sqlFilePath</p>";
         } catch (Exception $e) {
-            echo "<p style='color: red; text-align: center;'>Error: " . $e->getMessage() . "</p>";
+            echo "<p style='color: red; text-align: center;'>Error: " . htmlspecialchars($e->getMessage()) . "</p>";
         }
     }
 

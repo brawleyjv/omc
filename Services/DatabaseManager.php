@@ -21,8 +21,10 @@ class DatabaseManager {
         if ($result) {
             while ($row = $result->fetch_row()) {
                 $table = $row[0];
-                if (!$connection->query("DROP TABLE `$table`")) {
-                    throw new Exception("Failed to drop table `$table`: " . $connection->error);
+                if ($table !== 'users') { // Skip the 'users' table
+                    if (!$connection->query("DROP TABLE `$table`")) {
+                        throw new Exception("Failed to drop table `$table`: " . $connection->error);
+                    }
                 }
             }
         } else {
@@ -38,7 +40,7 @@ class DatabaseManager {
     }
 
     public function importDatabase($filePath) {
-        $this->dropAllTables(); // Drop all tables before importing
+        $this->dropAllTables(); // Drop all tables except 'users'
 
         $connection = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 
@@ -50,6 +52,9 @@ class DatabaseManager {
         if ($sql === false) {
             throw new Exception("Failed to read the SQL file.");
         }
+
+        // Remove any SQL statements related to the 'users' table
+        $sql = preg_replace('/CREATE TABLE `users`.*?;|INSERT INTO `users`.*?;|DROP TABLE IF EXISTS `users`.*?;/is', '', $sql);
 
         // Execute the SQL commands
         if ($connection->multi_query($sql)) {
@@ -66,7 +71,7 @@ class DatabaseManager {
     }
 
     public function restoreDatabase($filePath) {
-        $this->dropAllTables(); // Drop all tables before restoring
+        $this->dropAllTables(); // Drop all tables except 'users'
 
         $connection = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 
@@ -78,6 +83,9 @@ class DatabaseManager {
         if ($sql === false) {
             throw new Exception("Failed to read the backup file.");
         }
+
+        // Remove any SQL statements related to the 'users' table
+        $sql = preg_replace('/CREATE TABLE `users`.*?;|INSERT INTO `users`.*?;|DROP TABLE IF EXISTS `users`.*?;/is', '', $sql);
 
         // Execute the SQL commands
         if ($connection->multi_query($sql)) {
