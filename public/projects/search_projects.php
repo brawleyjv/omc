@@ -7,7 +7,6 @@ use MyApp\Models\Database;
 use MyApp\Controllers\ProjectController;
 
 // Instantiate the Database class with required arguments
-$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME); // Ensure required arguments are passed
 $projectController = new ProjectController($database);
 
 $searchTerm = $_GET['search_term'] ?? '';
@@ -28,9 +27,10 @@ if (!empty($searchTerm)) {
 <body>
     <?php include BASE_PATH . '/Views/header.php'; ?>
     <h1>Search Projects</h1>
-    <form action="<?php echo BASE_URL; ?>public/projects/search_projects.php" method="get"></form>
+    <form action="<?php echo BASE_URL; ?>public/projects/search_projects.php" method="get">
         <input type="text" name="search_term" placeholder="Search for a project" value="<?php echo htmlspecialchars($searchTerm); ?>">
         <button type="submit">Search</button>
+        <button type="button" onclick="window.location.href='<?php echo BASE_URL; ?>Views/projects/index.php';">Cancel</button>
     </form>
     <?php if (!empty($projects)): ?>
         <ul>

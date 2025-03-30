@@ -59,7 +59,7 @@ class Bom {
         if (!$this->conn) {
             throw new \Exception("Database connection is null.");
         }
-        $query = "SELECT * FROM bom WHERE project_id = :project_id";
+        $query = "SELECT * FROM bom WHERE project_id = :project_id"; // Ensure 'project_id' exists in 'bom' table
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':project_id', $project_id, PDO::PARAM_INT);
         $stmt->execute();

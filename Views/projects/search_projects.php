@@ -154,7 +154,7 @@ if (!empty($search_term)) {
         <input type="text" name="search_term" placeholder="Search for projects" value="<?php echo htmlspecialchars($search_term); ?>">
         <div style="display: inline-block; margin-top: 20px;">
             <button type="submit" class="btn styled-btn" style="margin-right: 20px;">Search</button>
-            <button type="button" class="btn styled-btn" onclick="window.location.href='projmain.php'">Cancel</button>
+            <button type="button" class="btn styled-btn" onclick="window.location.href='index.php'">Cancel</button>
         </div>
     </form>
     <h1 class="center-title">Search Results</h1>
@@ -224,6 +224,6 @@ if (!empty($search_term)) {
         </table>
     </div>
     <button class="btn styled-btn clear-button" onclick="clearResults()">Clear Results</button>
-    <button class="btn styled-btn close-button" onclick="window.location.href='projmain.php'">Close</button>
+    <button class="btn styled-btn close-button" onclick="window.location.href='index.php'">Close</button>
 </body>
 </html>

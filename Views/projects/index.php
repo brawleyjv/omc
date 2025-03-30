@@ -90,12 +90,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <h1 class="title">Ozark Made Project Management System</h1>
         <h1 class="title">Projects Menu</h1>
         <div class="button-container">
-            <a href="add_project.php" class="btn styled-btn">Add Project</a>
-            <a href="boardfeet.php" class="btn styled-btn">Board Feet</a>
-            <a href="list_projects.php" class="btn styled-btn">List Projects</a>
-            <a href="search_projects.php" class="btn styled-btn">Search Projects</a>
-            <a href="estimate.php" class="btn styled-btn">Estimate</a>
-            <a href="view_project.php" class="btn styled-btn">View Project</a>
+            <a href="<?php echo BASE_URL; ?>Views/projects/add_project.php" class="btn styled-btn">Add Project</a>
+            <a href="<?php echo BASE_URL; ?>Views/projects/boardfeet.php" class="btn styled-btn">Board Feet</a>
+            <a href="<?php echo BASE_URL; ?>Views/projects/list_projects.php" class="btn styled-btn">List Projects</a>
+            <a href="<?php echo BASE_URL; ?>Views/projects/search_projects.php" class="btn styled-btn">Search Projects</a>
+            <a href="<?php echo BASE_URL; ?>Views/estimate/estimate.php" class="btn styled-btn">Estimate</a>
+            <a href="<?php echo BASE_URL; ?>Views/projects/view_project.php" class="btn styled-btn">View Project</a>
         </div>
     </div>
 </body>
