@@ -1,4 +1,39 @@
 <?php
+// Start output buffering to ensure all output is sent to the browser
+ob_start();
+
+// Include config.php for database credentials
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Models/Database.php'; // Include the Database class
+
+use MyApp\Models\Database; // Ensure this is at the top, outside of any block or function
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Proceed with the update process
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Progress</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Update Progress</h1>
+    <div id="progress">
+<?php
+function outputMessage($message, $type = 'info') {
+    $class = $type === 'success' ? 'success' : ($type === 'error' ? 'error' : '');
+    echo "<p class=\"$class\">$message</p>";
+    ob_flush();
+    flush();
+}
+
 function fetchFilesFromGitHub($repoOwner, $repoName, $branch) {
     $url = "https://api.github.com/repos/$repoOwner/$repoName/git/trees/$branch?recursive=1";
     $ch = curl_init($url);
@@ -89,12 +124,6 @@ function executeSqlFile($filePath, $connection) {
     }
 }
 
-// Include config.php for database credentials
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Models/Database.php'; // Include the Database class
-
-use MyApp\Models\Database; // Add this if Database is in a namespace
-
 $database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME); // Ensure required arguments are passed
 
 try {
@@ -103,29 +132,69 @@ try {
     $branch = 'main';
     $localRoot = $_SERVER['DOCUMENT_ROOT'] . '/OMC';
 
-    // Fetch all files from the GitHub repository
+    outputMessage("Fetching file list from GitHub...");
     $files = fetchFilesFromGitHub($repoOwner, $repoName, $branch);
+    outputMessage("File list fetched successfully.", 'success');
 
     foreach ($files as $file) {
         $githubUrl = "https://raw.githubusercontent.com/$repoOwner/$repoName/$branch/" . $file['path'];
         $localPath = $localRoot . '/' . $file['path'];
 
         if (isFileNewerOnGitHub($githubUrl, $localPath)) {
+            outputMessage("Downloading file: " . $file['path']);
             downloadFileFromGitHub($githubUrl, $localPath);
-            echo "Downloaded: $localPath\n";
+            outputMessage("Downloaded: $localPath", 'success');
 
-            // Execute SQL file if applicable
             if (pathinfo($localPath, PATHINFO_EXTENSION) === 'sql') {
+                outputMessage("Executing SQL file: $localPath");
                 executeSqlFile($localPath, $connection);
-                echo "Executed SQL file: $localPath\n";
+                outputMessage("Executed SQL file: $localPath", 'success');
             }
         } else {
-            echo "Skipped (up-to-date): $localPath\n";
+            outputMessage("Skipped (up-to-date): $localPath", 'info');
         }
     }
 
-    echo "Update process completed successfully.";
+    outputMessage("Update process completed successfully.", 'success');
 } catch (Exception $e) {
-    die("Error: " . $e->getMessage());
+    outputMessage("Error: " . $e->getMessage(), 'error');
 }
+?>
+    </div>
+</body>
+</html>
+<?php
+    ob_end_flush();
+    exit;
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Confirmation</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; }
+        .warning { color: orange; }
+    </style>
+</head>
+<body>
+    <h1>Update Confirmation</h1>
+    <p class="warning">You are about to update the system. This process will:</p>
+    <ul>
+        <li>Fetch the latest files from the GitHub repository.</li>
+        <li>Download and replace local files if they are outdated.</li>
+        <li>Execute any SQL scripts included in the update.</li>
+    </ul>
+    <p>Please ensure you have backed up your system before proceeding.</p>
+    <form method="POST">
+        <button type="submit">Proceed with Update</button>
+        <button type="button" onclick="window.location.href='/OMC';">Cancel</button>
+    </form>
+</body>
+</html>
+<?php
+// End output buffering and flush all output
+ob_end_flush();
 ?>
