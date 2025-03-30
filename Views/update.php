@@ -29,7 +29,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Views/header.php'; // Include the
         </ul>
         <div class="button-container">
             <a href="<?php echo BASE_URL; ?>public/update.php?action=download_zip" class="btn styled-btn">Download and Extract Update Package</a>
-            <a href="?action=update_database" class="btn styled-btn">Update Database</a>
+            <a href="<?php echo BASE_URL; ?>public/update.php?action=update_database" class="btn styled-btn">Update Database</a>
             <form action="?action=restore_backup" method="post" style="display: inline;">
                 <select name="backup_file" class="btn styled-btn">
                     <?php

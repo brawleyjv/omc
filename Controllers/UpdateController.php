@@ -45,15 +45,15 @@ class UpdateController {
     }
 
     public function updateDatabase() {
+        error_log("UpdateController: updateDatabase() method called."); // Log method call
         try {
-            error_log("UpdateController: updateDatabase() method called."); // Log method call
             echo "<p style='color: blue; text-align: center;'>Starting database update process...</p>";
             ob_flush();
             flush();
 
-            $githubApiUrl = "https://api.github.com/repos/brawleyjv/omc/contents/"; // GitHub API URL for the repository
             $savePath = $_SERVER['DOCUMENT_ROOT'] . '/OMC/';
             $backupPath = $savePath . 'backup_' . date('Y-m-d_H-i-s') . '.sql';
+            $sqlFilePath = $savePath . 'omc_db.sql'; // Use the local omc_db.sql file
 
             // Step 1: Backup the current database
             error_log("UpdateController: Creating a backup of the current database.");
@@ -65,66 +65,18 @@ class UpdateController {
             ob_flush();
             flush();
 
-            // Step 2: Fetch the list of files from the GitHub repository
-            error_log("UpdateController: Fetching the list of .sql files from the repository.");
-            echo "<p style='color: blue; text-align: center;'>Fetching the list of .sql files from the repository...</p>";
-            ob_flush();
-            flush();
-            $context = stream_context_create([
-                "http" => [
-                    "header" => "User-Agent: PHP"
-                ]
-            ]);
-            $response = file_get_contents($githubApiUrl, false, $context);
-            if ($response === false) {
-                throw new Exception("Failed to fetch the file list from GitHub.");
+            // Step 2: Check if the omc_db.sql file exists
+            if (!file_exists($sqlFilePath)) {
+                throw new Exception("The file omc_db.sql was not found in the directory: $savePath");
             }
 
-            $files = json_decode($response, true);
-            if (!is_array($files)) {
-                throw new Exception("Invalid response from GitHub API.");
-            }
-
-            // Step 3: Find the newest .sql file
-            error_log("UpdateController: Searching for the newest .sql file.");
-            echo "<p style='color: blue; text-align: center;'>Searching for the newest .sql file...</p>";
-            ob_flush();
-            flush();
-            $newestSqlFile = null;
-            $newestTimestamp = 0;
-            foreach ($files as $file) {
-                if (isset($file['name']) && pathinfo($file['name'], PATHINFO_EXTENSION) === 'sql') {
-                    $timestamp = strtotime($file['name']);
-                    if ($timestamp > $newestTimestamp) {
-                        $newestTimestamp = $timestamp;
-                        $newestSqlFile = $file;
-                    }
-                }
-            }
-
-            if ($newestSqlFile === null) {
-                throw new Exception("No .sql files found in the GitHub repository.");
-            }
-
-            // Step 4: Download the newest .sql file
-            error_log("UpdateController: Downloading the newest .sql file.");
-            echo "<p style='color: blue; text-align: center;'>Downloading the newest .sql file...</p>";
-            ob_flush();
-            flush();
-            $sqlUrl = $newestSqlFile['download_url'];
-            $sqlFilePath = $savePath . basename($newestSqlFile['name']);
-            $this->fileManager->downloadFile($sqlUrl, $sqlFilePath);
-            echo "<p style='color: green; text-align: center;'>Downloaded the newest .sql file: $sqlFilePath</p>";
-            ob_flush();
-            flush();
-
-            // Step 5: Drop all tables and execute the .sql file
-            error_log("UpdateController: Updating the database with the new .sql file.");
-            echo "<p style='color: blue; text-align: center;'>Updating the database with the new .sql file...</p>";
+            // Step 3: Drop all tables and execute the omc_db.sql file
+            error_log("UpdateController: Updating the database with omc_db.sql.");
+            echo "<p style='color: blue; text-align: center;'>Updating the database with omc_db.sql...</p>";
             ob_flush();
             flush();
             $this->dbManager->importDatabase($sqlFilePath);
-            echo "<p style='color: green; text-align: center;'>Database updated successfully using: $sqlFilePath</p>";
+            echo "<p style='color: green; text-align: center;'>Database updated successfully using omc_db.sql</p>";
             ob_flush();
             flush();
         } catch (Exception $e) {
