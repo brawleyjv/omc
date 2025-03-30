@@ -1,280 +1,264 @@
 <?php
-// Start output buffering to ensure all output is sent to the browser
-ob_start();
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Views/header.php'; // Include the header
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Include the database configuration
 
-// Include config.php for database credentials
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Models/Database.php'; // Include the Database class
+function backupDatabase($backupPath) {
+    try {
+        $connection = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 
-use MyApp\Models\Database; // Ensure this is at the top, outside of any block or function
+        if ($connection->connect_error) {
+            throw new Exception("Database connection failed: " . $connection->connect_error);
+        }
 
-// Function to load the exclusion list from an .ini file
-function loadExclusionList($filePath) {
-    if (!file_exists($filePath)) {
-        return []; // Return an empty array if the file doesn't exist
+        // Get all tables in the database
+        $tables = [];
+        $result = $connection->query("SHOW TABLES");
+        if ($result) {
+            while ($row = $result->fetch_row()) {
+                $tables[] = $row[0];
+            }
+        } else {
+            throw new Exception("Failed to retrieve database tables: " . $connection->error);
+        }
+
+        $sqlBackup = "";
+        foreach ($tables as $table) {
+            // Get CREATE TABLE statement
+            $createTableResult = $connection->query("SHOW CREATE TABLE `$table`");
+            if ($createTableResult) {
+                $row = $createTableResult->fetch_assoc();
+                $sqlBackup .= $row['Create Table'] . ";\n\n";
+            } else {
+                throw new Exception("Failed to retrieve CREATE TABLE statement for $table: " . $connection->error);
+            }
+
+            // Get table data
+            $tableDataResult = $connection->query("SELECT * FROM `$table`");
+            if ($tableDataResult) {
+                while ($row = $tableDataResult->fetch_assoc()) {
+                    $columns = array_map(fn($col) => "`$col`", array_keys($row));
+                    $values = array_map(fn($val) => $connection->real_escape_string($val), array_values($row));
+                    $sqlBackup .= "INSERT INTO `$table` (" . implode(", ", $columns) . ") VALUES ('" . implode("', '", $values) . "');\n";
+                }
+            } else {
+                throw new Exception("Failed to retrieve data for $table: " . $connection->error);
+            }
+
+            $sqlBackup .= "\n";
+        }
+
+        // Save the backup to a file
+        if (file_put_contents($backupPath, $sqlBackup) === false) {
+            throw new Exception("Failed to save the database backup to $backupPath.");
+        }
+
+        // Keep only the three most recent backups
+        $backupFiles = glob($_SERVER['DOCUMENT_ROOT'] . '/OMC/backup_*.sql');
+        if (count($backupFiles) > 3) {
+            // Sort files by modification time, oldest first
+            usort($backupFiles, fn($a, $b) => filemtime($a) <=> filemtime($b));
+            // Delete the oldest files, keeping only the three most recent
+            while (count($backupFiles) > 3) {
+                $oldestFile = array_shift($backupFiles);
+                unlink($oldestFile);
+            }
+        }
+
+        $connection->close();
+        return true;
+    } catch (Exception $e) {
+        throw new Exception("Database backup failed: " . $e->getMessage());
     }
-    $exclusions = parse_ini_file($filePath, true);
-    return $exclusions['exclude'] ?? []; // Return the 'exclude' section or an empty array
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_exclusions'])) {
-    $newExclusions = $_POST['exclusions'] ?? '';
-    $exclusionFile = $_SERVER['DOCUMENT_ROOT'] . '/OMC/exclusions.ini';
+if (isset($_GET['action']) && $_GET['action'] === 'download_zip') {
+    $zipUrl = "https://github.com/brawleyjv/omc/archive/refs/heads/main.zip"; // GitHub zip file URL
+    $savePath = $_SERVER['DOCUMENT_ROOT'] . '/OMC/main.zip'; // Path to save the zip file
+    $extractPath = $_SERVER['DOCUMENT_ROOT'] . '/OMC'; // Path to extract the files
 
-    // Prepare the content for the .ini file
-    $iniContent = "[exclude]\n" . trim($newExclusions);
+    try {
+        // Download the zip file
+        $zipData = file_get_contents($zipUrl);
+        if ($zipData === false) {
+            throw new Exception("Failed to download the zip file.");
+        }
 
-    // Attempt to save the exclusions
-    if (file_put_contents($exclusionFile, $iniContent) === false) {
-        die("Failed to save exclusions to the .ini file. Please check file permissions.");
+        // Save the zip file to the specified path
+        if (file_put_contents($savePath, $zipData) === false) {
+            throw new Exception("Failed to save the zip file to $savePath.");
+        }
+
+        // Decompress the zip file
+        $zip = new ZipArchive();
+        if ($zip->open($savePath) === true) {
+            $zip->extractTo($extractPath); // Extract files to the specified folder
+            $zip->close();
+
+            // Delete the zip file after extraction
+            unlink($savePath);
+
+            echo "<p style='color: green; text-align: center;'>Update package downloaded and extracted successfully to: $extractPath</p>";
+        } else {
+            throw new Exception("Failed to open the zip file for extraction.");
+        }
+    } catch (Exception $e) {
+        echo "<p style='color: red; text-align: center;'>Error: " . $e->getMessage() . "</p>";
     }
-
-    // Redirect to avoid form resubmission
-    header("Location: " . $_SERVER['PHP_SELF']);
-    exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['list_exclusions'])) {
-    // Reload exclusions from the .ini file
-    $exclusionFile = $_SERVER['DOCUMENT_ROOT'] . '/OMC/exclusions.ini';
-    $currentExclusions = file_exists($exclusionFile) ? parse_ini_file($exclusionFile, true)['exclude'] ?? [] : [];
-    $exclusionText = implode("\n", $currentExclusions);
+if (isset($_GET['action']) && $_GET['action'] === 'update_database') {
+    $sqlUrl = "https://raw.githubusercontent.com/brawleyjv/omc/main/omc_db.sql"; // GitHub SQL file URL
+    $savePath = $_SERVER['DOCUMENT_ROOT'] . '/OMC/omc_db.sql'; // Path to save the SQL file
+    $backupPath = $_SERVER['DOCUMENT_ROOT'] . '/OMC/backup_' . date('Y-m-d_H-i-s') . '.sql'; // Path to save the backup
+
+    try {
+        // Create a backup of the database
+        backupDatabase($backupPath);
+        echo "<p style='color: green; text-align: center;'>Database backup created successfully: $backupPath</p>";
+
+        // Download the SQL file
+        $sqlData = file_get_contents($sqlUrl);
+        if ($sqlData === false) {
+            throw new Exception("Failed to download the SQL file.");
+        }
+
+        // Save the SQL file to the specified path
+        if (file_put_contents($savePath, $sqlData) === false) {
+            throw new Exception("Failed to save the SQL file to $savePath.");
+        }
+
+        // Import the SQL file into the database
+        $connection = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+
+        if ($connection->connect_error) {
+            throw new Exception("Database connection failed: " . $connection->connect_error);
+        }
+
+        $sql = file_get_contents($savePath);
+        if ($sql === false) {
+            throw new Exception("Failed to read the SQL file.");
+        }
+
+        // Execute the SQL commands
+        if ($connection->multi_query($sql)) {
+            do {
+                // Flush results to process multiple queries
+                if ($result = $connection->store_result()) {
+                    $result->free();
+                }
+            } while ($connection->more_results() && $connection->next_result());
+        } else {
+            throw new Exception("Error executing SQL: " . $connection->error);
+        }
+
+        // Close the database connection
+        $connection->close();
+
+        // Delete the SQL file after importing
+        unlink($savePath);
+
+        echo "<p style='color: green; text-align: center;'>Database updated successfully using: $savePath</p>";
+    } catch (Exception $e) {
+        echo "<p style='color: red; text-align: center;'>Error: " . $e->getMessage() . "</p>";
+    }
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['save_exclusions'])) {
-    // Proceed with the update process
-    ?>
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Update Progress</title>
-        <style>
-            body { font-family: Arial, sans-serif; line-height: 1.6; }
-            .success { color: green; }
-            .error { color: red; }
-        </style>
-    </head>
-    <body>
-        <h1>Update Progress</h1>
-        <div id="progress">
-        <?php
-        function outputMessage($message, $type = 'info') {
-            $class = $type === 'success' ? 'success' : ($type === 'error' ? 'error' : '');
-            echo "<p class=\"$class\">$message</p>";
-            ob_flush();
-            flush();
-        }
-
-        function fetchFilesFromGitHub($repoOwner, $repoName, $branch) {
-            $url = "https://api.github.com/repos/$repoOwner/$repoName/git/trees/$branch?recursive=1";
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Accept: application/vnd.github.v3+json',
-                'User-Agent: YourAppName',
-            ]);
-            $response = curl_exec($ch);
-            curl_close($ch);
-
-            if ($response === false) {
-                die("Failed to fetch file list from GitHub.");
-            }
-
-            $data = json_decode($response, true);
-            if (isset($data['tree'])) {
-                return array_filter($data['tree'], fn($item) => $item['type'] === 'blob');
-            }
-
-            die("Failed to parse file list from GitHub.");
-        }
-
-        function isFileNewerOnGitHub($url, $localPath) {
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HEADER, true);
-            curl_setopt($ch, CURLOPT_NOBODY, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Accept: application/vnd.github.v3.raw',
-                'User-Agent: YourAppName',
-            ]);
-            $response = curl_exec($ch);
-            curl_close($ch);
-
-            if ($response === false) {
-                die("Failed to fetch file metadata from GitHub.");
-            }
-
-            // Extract the Last-Modified header
-            if (preg_match('/Last-Modified: (.+)/i', $response, $matches)) {
-                $githubLastModified = strtotime(trim($matches[1]));
-                if (file_exists($localPath)) {
-                    $localLastModified = filemtime($localPath);
-                    return $githubLastModified > $localLastModified;
-                }
-                return true; // Local file doesn't exist, so GitHub file is "newer"
-            }
-
-            return true; // If no Last-Modified header, assume the file needs to be updated
-        }
-
-        function downloadFileFromGitHub($url, $savePath) {
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Accept: application/vnd.github.v3.raw',
-                'User-Agent: YourAppName',
-            ]);
-            $data = curl_exec($ch);
-            curl_close($ch);
-
-            if ($data === false) {
-                die("Failed to download file from GitHub.");
-            }
-
-            // Ensure the directory exists
-            $directory = dirname($savePath);
-            if (!is_dir($directory)) {
-                mkdir($directory, 0777, true); // Create directories recursively
-            }
-
-            file_put_contents($savePath, $data);
-        }
-
-        function executeSqlFile($filePath, $connection) {
-            $sql = file_get_contents($filePath);
-            if ($sql === false) {
-                die("Failed to read SQL file.");
-            }
-
-            $statements = explode(';', $sql);
-            foreach ($statements as $statement) {
-                $statement = trim($statement);
-                if (!empty($statement)) {
-                    $connection->exec($statement);
-                }
-            }
-        }
-
-        function isExcluded($filePath, $exclusions) {
-            $filePath = strtolower($filePath); // Convert file path to lowercase
-            foreach ($exclusions as $exclusion) {
-                $exclusion = strtolower($exclusion); // Convert exclusion to lowercase
-                // Check if the exclusion is a folder (ends with a slash)
-                if (str_ends_with($exclusion, '/')) {
-                    if (strpos($filePath, rtrim($exclusion, '/')) === 0) {
-                        return true; // File is inside the excluded folder
-                    }
-                } elseif (fnmatch($exclusion, $filePath)) {
-                    return true; // File matches the exclusion pattern
-                }
-            }
-            return false;
-        }
-
-        $database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME); // Ensure required arguments are passed
+if (isset($_GET['action']) && $_GET['action'] === 'restore_backup') {
+    if (isset($_POST['backup_file']) && !empty($_POST['backup_file'])) {
+        $backupFile = $_SERVER['DOCUMENT_ROOT'] . '/OMC/' . basename($_POST['backup_file']); // Ensure only valid filenames are used
 
         try {
-            $repoOwner = 'brawleyjv';
-            $repoName = 'omc';
-            $branch = 'main';
-            $localRoot = $_SERVER['DOCUMENT_ROOT'] . '/OMC';
-            $exclusionFile = $localRoot . '/exclusions.ini'; // Path to the exclusion list file
-            $exclusions = loadExclusionList($exclusionFile);
-
-            outputMessage("Fetching file list from GitHub...");
-            $files = fetchFilesFromGitHub($repoOwner, $repoName, $branch);
-            outputMessage("File list fetched successfully.", 'success');
-
-            foreach ($files as $file) {
-                $filePath = $file['path'];
-
-                // Skip files or folders in the exclusion list
-                if (isExcluded($filePath, $exclusions)) {
-                    outputMessage("Excluded: $filePath", 'info');
-                    continue;
-                }
-
-                $githubUrl = "https://raw.githubusercontent.com/$repoOwner/$repoName/$branch/" . $filePath;
-                $localPath = $localRoot . '/' . $filePath;
-
-                if (isFileNewerOnGitHub($githubUrl, $localPath)) {
-                    outputMessage("Downloading file: " . $filePath);
-                    downloadFileFromGitHub($githubUrl, $localPath);
-                    outputMessage("Downloaded: $localPath", 'success');
-
-                    if (pathinfo($localPath, PATHINFO_EXTENSION) === 'sql') {
-                        outputMessage("Executing SQL file: $localPath");
-                        executeSqlFile($localPath, $connection);
-                        outputMessage("Executed SQL file: $localPath", 'success');
-                    }
-                } else {
-                    outputMessage("Skipped (up-to-date): $localPath", 'info');
-                }
+            if (!file_exists($backupFile)) {
+                throw new Exception("The selected backup file does not exist.");
             }
 
-            outputMessage("Update process completed successfully.", 'success');
+            // Read the SQL file
+            $sql = file_get_contents($backupFile);
+            if ($sql === false) {
+                throw new Exception("Failed to read the backup file.");
+            }
+
+            // Restore the database
+            $connection = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+
+            if ($connection->connect_error) {
+                throw new Exception("Database connection failed: " . $connection->connect_error);
+            }
+
+            // Execute the SQL commands
+            if ($connection->multi_query($sql)) {
+                do {
+                    // Flush results to process multiple queries
+                    if ($result = $connection->store_result()) {
+                        $result->free();
+                    }
+                } while ($connection->more_results() && $connection->next_result());
+            } else {
+                throw new Exception("Error executing SQL: " . $connection->error);
+            }
+
+            // Close the database connection
+            $connection->close();
+
+            echo "<p style='color: green; text-align: center;'>Database restored successfully from: $backupFile</p>";
         } catch (Exception $e) {
-            outputMessage("Error: " . $e->getMessage(), 'error');
+            echo "<p style='color: red; text-align: center;'>Error: " . $e->getMessage() . "</p>";
         }
-        ?>
-        </div>
-    </body>
-    </html>
-    <?php
-    ob_end_flush();
-    exit;
+    } else {
+        echo "<p style='color: red; text-align: center;'>No backup file selected for restoration.</p>";
+    }
 }
 
-// Load exclusions for display
-$exclusionFile = $_SERVER['DOCUMENT_ROOT'] . '/OMC/exclusions.ini';
-$currentExclusions = file_exists($exclusionFile) ? parse_ini_file($exclusionFile, true)['exclude'] ?? [] : [];
-$exclusionText = implode("\n", $currentExclusions);
+if (isset($_GET['action']) && $_GET['action'] === 'manual_backup') {
+    $backupPath = $_SERVER['DOCUMENT_ROOT'] . '/OMC/backup_' . date('Y-m-d_H-i-s') . '.sql'; // Path to save the backup
+
+    try {
+        // Create a manual backup of the database
+        backupDatabase($backupPath);
+        echo "<p style='color: green; text-align: center;'>Manual database backup created successfully: $backupPath</p>";
+    } catch (Exception $e) {
+        echo "<p style='color: red; text-align: center;'>Error: " . $e->getMessage() . "</p>";
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Confirmation</title>
-    <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; }
-        .warning { color: orange; }
-        textarea { width: 100%; height: 150px; }
-        .instructions { font-size: 0.9em; color: #555; margin-top: 10px; }
-    </style>
+    <title>Update System</title>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Include the CSS file -->
 </head>
 <body>
-    <h1>Update Confirmation</h1>
-    <p class="warning">You are about to update the system. This process will:</p>
-    <ul>
-        <li>Fetch the latest files from the GitHub repository.</li>
-        <li>Download and replace local files if they are outdated.</li>
-        <li>Execute any SQL scripts included in the update.</li>
-    </ul>
-    <p>Please ensure you have backed up your system before proceeding.</p>
-    <form method="POST">
-        <button type="submit">Proceed with Update</button>
-        <button type="button" onclick="window.location.href='/OMC';">Cancel</button>
-    </form>
-    <h2>Edit Exclusions</h2>
-    <form method="POST">
-        <textarea name="exclusions"><?php echo htmlspecialchars($exclusionText); ?></textarea>
-        <button type="submit" name="save_exclusions">Save Exclusions</button>
-        <button type="submit" name="list_exclusions">List Exclusions</button>
-    </form>
-    <div class="instructions">
+    <div class="container">
+        <h1 class="title">Update System</h1>
+        <p>Use the buttons below to update, restore, or manually back up the system.</p>
         <p><strong>Instructions:</strong></p>
         <ul>
-            <li>To exclude a specific file, add its name or relative path, for example: <em>file.php</em> or <em>folder/file.php</em></li>
-            <li>To exclude an entire folder, add the folder name with a trailing slash, for example: <em>folder_name/</em></li>
-            <li>To exclude files with a specific extension, use a wildcard, for example: <em>*.log</em></li>
+            <li><strong>Download and Extract Update Package:</strong> Downloads the latest update package from the repository, extracts its contents into the system folder, and replaces the existing files.</li>
+            <li><strong>Update Database:</strong> Creates a backup of the current database, downloads the latest database update file, and applies it to the system.</li>
+            <li><strong>Restore Database:</strong> Allows you to restore the database from a previously created backup file.</li>
+            <li><strong>Manual Backup:</strong> Creates a manual backup of the current database, which can be restored later if needed.</li>
         </ul>
+        <div class="button-container">
+            <a href="?action=download_zip" class="btn styled-btn">Download and Extract Update Package</a>
+            <a href="?action=update_database" class="btn styled-btn">Update Database</a>
+            <form action="?action=restore_backup" method="post" style="display: inline;">
+                <select name="backup_file" class="btn styled-btn">
+                    <?php
+                    // List all backup files in the OMC directory
+                    $backupFiles = glob($_SERVER['DOCUMENT_ROOT'] . '/OMC/backup_*.sql');
+                    foreach ($backupFiles as $file) {
+                        $fileName = basename($file);
+                        echo "<option value=\"$fileName\">$fileName</option>";
+                    }
+                    ?>
+                </select>
+                <button type="submit" class="btn styled-btn">Restore Backup</button>
+            </form>
+            <a href="?action=manual_backup" class="btn styled-btn">Manual Backup</a>
+            <a href="<?php echo BASE_URL; ?>Views/main.php" class="btn cancel-btn">Cancel</a>
+        </div>
     </div>
 </body>
 </html>
-<?php
-// End output buffering and flush all output
-ob_end_flush();
-?>
