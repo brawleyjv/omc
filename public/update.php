@@ -37,8 +37,10 @@ function backupDatabase($backupPath) {
             if ($tableDataResult) {
                 while ($row = $tableDataResult->fetch_assoc()) {
                     $columns = array_map(fn($col) => "`$col`", array_keys($row));
-                    $values = array_map(fn($val) => $connection->real_escape_string($val), array_values($row));
-                    $sqlBackup .= "INSERT INTO `$table` (" . implode(", ", $columns) . ") VALUES ('" . implode("', '", $values) . "');\n";
+                    $values = array_map(function ($val) use ($connection) {
+                        return $val === null ? "NULL" : "'" . $connection->real_escape_string($val) . "'";
+                    }, array_values($row));
+                    $sqlBackup .= "INSERT INTO `$table` (" . implode(", ", $columns) . ") VALUES (" . implode(", ", $values) . ");\n";
                 }
             } else {
                 throw new Exception("Failed to retrieve data for $table: " . $connection->error);
@@ -134,21 +136,105 @@ if (isset($_GET['action']) && $_GET['action'] === 'update_database') {
             throw new Exception("Database connection failed: " . $connection->connect_error);
         }
 
+        // Remove all foreign key constraints from the `bom` table
+        $result = $connection->query("SELECT CONSTRAINT_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE TABLE_NAME = 'bom' AND TABLE_SCHEMA = DATABASE() AND CONSTRAINT_NAME != 'PRIMARY'");
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $foreignKeyName = $row['CONSTRAINT_NAME'];
+                $dropFKSQL = "ALTER TABLE `bom` DROP FOREIGN KEY `$foreignKeyName`";
+                if ($connection->query($dropFKSQL)) {
+                    echo "<p style='color: green; text-align: center;'>Foreign key `$foreignKeyName` removed from `bom` table.</p>";
+                } else {
+                    echo "<p style='color: orange; text-align: center;'>Warning: Failed to remove foreign key `$foreignKeyName`: " . $connection->error . "</p>";
+                }
+            }
+        } else {
+            echo "<p style='color: orange; text-align: center;'>Warning: Failed to retrieve foreign keys for `bom` table: " . $connection->error . "</p>";
+        }
+
+        // Handle dependent rows in the `materials` table
+        $dependentRowsResult = $connection->query("SELECT * FROM `materials` WHERE `id` NOT IN (SELECT DISTINCT `material_id` FROM `bom`)");
+        if ($dependentRowsResult && $dependentRowsResult->num_rows > 0) {
+            echo "<p style='color: orange; text-align: center;'>Warning: There are dependent rows in the `materials` table that are not referenced in `bom`. Consider reviewing them.</p>";
+            // Optionally delete or log these rows
+            // Uncomment the following line to delete them:
+            // $connection->query("DELETE FROM `materials` WHERE `id` NOT IN (SELECT DISTINCT `material_id` FROM `bom`)");
+        }
+
+        // Disable foreign key checks
+        if (!$connection->query("SET FOREIGN_KEY_CHECKS = 0")) {
+            throw new Exception("Failed to disable foreign key checks: " . $connection->error);
+        }
+
         $sql = file_get_contents($savePath);
         if ($sql === false) {
             throw new Exception("Failed to read the SQL file.");
         }
 
-        // Execute the SQL commands
-        if ($connection->multi_query($sql)) {
-            do {
-                // Flush results to process multiple queries
-                if ($result = $connection->store_result()) {
-                    $result->free();
+        // Split the SQL file into individual statements
+        $statements = array_filter(array_map('trim', explode(';', $sql))); // Remove empty statements and trim
+        foreach ($statements as $statement) {
+            if (stripos($statement, 'CREATE TABLE') !== false) {
+                // Modify CREATE TABLE statements to include IF NOT EXISTS
+                $statement = preg_replace('/CREATE TABLE\s+`?(\w+)`?/i', 'CREATE TABLE IF NOT EXISTS `$1`', $statement);
+            } elseif (stripos($statement, 'ALTER TABLE') !== false) {
+                // Handle ALTER TABLE statements gracefully
+                // Add logic to check for column existence if needed
+            } elseif (stripos($statement, 'INSERT INTO') !== false) {
+                // Validate and adjust INSERT INTO statements
+                $statement = preg_replace_callback(
+                    '/INSERT INTO\s+`?(\w+)`?\s+\((.*?)\)\s+VALUES\s+\((.*?)\)/i',
+                    function ($matches) use ($connection) {
+                        $table = $matches[1];
+                        $columns = explode(',', $matches[2]);
+                        $values = explode(',', $matches[3]);
+
+                        // Fetch the actual column count from the database
+                        $result = $connection->query("DESCRIBE `$table`");
+                        if ($result) {
+                            $actualColumns = [];
+                            while ($row = $result->fetch_assoc()) {
+                                $actualColumns[] = $row['Field'];
+                            }
+                            $result->free();
+
+                            // Adjust columns and values to match the actual schema
+                            $adjustedValues = [];
+                            foreach ($actualColumns as $index => $column) {
+                                if (isset($columns[$index]) && isset($values[$index])) {
+                                    $adjustedValues[] = trim($values[$index], " '\"");
+                                } else {
+                                    $adjustedValues[] = 'NULL'; // Fill missing values with NULL
+                                }
+                            }
+
+                            // Rebuild the INSERT statement
+                            $sanitizedValues = array_map(function ($value) use ($connection) {
+                                return $value === 'NULL' ? 'NULL' : "'" . $connection->real_escape_string($value) . "'";
+                            }, $adjustedValues);
+
+                            return "INSERT INTO `$table` (" . implode(', ', $actualColumns) . ") VALUES (" . implode(', ', $sanitizedValues) . ")";
+                        }
+
+                        // If DESCRIBE fails, return the original statement
+                        return $matches[0];
+                    },
+                    $statement
+                );
+            }
+
+            if (!empty($statement)) {
+                // Execute each statement
+                if (!$connection->query($statement)) {
+                    // Log or display warnings for non-critical errors
+                    echo "<p style='color: orange; text-align: center;'>Warning: " . $connection->error . " for query: $statement</p>";
                 }
-            } while ($connection->more_results() && $connection->next_result());
-        } else {
-            throw new Exception("Error executing SQL: " . $connection->error);
+            }
+        }
+
+        // Re-enable foreign key checks
+        if (!$connection->query("SET FOREIGN_KEY_CHECKS = 1")) {
+            throw new Exception("Failed to re-enable foreign key checks: " . $connection->error);
         }
 
         // Close the database connection

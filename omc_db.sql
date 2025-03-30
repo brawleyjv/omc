@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 30, 2025 at 04:30 AM
+-- Generation Time: Mar 30, 2025 at 06:40 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,39 +20,6 @@ SET time_zone = "+00:00";
 --
 -- Database: `omc_db`
 --
-
--- --------------------------------------------------------
-
---
--- Table structure for table `bom`
---
-
-CREATE TABLE `bom` (
-  `id` int(11) NOT NULL,
-  `project_name` varchar(20) NOT NULL,
-  `material_name` varchar(255) NOT NULL,
-  `material_type` int(11) NOT NULL,
-  `length` decimal(10,2) NOT NULL,
-  `width` decimal(10,2) NOT NULL,
-  `thickness` decimal(10,2) NOT NULL,
-  `quantity` int(11) NOT NULL,
-  `material_id` int(11) NOT NULL,
-  `materials` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`materials`)),
-  `project_id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `bom`
---
-
-INSERT INTO `bom` (`id`, `project_name`, `material_name`, `material_type`, `length`, `width`, `thickness`, `quantity`, `material_id`, `materials`, `project_id`) VALUES
-(1, '', '', 0, 0.00, 0.00, 0.00, 0, 0, '[\"5\",\"5\"]', 0),
-(2, '', '', 0, 0.00, 0.00, 0.00, 0, 0, '[\"100\",\"100\"]', 0),
-(3, '', '', 0, 0.00, 0.00, 0.00, 0, 0, '[\"118\",\"118\"]', 0),
-(4, '', '', 0, 0.00, 0.00, 0.00, 0, 0, '[{\"material_id\":\"5\",\"material_name\":\"2x2 pine\",\"length\":\"96.00\",\"width\":\"1.50\",\"thickness\":\"1.50\",\"quantity\":\"1\"},{\"material_id\":\"5\",\"material_name\":null,\"length\":null,\"width\":null,\"thickness\":null,\"quantity\":null}]', 0),
-(5, '', '', 0, 0.00, 0.00, 0.00, 0, 0, '[{\"material_id\":\"118\",\"material_name\":\"Birch Plywood\",\"length\":\"96.00\",\"width\":\"48.00\",\"thickness\":\"0.75\",\"quantity\":\"1\"},{\"material_id\":\"118\",\"material_name\":null,\"length\":null,\"width\":null,\"thickness\":null,\"quantity\":null}]', 0),
-(6, '', '', 0, 0.00, 0.00, 0.00, 0, 0, '[{\"material_id\":\"100\",\"material_name\":\"2x4x10\' Ground Contact Green Pressure Treated\",\"length\":\"96.00\",\"width\":\"3.50\",\"thickness\":\"1.50\",\"quantity\":\"1\"},{\"material_id\":\"100\",\"material_name\":null,\"length\":null,\"width\":null,\"thickness\":null,\"quantity\":null}]', 0),
-(7, '', '2x2 pine', 0, 96.00, 1.50, 1.50, 1, 0, NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -403,16 +370,6 @@ ALTER TABLE `users`
 --
 ALTER TABLE `vendors`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `bom`
---
-ALTER TABLE `bom`
-  ADD CONSTRAINT `bom_ibfk_2` FOREIGN KEY (`material_type`) REFERENCES `material_types` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
