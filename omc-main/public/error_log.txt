@@ -1,0 +1,9 @@
+[05-Jan-2025 03:19:19 Europe/Berlin] PHP Warning:  Undefined variable $servername in C:\xampp\htdocs\OMC\public\projects\submit_project.php on line 8
+[05-Jan-2025 03:19:19 Europe/Berlin] PHP Warning:  Undefined variable $username in C:\xampp\htdocs\OMC\public\projects\submit_project.php on line 8
+[05-Jan-2025 03:19:19 Europe/Berlin] PHP Warning:  Undefined variable $password in C:\xampp\htdocs\OMC\public\projects\submit_project.php on line 8
+[05-Jan-2025 03:19:19 Europe/Berlin] PHP Warning:  Undefined variable $dbname in C:\xampp\htdocs\OMC\public\projects\submit_project.php on line 8
+[05-Jan-2025 03:19:19 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user ''@'localhost' (using password: NO) in C:\xampp\htdocs\OMC\public\projects\submit_project.php:8
+Stack trace:
+#0 C:\xampp\htdocs\OMC\public\projects\submit_project.php(8): mysqli->__construct(NULL, NULL, Object(SensitiveParameterValue), NULL)
+#1 {main}
+  thrown in C:\xampp\htdocs\OMC\public\projects\submit_project.php on line 8
