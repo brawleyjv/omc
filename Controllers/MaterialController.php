@@ -276,5 +276,42 @@ class MaterialController {
         $materialModel = new MaterialModel($this->db); // Pass Database instance to MaterialModel
         return $materialModel->createMaterial($data); // Call the model's createMaterial method
     }
+
+    public function updateMaterial($id, $material_name, $length, $width, $thickness, $price, $quantity_on_hand, $type, $vendor, $item_no, $item_url, $image_url) {
+        $conn = $this->db->getConnection(); // Retrieve the PDO connection
+        if (!$conn) {
+            throw new \Exception("Database connection is null.");
+        }
+
+        $query = "UPDATE materials SET 
+                    material_name = :material_name,
+                    length = :length,
+                    width = :width,
+                    thickness = :thickness,
+                    price = :price,
+                    quantity_on_hand = :quantity_on_hand,
+                    type = :type,
+                    vendor = :vendor,
+                    item_no = :item_no,
+                    item_url = :item_url,
+                    image_url = :image_url
+                  WHERE id = :id";
+
+        $stmt = $conn->prepare($query); // Use the PDO connection to prepare the query
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->bindValue(':material_name', $material_name);
+        $stmt->bindValue(':length', $length);
+        $stmt->bindValue(':width', $width);
+        $stmt->bindValue(':thickness', $thickness);
+        $stmt->bindValue(':price', $price);
+        $stmt->bindValue(':quantity_on_hand', $quantity_on_hand);
+        $stmt->bindValue(':type', $type);
+        $stmt->bindValue(':vendor', $vendor);
+        $stmt->bindValue(':item_no', $item_no);
+        $stmt->bindValue(':item_url', $item_url);
+        $stmt->bindValue(':image_url', $image_url);
+
+        return $stmt->execute();
+    }
 }
 ?>

@@ -1,14 +1,13 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/config.php'; // Updated path to config.php
-require_once BASE_PATH . '/Models/Database.php'; // Added to include the Database class
-require_once BASE_PATH . '/Controllers/MaterialController.php'; // Include the MaterialController
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php';
+require_once BASE_PATH . '/Models/Database.php';
+require_once BASE_PATH . '/Controllers/MaterialController.php';
 
-use MyApp\Controllers\MaterialController;
 use MyApp\Models\Database;
+use MyApp\Controllers\MaterialController;
 
-// Pass the required argument to the MaterialController constructor
-$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME); // Updated initialization
-$materialController = new MaterialController($database);
+$database = new Database(DB_HOST, DB_NAME, DB_USER, DB_PASS); // Ensure Database is instantiated with required arguments
+$controller = new MaterialController($database); // Pass the $database object to the constructor
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = [
@@ -17,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'quantity' => $_POST['quantity'],
         'price' => $_POST['price']
     ];
-    $result = $materialController->createMaterial($data);
+    $result = $controller->createMaterial($data);
     if ($result) {
         echo "<script>alert('Material added successfully.'); window.location.href = 'index.php';</script>";
     }

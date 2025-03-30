@@ -7,9 +7,7 @@ error_reporting(E_ALL);
 use Controllers\InstallController;
 use Models\Settings;
 use MyApp\Models\Database;
-use Globals\Config; // Ensure Config is imported
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Globals/Config.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Controllers/InstallController.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Models/Settings.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Models/Database.php';
@@ -24,8 +22,14 @@ $settings_data = $settings->getSettings();
 $_SESSION['company_name'] = $settings_data['company_name'];
 $_SESSION['company_slogan'] = $settings_data['company_slogan'];
 
-$db = new Database(Config::DB_HOST, Config::DB_NAME, Config::DB_USER, Config::DB_PASS);
+$db = new Database(DB_HOST, DB_NAME, DB_USER, DB_PASS); // Removed Globals\Config
 $conn = $db->getConnection();
+
+if (!$conn) { // Check if the connection is null
+    error_log("Database connection failed.");
+    echo "Database connection failed. Please check your configuration.";
+    exit();
+}
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $name = trim($_POST['name'] ?? '');

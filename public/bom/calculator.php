@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $thickness = $thicknesses[$index];
         $quantity = $quantities[$index];
 
-        $bom->addBom($material_name, $material_type, $length, $width, $thickness, $quantity);
+        $bom->addBom($material_name, $material_type, $length, $width, $thickness, $quantity); // Removed the 7th argument
     }
 
     header("Location: " . BASE_URL . "public/bom/estimate.php?project_id=$project_id");

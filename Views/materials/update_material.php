@@ -5,9 +5,8 @@ require_once BASE_PATH . '/Controllers/MaterialController.php';
 
 use MyApp\Controllers\MaterialController;
 use MyApp\Models\Database;
-use Globals\Config;
 
-$database = new Database(Config::DB_HOST, Config::DB_NAME, Config::DB_USER, Config::DB_PASS);
+$database = new Database(DB_HOST, DB_NAME, DB_USER, DB_PASS); // Removed Globals\Config
 $controller = new MaterialController($database);
 
 $id = $_POST['id'];

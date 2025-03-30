@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Delete Material</title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>css/styles.css"> <!-- Ensure BASE_URL points to localhost/omc -->
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Corrected path -->
 </head>
 <body>
     <h1>Delete Material</h1>

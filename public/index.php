@@ -6,15 +6,15 @@ require_once BASE_PATH . '/Controllers/ProjectController.php';
 use MyApp\Controllers\ProjectController;
 use MyApp\Models\Database;
 
-// Ensure Database is instantiated with required arguments
-$database = new Database(Config::DB_HOST, Config::DB_USER, Config::DB_PASS, Config::DB_NAME);
+$database = new Database(DB_HOST, DB_NAME, DB_USER, DB_PASS); // Removed Globals\Config
 
 // Access the connection using the public method
 $conn = $database->getConnection(); // Use getConnection instead of connect
 
 // Example usage of getter methods if needed
-$host = $database->getHost();
-$user = $database->getUser();
+// Removed $host = $database->getHost(); as getHost is undefined
+
+// Removed $user = $database->getUser(); as getUser is undefined
 
 $controller = new ProjectController($database);
 

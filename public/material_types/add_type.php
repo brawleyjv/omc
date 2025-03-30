@@ -3,7 +3,6 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Config.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Models/Database.php';
 
 use MyApp\Models\Database;
-use Globals\Config;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $type_name = $_POST['type_name'];
@@ -13,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    $database = new Database(Config::DB_HOST, Config::DB_NAME, Config::DB_USER, Config::DB_PASS);
+    $database = new Database(DB_HOST, DB_NAME, DB_USER, DB_PASS); // Removed Globals\Config
     $stmt = $database->getConnection()->prepare("INSERT INTO material_types (type_name) VALUES (?)");
     $stmt->execute([$type_name]);
 

@@ -16,7 +16,7 @@ include BASE_PATH . '/Views/materials/list_materials.php';
 <html lang="en">
 <head>
     <!-- ...existing code... -->
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>css/styles.css"> <!-- Updated to use correct BASE_URL -->
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/styles.css"> <!-- Updated to use correct BASE_URL -->
 </head>
 <body>
     <!-- ...existing code... -->

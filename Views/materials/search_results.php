@@ -7,7 +7,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Corrected path to
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search Results</title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>css/styles.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Corrected path -->
     <style>
         .close-button {
             position: absolute;
