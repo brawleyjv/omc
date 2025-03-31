@@ -36,6 +36,12 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Views/header.php'; // Include the
         <form method="post" action="update.php">
             
         </form>
+        <div style="text-align: center; margin-top: 20px;">
+            <form method="get" action="/OMC/public/update.php">
+                <input type="hidden" name="action" value="import_database">
+                <button type="submit" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">Import Database</button>
+            </form>
+        </div>
     </div>
 </body>
 </html>

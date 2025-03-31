@@ -27,4 +27,11 @@ if (!defined('BASE_PATH')) {
 
 // Define base URL
 define('BASE_URL', 'http://localhost/omc/');
+
+$dbConfig = [
+    'host' => DB_HOST,
+    'username' => DB_USER,
+    'password' => DB_PASSWORD,
+    'database' => DB_NAME
+];
 ?>

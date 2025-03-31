@@ -21,13 +21,17 @@ if (isset($_GET['action'])) {
             error_log("update.php: Calling updateDatabase() method.");
             $controller->updateDatabase();
             break;
-        case 'restore_backup':
-            error_log("update.php: Calling restoreBackup() method.");
-            $controller->restoreBackup();
-            break;
         case 'manual_backup':
             error_log("update.php: Calling manualBackup() method.");
             $controller->manualBackup();
+            break;
+        case 'backup_database':
+            error_log("update.php: Calling backupDatabase() method.");
+            $controller->backupDatabase();
+            break;
+        case 'import_database':
+            error_log("update.php: Calling importDatabase() method.");
+            $controller->importDatabase(); // No arguments needed
             break;
         default:
             error_log("update.php: Invalid action specified.");
