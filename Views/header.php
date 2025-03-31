@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 ob_start(); // Start output buffering to prevent premature output
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/config.php'; // Explicitly reference the OMC directory
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Ensure correct path to config.php
 
 ?>
 <!DOCTYPE html>
@@ -20,7 +20,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/config.php'; // Explicitly refere
         <div class="header-content">
             <header style="display: flex; align-items: center; justify-content: space-between; gap: 20px;">
                 <div style="display: flex; align-items: center; gap: 20px;">
-                    <img src="<?php echo BASE_URL; ?>public/images/login-image.png" alt="Logo" style="height: 50px;">
+                    <img src="<?php echo BASE_URL; ?>public/images/login-image.png" alt="Logo" style="height: 50px;"> <!-- Corrected path -->
                     <div>
                         <h1>Ozark Made Crafts</h1>
                         <p>Precision Craftsmanship with a Personal Touch</p>

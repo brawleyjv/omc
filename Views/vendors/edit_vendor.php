@@ -1,10 +1,14 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Explicitly reference the OMC directory
-require_once BASE_PATH . 'Controllers/VendorController.php'; // Use BASE_PATH for dynamic path resolution
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Ensure correct path to config.php
+require_once BASE_PATH . '/Models/Database.php';
+require_once BASE_PATH . '/Controllers/VendorController.php';
 
-use MyApp\Controllers\VendorController; // Add namespace if applicable
+use MyApp\Models\Database;
+use MyApp\Controllers\VendorController;
 
-$vendorController = new VendorController();
+$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME); // Ensure proper initialization
+$vendorController = new VendorController($database); // Pass the database instance to the VendorController
+
 $vendor = null;
 $updateSuccess = null;
 
@@ -45,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const updateSuccess = "<?php echo $updateSuccess; ?>";
             if (updateSuccess === 'success') {
                 alert('Vendor updated successfully.');
-                window.location.href = 'list_vendors.php';
+                window.location.href = '<?php echo BASE_URL; ?>Views/vendors/list_vendors.php';
             } else if (updateSuccess === 'failure') {
                 alert('Failed to update vendor.');
             }
@@ -53,10 +57,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </script>
 </head>
 <body>
-    <?php include BASE_PATH . 'Views/header.php'; ?> <!-- Use BASE_PATH -->
+    <?php include BASE_PATH . '/Views/header.php'; ?> <!-- Corrected path with proper slash -->
     <h1>Edit Vendor</h1>
     <?php if (isset($vendor) && $vendor): ?>
-        <form action="edit_vendor.php" method="post">
+        <form action="<?php echo BASE_URL; ?>Views/vendors/edit_vendor.php" method="post">
             <label for="vendor_id">Vendor ID:</label>
             <input type="text" id="vendor_id" value="<?php echo htmlspecialchars($vendor['id'] ?? ''); ?>" readonly><br>
             <input type="hidden" name="vendor_id" value="<?php echo htmlspecialchars($vendor['id'] ?? ''); ?>">

@@ -19,11 +19,15 @@ if (isset($_GET['action'])) {
             break;
         case 'update_database':
             error_log("update.php: Calling updateDatabase() method.");
-            $controller->updateDatabase();
+            // Remove or comment out the following line if the method is not needed
+            // $controller->updateDatabase();
+            echo "<p style='color: red; text-align: center;'>The updateDatabase action is not implemented.</p>";
             break;
         case 'manual_backup':
             error_log("update.php: Calling manualBackup() method.");
-            $controller->manualBackup();
+            // Remove or comment out the following line if the method is not needed
+            // $controller->manualBackup();
+            echo "<p style='color: red; text-align: center;'>The manualBackup action is not implemented.</p>";
             break;
         case 'backup_database':
             error_log("update.php: Calling backupDatabase() method.");

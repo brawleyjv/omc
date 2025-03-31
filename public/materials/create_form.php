@@ -6,7 +6,7 @@ error_reporting(E_ALL);
 
 use Globals\Config;
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/config.php'; // Updated path to config.php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Ensure correct path to config.php
 
 // Ensure session is started only if not already active
 if (session_status() === PHP_SESSION_NONE) {

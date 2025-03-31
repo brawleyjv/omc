@@ -125,5 +125,62 @@ class UpdateController {
             flush();
         }
     }
+
+    public function updateDatabase() {
+        error_log("UpdateController: updateDatabase() method called."); // Log method call
+        try {
+            echo "<p style='color: blue; text-align: center;'>Starting database update process...</p>";
+            ob_flush();
+            flush();
+
+            // Add logic for updating the database here
+            // For example, you can call the importDatabase method or execute specific SQL commands
+
+            echo "<p style='color: green; text-align: center;'>Database update completed successfully.</p>";
+            ob_flush();
+            flush();
+        } catch (Exception $e) {
+            error_log("UpdateController: Error in updateDatabase(): " . $e->getMessage());
+            echo "<p style='color: red; font-weight: bold; text-align: center;'>Error: " . htmlspecialchars($e->getMessage()) . "</p>";
+            ob_flush();
+            flush();
+        }
+    }
+
+    public function manualBackup() {
+        error_log("UpdateController: manualBackup() method called."); // Log method call
+        try {
+            echo "<p style='color: blue; text-align: center;'>Starting manual backup process...</p>";
+            ob_flush();
+            flush();
+
+            // Use credentials from config.php
+            global $dbConfig;
+            $databaseName = $dbConfig['database'];
+            $username = $dbConfig['username'];
+            $password = $dbConfig['password'];
+
+            error_log("UpdateController: Using database credentials - DB: $databaseName, User: $username"); // Log credentials for debugging
+
+            $backupFile = $this->fileManager->backupDatabase($databaseName, $username, $password);
+
+            error_log("UpdateController: Manual backup completed successfully. File saved to: $backupFile");
+            echo "<p style='color: green; text-align: center;'>Manual backup completed successfully. File saved to: $backupFile</p>";
+            ob_flush();
+            flush();
+
+            // Add a "Back to Update" button
+            echo "<div style='text-align: center; margin-top: 20px;'>
+                    <a href='/OMC/Views/update.php' style='display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;'>Back to Update</a>
+                  </div>";
+            ob_flush();
+            flush();
+        } catch (Exception $e) {
+            error_log("UpdateController: Error in manualBackup(): " . $e->getMessage());
+            echo "<p style='color: red; font-weight: bold; text-align: center;'>Error: " . htmlspecialchars($e->getMessage()) . "</p>";
+            ob_flush();
+            flush();
+        }
+    }
 }
 ?>

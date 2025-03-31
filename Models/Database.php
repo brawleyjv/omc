@@ -2,6 +2,8 @@
 
 namespace MyApp\Models;
 
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Ensure correct path to config.php
+
 use PDO;
 use PDOException;
 
@@ -10,31 +12,33 @@ class Database {
     private $user;
     private $password;
     private $dbname;
-    private $conn;
+    private $connection;
 
-    public function __construct($host, $user, $password, $dbname) {
+    public function __construct($host = DB_HOST, $user = DB_USER, $password = DB_PASSWORD, $dbname = DB_NAME) { // Use DB_PASSWORD
         $this->host = $host;
-        $this->user = $user;
+        $this->user = $user; // Ensure DB_USER is used for the username
         $this->password = $password;
         $this->dbname = $dbname;
-        $this->conn = null;
+        $this->connection = null; // Initialize connection as null
+    }
+
+    private function connect() {
+        try {
+            $dsn = "mysql:host={$this->host};dbname={$this->dbname};charset=utf8mb4";
+            $this->connection = new PDO($dsn, $this->user, $this->password); // Use $this->user for the username
+            $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Database connection error: " . $e->getMessage()); // Log the error for debugging
+            throw new PDOException("Database connection failed: " . $e->getMessage());
+        }
     }
 
     public function getConnection() {
-        if ($this->conn === null) {
-            try {
-                $this->conn = new PDO(
-                    "mysql:host={$this->host};dbname={$this->dbname}",
-                    $this->user,
-                    $this->password
-                );
-                $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            } catch (PDOException $e) {
-                error_log("Database connection failed: " . $e->getMessage());
-                throw new \Exception("Database connection failed.");
-            }
+        if ($this->connection === null) {
+            $this->connect();
         }
-        return $this->conn;
+        return $this->connection;
     }
 }
 ?>

@@ -1,23 +1,19 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Ensure correct path to config.php
 require_once BASE_PATH . '/Models/Database.php';
-require_once BASE_PATH . '/Controllers/VendorController.php'; // Ensure the VendorController file is included
+require_once BASE_PATH . '/Controllers/VendorController.php';
 
 use MyApp\Models\Database;
-use MyApp\Controllers\VendorController; // Import the correct namespace for VendorController
+use MyApp\Controllers\VendorController;
 
-$database = new Database(DB_HOST, DB_NAME, DB_USER, DB_PASS);
-$vendorController = new VendorController($database); // Instantiate VendorController with the database object
+// Initialize the database
+$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME); // Updated initialization
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_vendor_id'])) {
-    $vendorId = $_POST['delete_vendor_id'];
-    $vendorController->deleteVendor($vendorId);
-    header('Location: list_vendors.php');
-    exit;
-}
+// Initialize the VendorController with the database instance
+$vendorController = new VendorController($database);
 
-$vendors = $vendorController->listVendors(); // Call the method to list vendors
+// Retrieve all vendors
+$vendors = $vendorController->getAllVendors(); // Use the new method to fetch all vendors
 
-// Pass data to the view
-include BASE_PATH . '/Views/vendors/list_vendors.php';
+include BASE_PATH . '/Views/vendors/list_vendors.php'; // Include the view file
 ?>

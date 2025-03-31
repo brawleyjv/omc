@@ -1,4 +1,5 @@
 <?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Ensure correct path to config.php
 require_once '../../controllers/MaterialController.php';
 
 use MyApp\Controllers\MaterialController;

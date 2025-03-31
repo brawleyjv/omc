@@ -1,10 +1,18 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Explicitly reference the OMC directory
-require_once BASE_PATH . 'Controllers/VendorController.php'; // Use BASE_PATH for dynamic path resolution
+require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Ensure correct path to config.php
+require_once BASE_PATH . '/Models/Database.php';
+require_once BASE_PATH . '/Controllers/VendorController.php'; // Corrected path
 
 use MyApp\Controllers\VendorController; // Use the correct namespace
+use MyApp\Models\Database; // Add namespace for Database
 
-$vendorController = new VendorController(); // Instantiate the VendorController
+// Ensure DB constants are defined
+if (!defined('DB_HOST') || !defined('DB_NAME') || !defined('DB_USER') || !defined('DB_PASSWORD')) {
+    die('Database configuration constants are not defined. Please check config.php.');
+}
+
+$database = new Database(DB_HOST, DB_USER, '', DB_NAME); // Removed DB_PASSWORD
+$vendorController = new VendorController($database); // Pass Database instance to VendorController
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_vendor_id'])) {
     $vendorId = $_POST['delete_vendor_id'];
@@ -16,13 +24,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_vendor_id'])) 
 $vendors = $vendorController->getVendors();
 ?>
 
+<?php require_once BASE_PATH . '/Views/header.php'; ?> <!-- Include header -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>List of Vendors</title>
-    <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>public/css/styles.css"> <!-- Ensure BASE_URL is used correctly -->
+    <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles.css"> <!-- Ensure BASE_URL is used correctly -->
     <style>
         .top-buttons {
             display: flex;
@@ -100,10 +109,10 @@ $vendors = $vendorController->getVendors();
     </style>
 </head>
 <body>
-    <?php include BASE_PATH . 'Views/header.php'; ?> <!-- Use BASE_PATH -->
     <h1 class="center-title">List of Vendors</h1>
     <div class="top-buttons">
-        <button class="btn styled-btn" style="margin-right: 20px;" onclick="window.location.href='add_vendor.php'">Add Vendor</button>
+        <button class="btn styled-btn" style="margin-right: 20px;" onclick="window.location.href='<?php echo BASE_URL; ?>Views/vendors/add_vendor.php'">Add Vendor</button>
+        <button class="btn styled-btn red" onclick="window.location.href='<?php echo BASE_URL; ?>Views/vendors/index.php'">Close</button> <!-- Close button -->
     </div>
     <div class="content">
         <table>
