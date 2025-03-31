@@ -4,6 +4,8 @@ ini_set('max_execution_time', '300'); // Increase execution time to 300 seconds 
 
 class FileManager {
     public function downloadFile($url, $savePath) {
+        // Ensure the save path is adjusted to point to C:\xampp\htdocs\
+        $savePath = str_replace('/OMC/', '/', $savePath); // Adjust path to root directory
         $fileData = file_get_contents($url);
         if ($fileData === false) {
             throw new Exception("Failed to download the file from $url.");
@@ -11,21 +13,6 @@ class FileManager {
 
         if (file_put_contents($savePath, $fileData) === false) {
             throw new Exception("Failed to save the file to $savePath.");
-        }
-    }
-
-    public function extractZip($zipPath, $extractPath) {
-        if (!class_exists('ZipArchive')) {
-            throw new Exception("The ZipArchive class is not available. Please enable the zip extension in your PHP configuration.");
-        }
-
-        $zip = new ZipArchive();
-        if ($zip->open($zipPath) === true) {
-            $zip->extractTo($extractPath);
-            $zip->close();
-            // unlink($zipPath); // Do not delete the zip file after extraction
-        } else {
-            throw new Exception("Failed to open the zip file for extraction.");
         }
     }
 }

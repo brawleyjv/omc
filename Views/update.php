@@ -19,19 +19,18 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Views/header.php'; // Include the
             <strong>Notice:</strong> Please ensure a stable internet connection before starting the update process.
         </div>
 
-        <p>Use the buttons below to update, restore, or manually back up the system.</p>
+        <p>Follow the steps below to update the system:</p>
         <p><strong>Instructions:</strong></p>
-        <ul>
-            <li><strong>Download and Extract Update Package:</strong> Downloads the latest update package from the repository, extracts its contents into the system folder, and replaces the existing files.</li>
-            <li><strong>Update Database:</strong> Creates a backup of the current database, downloads the latest database update file, and applies it to the system.</li>
-            <li><strong>Restore Database:</strong> Allows you to restore the database from a previously created backup file.</li>
-            <li><strong>Manual Backup:</strong> Creates a manual backup of the current database, which can be restored later if needed.</li>
-            <li><strong>Export Database:</strong> Exports the database to a clean SQL file for testing or backup purposes.</li>
-        </ul>
+        <ol>
+            <li><strong>Download Update Package:</strong> Click the "Download Update Package" button below to download the latest update package. The file will be saved to the root directory: <code>C:\xampp\htdocs\main.zip</code>.</li>
+            <li><strong>Extract the Package:</strong> Manually extract the contents of <code>main.zip</code> into the <code>C:\xampp\htdocs</code> directory. Ensure that the files overwrite the existing ones.</li>
+            <li><strong>Backup Database:</strong> Use the "Backup Database" button to create a backup of the current database. The backup file will be saved in the root directory: <code>C:\xampp\htdocs\</code>.</li>
+            <li><strong>Run Database Update Script:</strong> Open MySQL and manually run the SQL script provided in the update package to update the database.</li>
+        </ol>
+        <p style="color: red; font-weight: bold;">Important: Ensure you have a backup of your files and database before proceeding with the update.</p>
         <div class="button-container">
-            <a href="<?php echo BASE_URL; ?>public/update.php?action=download_zip" class="btn styled-btn">Download and Extract Update Package</a>
-            <a href="<?php echo BASE_URL; ?>public/update.php?action=manual_backup" class="btn styled-btn">Update Database</a> <!-- Changed label -->
-            <a href="<?php echo BASE_URL; ?>public/update.php?action=update_database" class="btn styled-btn">Backup Database</a> <!-- Changed label -->
+            <a href="<?php echo BASE_URL; ?>public/update.php?action=download_zip&savePath=<?php echo urlencode($_SERVER['DOCUMENT_ROOT']); ?>" class="btn styled-btn">Download Update Package</a>
+            <a href="<?php echo BASE_URL; ?>public/update.php?action=backup_database" class="btn styled-btn">Backup Database</a>
             <a href="<?php echo BASE_URL; ?>Views/main.php" class="btn cancel-btn">Cancel</a>
         </div>
         <form method="post" action="update.php">
