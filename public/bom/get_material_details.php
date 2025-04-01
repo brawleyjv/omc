@@ -1,6 +1,6 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/Models/Database.php';
+require_once realpath(dirname(__FILE__) . '/../../config.php');
+require_once realpath(dirname(__FILE__) . '/../../Models/Database.php');
 
 use MyApp\Models\Database;
 

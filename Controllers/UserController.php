@@ -1,9 +1,9 @@
 <?php
 namespace MyApp\Controllers;
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/config.php'; // Corrected path to config.php
-require_once BASE_PATH . '/Models/Database.php';
-require_once BASE_PATH . '/Models/User.php';
+require_once realpath(dirname(__FILE__) . '/../config.php');
+require_once realpath(dirname(__FILE__) . '/../Models/Database.php');
+require_once realpath(dirname(__FILE__) . '/../Models/User.php');
 
 use MyApp\Models\Database;
 use MyApp\Models\User;

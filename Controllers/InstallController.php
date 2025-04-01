@@ -1,12 +1,12 @@
 <?php
 namespace MyApp\Controllers;
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/config.php'; // Corrected path to config.php
+require_once realpath(dirname(__FILE__) . '/../config.php'); // Corrected path to config.php
 require_once BASE_PATH . '/Models/Database.php';
 
-// Ensure DB_PASS is defined
-if (!defined('DB_PASS')) {
-    define('DB_PASS', 'your_database_password'); // Replace 'your_database_password' with the actual password
+// Ensure DB_PASSWORD is defined
+if (!defined('DB_PASSWORD')) {
+    define('DB_PASSWORD', 'your_database_password'); // Replace 'your_database_password' with the actual password
 }
 
 use MyApp\Models\Database;
@@ -16,7 +16,7 @@ class InstallController {
 
     public function __construct() {
         // Use global constants for database connection
-        $this->conn = new \mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        $this->conn = new \mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
         if ($this->conn->connect_error) {
             die("Connection failed: " . $this->conn->connect_error);
         }

@@ -1,8 +1,8 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/Models/Database.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/Models/Bom.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/Controllers/BomController.php';
+require_once realpath(dirname(__FILE__) . '/../../config.php');
+require_once realpath(dirname(__FILE__) . '/../../Models/Database.php');
+require_once realpath(dirname(__FILE__) . '/../../Models/Bom.php');
+require_once realpath(dirname(__FILE__) . '/../../Controllers/BomController.php');
 
 use MyApp\Controllers\BomController;
 use MyApp\Models\Database;

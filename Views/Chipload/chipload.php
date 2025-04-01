@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/config.php'; // Updated to use $_SERVER['DOCUMENT_ROOT']
+require_once realpath(dirname(__FILE__) . '/../../config.php'); // Updated to use realpath
 require_once BASE_PATH . '/Views/header.php'; // BASE_PATH is assumed to be defined in config.php
 ?>
 <!DOCTYPE html>
@@ -8,7 +8,7 @@ require_once BASE_PATH . '/Views/header.php'; // BASE_PATH is assumed to be defi
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chipload</title>
-    <link rel="stylesheet" href="/styles.css"> <!-- Updated path to root CSS file -->
+    <link rel="stylesheet" href="<?php echo BASE_PATH; ?>/styles.css"> <!-- Updated to use BASE_PATH -->
     <style>
         .calculator-container {
             margin-top: 20px;
@@ -91,7 +91,7 @@ require_once BASE_PATH . '/Views/header.php'; // BASE_PATH is assumed to be defi
             </form>
             <div class="result" id="result"></div>
         </div>
-        <a href="<?php echo BASE_URL; ?>views/main.php" class="btn styled-btn">Return to Main</a> <!-- BASE_URL ensures correct URL -->
+        <a href="<?php echo BASE_PATH; ?>/views/main.php" class="btn styled-btn">Return to Main</a> <!-- Updated to use BASE_PATH -->
     </div>
     <script>
         function calculateFeedRate() {

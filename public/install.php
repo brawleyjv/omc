@@ -1,7 +1,7 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Adjusted path for config.php
-require_once BASE_PATH . '/Models/Database.php';
-require_once BASE_PATH . '/Controllers/InstallController.php';
+require_once realpath(dirname(__FILE__) . '/../config.php');
+require_once realpath(dirname(__FILE__) . '/../Models/Database.php');
+require_once realpath(dirname(__FILE__) . '/../Controllers/InstallController.php');
 
 use MyApp\Controllers\InstallController;
 

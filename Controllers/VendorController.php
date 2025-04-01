@@ -1,8 +1,8 @@
 <?php
 namespace MyApp\Controllers;
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Ensure correct path to config.php
-require_once BASE_PATH . '/Models/VendorModel.php'; // Ensure VendorModel is included
+require_once realpath(dirname(__FILE__) . '/../config.php');
+require_once realpath(dirname(__FILE__) . '/../Models/VendorModel.php');
 
 use MyApp\Models\VendorModel; // Add the correct namespace for VendorModel
 

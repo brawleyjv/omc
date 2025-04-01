@@ -1,6 +1,6 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Ensure correct path to config.php
-require_once BASE_PATH . '/Controllers/VendorController.php'; // Include VendorController
+require_once realpath(dirname(__FILE__) . '/../../config.php'); // Correct relative path to config.php
+require_once BASE_PATH . 'Controllers/VendorController.php'; // Correct relative path to VendorController.php
 ?>
 <!DOCTYPE html>
 <html lang="en">

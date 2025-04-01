@@ -3,8 +3,8 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Views/header.php'; // Include the header
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Controllers/UpdateController.php'; // Include the UpdateController
+require_once realpath(dirname(__FILE__) . '/../Views/header.php'); // Include the header
+require_once realpath(dirname(__FILE__) . '/../Controllers/UpdateController.php'); // Include the UpdateController
 
 $controller = new UpdateController();
 
@@ -43,6 +43,6 @@ if (isset($_GET['action'])) {
     }
 } else {
     error_log("update.php: No action specified.");
-    require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Views/update.php'; // Include the HTML view
+    require_once BASE_PATH . 'Views/update.php'; // Include the HTML view
 }
 ?>

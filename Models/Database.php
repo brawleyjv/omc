@@ -2,7 +2,7 @@
 
 namespace MyApp\Models;
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Ensure correct path to config.php
+require_once realpath(dirname(__FILE__) . '/../config.php');
 
 use PDO;
 use PDOException;

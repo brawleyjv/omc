@@ -1,6 +1,6 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Explicitly reference the OMC directory
-require_once BASE_PATH . '/Views/header.php'; // Ensure BASE_PATH is used correctly
+require_once realpath(dirname(__FILE__) . '/../config.php'); // Updated to use realpath(dirname(__FILE__))
+require_once BASE_PATH . '/Views/header.php'; // Updated to use BASE_PATH
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -8,7 +8,7 @@ require_once BASE_PATH . '/Views/header.php'; // Ensure BASE_PATH is used correc
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scale Project</title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>public/css/styles.css"> <!-- Ensure BASE_URL is used correctly -->
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Ensure BASE_URL is used correctly -->
     <style>
         .form-group {
             margin-bottom: 15px;

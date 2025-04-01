@@ -1,7 +1,7 @@
 <?php
 namespace MyApp\Models;
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/config.php'; // Corrected path to config.php
+require_once realpath(dirname(__FILE__) . '/../config.php');
 
 use PDO;
 
@@ -77,6 +77,16 @@ class MaterialModel {
         }
         $stmt = $this->connection->prepare('DELETE FROM materials WHERE id = :id');
         return $stmt->execute(['id' => $materialId]);
+    }
+
+    public function deleteMaterialById($id) {
+        $connection = $this->connection;
+        $query = "DELETE FROM materials WHERE id = ?";
+        $stmt = $connection->prepare($query);
+        $stmt->bindValue(1, $id, PDO::PARAM_INT);
+        $result = $stmt->execute();
+        unset($stmt);
+        return $result;
     }
 }
 ?>

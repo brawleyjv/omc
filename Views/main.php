@@ -5,8 +5,8 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start(); // Start session only if not already started
 }
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Explicitly reference the OMC directory
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Models/Database.php'; // Include the Database class
+require_once realpath(dirname(__FILE__) . '/../config.php');
+require_once BASE_PATH . 'Models/Database.php'; // Include the Database class
 
 use MyApp\Models\Database; // Add this to use the Database class from the namespace
 
@@ -24,7 +24,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 // Dynamically resolve paths
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/auth/check_auth.php'; // Corrected path to check_auth.php
+require_once BASE_PATH . 'auth/check_auth.php'; // Corrected path to check_auth.php
 
 // Log session details for debugging
 error_log("Main.php: Session username: " . (isset($_SESSION['username']) ? $_SESSION['username'] : "Not set"));
@@ -38,7 +38,7 @@ error_log("Main.php: Session username: " . (isset($_SESSION['username']) ? $_SES
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Ensure BASE_URL is used correctly -->
 </head>
 <body>
-    <?php include $_SERVER['DOCUMENT_ROOT'] . '/OMC/Views/header.php'; ?> <!-- Include the header -->
+    <?php include realpath(dirname(__FILE__) . '/header.php'); ?> <!-- Updated to use realpath -->
     <div class="container">
         <h1 class="title">Ozark Made Project Management System</h1>
         <h1 class="title">Main Menu</h1>
@@ -46,7 +46,7 @@ error_log("Main.php: Session username: " . (isset($_SESSION['username']) ? $_SES
             <div class="button-row">
                 <a href="<?php echo BASE_URL; ?>Views/projects/index.php" class="btn styled-btn">Projects</a>
                 <a href="<?php echo BASE_URL; ?>Views/materials/index.php" class="btn styled-btn">Materials</a>
-                <a href="<?php echo BASE_URL; ?>Views/customers/index.php" class="btn styled-btn">Customers</a>
+                <a href="<?php echo BASE_URL; ?>Views/customers/index.php" class="btn styled-btn">Customers</a> <!-- Corrected link to point to Views/customers/index.php -->
                 <a href="<?php echo BASE_URL; ?>Views/equipment/index.php" class="btn styled-btn">Equipment</a>
                 <a href="<?php echo BASE_URL; ?>Views/users/index.php" class="btn styled-btn">Users</a>
                 <a href="<?php echo BASE_URL; ?>Views/vendors/index.php" class="btn styled-btn">Vendors</a>

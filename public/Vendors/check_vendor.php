@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Ensure correct path to config.php
+require_once realpath(dirname(__FILE__) . '/../../config.php'); // Ensure correct path to config.php
 require_once BASE_PATH . '/Models/Database.php';
 require_once BASE_PATH . '/Controllers/VendorController.php';
 
@@ -13,7 +13,7 @@ if (empty($vendor)) {
     exit;
 }
 
-$database = new Database(DB_HOST, DB_NAME, DB_USER, DB_PASSWORD); // Use DB_PASSWORD instead of DB_PASS
+$database = new Database(DB_HOST, DB_NAME, DB_USER, DB_PASSWORD); // Use DB_PASSWORD instead of DB_PASSWORD
 $conn = $database->getConnection();
 if ($conn === null) {
     die('Database connection failed.');

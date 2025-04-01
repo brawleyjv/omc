@@ -1,6 +1,6 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Explicitly reference the OMC directory
-require_once BASE_PATH . 'Models/Settings.php'; // Use BASE_PATH for dynamic path resolution
+require_once realpath(dirname(__FILE__) . '/../config.php'); // Updated to use realpath(dirname(__FILE__))
+require_once BASE_PATH . '/Models/Settings.php'; // Updated to use BASE_PATH
 
 use Models\Settings;
 
@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Ensure BASE_URL is used correctly -->
 </head>
 <body>
-    <?php include BASE_PATH . 'Views/header.php'; ?> <!-- Use BASE_PATH -->
+    <?php include realpath(dirname(__FILE__) . '/../Views/header.php'); ?> <!-- Updated to use realpath -->
     <div class="container">
         <h1 class="title">Settings</h1>
         <form action="settings.php" method="post">

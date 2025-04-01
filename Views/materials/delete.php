@@ -1,4 +1,4 @@
-<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; ?> <!-- Corrected path to config.php -->
+<?php require_once realpath(dirname(__FILE__) . '/../../config.php'); ?> <!-- Corrected path to config.php -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,6 +25,6 @@
         <input type="hidden" name="id" value="<?php echo $material['id']; ?>">
         <input type="submit" value="Delete Material">
     </form>
-    <a href="<?php echo BASE_URL; ?>public/materials/list.php" class="button">Back to List</a> <!-- Ensure BASE_URL points to localhost/omc -->
+    <a href="<?php echo BASE_URL; ?>public/materials/list.php" class="button">Back to List</a> 
 </body>
 </html>

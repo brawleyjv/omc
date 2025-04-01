@@ -1,12 +1,12 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Corrected path to config.php
+require_once realpath(dirname(__FILE__) . '/../../../config.php'); // Correct relative path to config.php
 require_once BASE_PATH . '/Models/Database.php';
 require_once BASE_PATH . '/Controllers/MaterialController.php';
 
 use MyApp\Controllers\MaterialController;
 use MyApp\Models\Database;
 
-$database = new Database(DB_HOST, DB_NAME, DB_USER, DB_PASS); // Removed Globals\Config
+$database = new Database(DB_HOST, DB_NAME, DB_USER, DB_PASSWORD); // Removed Globals\Config
 $controller = new MaterialController($database);
 
 $id = $_POST['id'];

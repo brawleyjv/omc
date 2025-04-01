@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/config.php'; // Updated to use $_SERVER['DOCUMENT_ROOT']
+require_once realpath(dirname(__FILE__) . '/../../config.php'); // Updated to use realpath
 require_once BASE_PATH . '/Views/header.php';
 ?>
 <!DOCTYPE html>

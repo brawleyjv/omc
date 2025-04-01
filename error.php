@@ -1,4 +1,6 @@
 <?php
+require_once realpath(dirname(__FILE__) . '/config.php'); // Correct path to config.php
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);

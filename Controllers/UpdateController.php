@@ -1,6 +1,6 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Include the configuration file
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Services/FileManager.php';
+require_once realpath(dirname(__FILE__) . '/../config.php'); // Include the configuration file
+require_once BASE_PATH . 'Services/FileManager.php';
 
 class UpdateController {
     private $fileManager;
@@ -17,7 +17,7 @@ class UpdateController {
             flush();
 
             $zipUrl = "https://github.com/brawleyjv/omc/archive/refs/heads/main.zip";
-            $savePath = $_SERVER['DOCUMENT_ROOT'] . '/main.zip'; // Correct save path
+            $savePath = BASE_PATH . 'main.zip'; // Correct save path
 
             // Step 1: Download the ZIP file
             error_log("UpdateController: Attempting to download file from $zipUrl to $savePath.");
@@ -28,7 +28,7 @@ class UpdateController {
 
             // Add a "Back to Update" button
             echo "<div style='text-align: center; margin-top: 20px;'>
-                    <a href='/OMC/Views/update.php' style='display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;'>Back to Update</a>
+                    <a href='" . BASE_URL . "/Views/update.php' style='display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;'>Back to Update</a>
                   </div>";
             ob_flush();
             flush();
@@ -65,7 +65,7 @@ class UpdateController {
 
             // Add a "Back to Update" button
             echo "<div style='text-align: center; margin-top: 20px;'>
-                    <a href='/OMC/Views/update.php' style='display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;'>Back to Update</a>
+                    <a href='" . BASE_URL . "/Views/update.php' style='display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;'>Back to Update</a>
                   </div>";
             ob_flush();
             flush();
@@ -110,7 +110,7 @@ class UpdateController {
 
             error_log("UpdateController: Found latest SQL file: $latestFile");
 
-            require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Services/SqlImporter.php';
+            require_once BASE_PATH . '/Services/SqlImporter.php';
             $importer = new SqlImporter(); // No arguments needed
             $importer->import($latestFile);
 
@@ -171,7 +171,7 @@ class UpdateController {
 
             // Add a "Back to Update" button
             echo "<div style='text-align: center; margin-top: 20px;'>
-                    <a href='/OMC/Views/update.php' style='display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;'>Back to Update</a>
+                    <a href='" . BASE_URL . "/Views/update.php' style='display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;'>Back to Update</a>
                   </div>";
             ob_flush();
             flush();

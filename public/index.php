@@ -1,12 +1,12 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Adjusted path for config.php
-require_once BASE_PATH . '/Models/Database.php';
-require_once BASE_PATH . '/Controllers/ProjectController.php';
+require_once realpath(dirname(__FILE__) . '/../config.php');
+require_once realpath(dirname(__FILE__) . '/../Models/Database.php');
+require_once realpath(dirname(__FILE__) . '/../Controllers/ProjectController.php');
 
 use MyApp\Controllers\ProjectController;
 use MyApp\Models\Database;
 
-$database = new Database(DB_HOST, DB_NAME, DB_USER, DB_PASS); // Removed Globals\Config
+$database = new Database(DB_HOST, DB_NAME, DB_USER, DB_PASSWORD); // Removed Globals\Config
 
 // Access the connection using the public method
 $conn = $database->getConnection(); // Use getConnection instead of connect

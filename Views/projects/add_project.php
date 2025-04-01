@@ -1,7 +1,13 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Corrected path to config.php
-require_once BASE_PATH . '/Models/Database.php';
-require_once BASE_PATH . '/Controllers/ProjectController.php';
+require_once realpath(dirname(__FILE__) . '/../../config.php'); // Updated to use realpath(dirname(__FILE__))
+require_once BASE_PATH . '/Models/Database.php'; // Updated to use BASE_PATH
+require_once BASE_PATH . '/Controllers/ProjectController.php'; // Updated to use BASE_PATH
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // ...existing code...
+    header("Location: " . BASE_URL . "Views/projects/list_projects.php"); // Updated to use BASE_URL
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -9,7 +15,7 @@ require_once BASE_PATH . '/Controllers/ProjectController.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Project</title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>public/css/styles.css"> <!-- Corrected CSS path -->
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Corrected CSS path -->
     <style>
         .title {
             text-align: center;
@@ -74,7 +80,7 @@ require_once BASE_PATH . '/Controllers/ProjectController.php';
     </style>
 </head>
 <body>
-    <?php include $_SERVER['DOCUMENT_ROOT'] . '/OMC/Views/header.php'; ?> <!-- Corrected header path -->
+    <?php include realpath(dirname(__FILE__) . '/../../Views/header.php'); ?> <!-- Updated to use realpath -->
     <div class="container">
         <h1 class="title">Add Project</h1>
         <div class="error-message">

@@ -1,7 +1,8 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/config.php'; // Ensure Config is included
+require_once realpath(dirname(__FILE__) . '/../../config.php'); // Updated to use realpath
+include realpath(dirname(__FILE__) . '/../../../Views/header.php'); // Updated to use realpath
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/Models/Database.php';
+require_once BASE_PATH . 'Models/Database.php';
 
 use MyApp\Models\Database;
 

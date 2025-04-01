@@ -3,7 +3,8 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start(); // Start session only if not already started
 }
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Updated path to include /OMC
+// Correct path to config.php
+require_once realpath(dirname(__FILE__, 3) . '/config.php'); // Adjusted to go three levels up
 
 // Log session details for debugging
 error_log("Login.php: Session username: " . (isset($_SESSION['username']) ? $_SESSION['username'] : "Not set"));
@@ -27,7 +28,7 @@ error_log("Login.php: Displaying login page.");
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/styles.css"> <!-- Added leading slash -->
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Removed leading slash -->
 </head>
 <body>
     <div class="container">
@@ -35,7 +36,7 @@ error_log("Login.php: Displaying login page.");
         <?php if (isset($_GET['error'])): ?>
             <p style="color: red;"><?php echo htmlspecialchars($_GET['error']); ?></p>
         <?php endif; ?>
-        <form action="<?php echo BASE_URL; ?>/public/Users/login_handler.php" method="post"> <!-- Added leading slash -->
+        <form action="<?php echo BASE_URL; ?>public/Users/login_handler.php" method="post"> <!-- Removed leading slash -->
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" required>
             <label for="password">Password:</label>

@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Include the configuration file
+require_once realpath(dirname(__FILE__) . '/../config.php'); // Include the configuration file
 
 class SqlImporter {
     private $connection;

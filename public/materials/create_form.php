@@ -6,7 +6,7 @@ error_reporting(E_ALL);
 
 use Globals\Config;
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Ensure correct path to config.php
+require_once realpath(dirname(__FILE__) . '/../../../config.php'); // Updated to use realpath
 
 // Ensure session is started only if not already active
 if (session_status() === PHP_SESSION_NONE) {
@@ -61,7 +61,7 @@ if (session_status() === PHP_SESSION_NONE) {
     </style>
 </head>
 <body>
-    <?php include BASE_PATH . '/Views/header.php'; ?>
+    <?php include realpath(dirname(__FILE__) . '/../../../Views/header.php'); ?> <!-- Updated to use realpath -->
     <h1 class="title">Add Material</h1> <!-- Center the title -->
     <form id="materialForm" action="../../public/materials/create.php" method="post">
         <div class="form-buttons">

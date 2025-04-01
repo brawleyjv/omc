@@ -8,14 +8,15 @@
 </head>
 <body>
     <?php
-    require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Explicitly reference the OMC directory
-    include BASE_PATH . 'Views/header.php'; ?> <!-- Use BASE_PATH -->
+    require_once realpath(dirname(__FILE__) . '/../config.php'); // Updated to use realpath(dirname(__FILE__))
+    include realpath(dirname(__FILE__) . '/../Views/header.php'); // Updated to use realpath
+    ?>
     <div class="container">
         <h1 class="title">Login</h1>
         <?php if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($error)): ?> <!-- Display error only on failed login -->
             <p class="error" style="color: red; font-weight: bold;"><?php echo htmlspecialchars($error); ?></p>
         <?php endif; ?>
-        <form action="/public/login.php" method="post"> <!-- Point to public login PHP script -->
+        <form action="<?php echo BASE_URL; ?>public/login.php" method="post"> <!-- Updated to use BASE_URL -->
             <div class="form-group">
                 <label for="username">Username:</label>
                 <input type="text" id="username" name="username" required>
@@ -28,7 +29,7 @@
                 <input type="submit" value="Login" class="btn styled-btn">
             </div>
         </form>
-        <p>Don't have an account? <a href="/Views/Users/register.php">Register here</a></p> <!-- Link to registration page -->
+        <p>Don't have an account? <a href="<?php echo BASE_URL; ?>Views/Users/register.php">Register here</a></p> <!-- Updated to use BASE_URL -->
     </div>
 </body>
 </html>

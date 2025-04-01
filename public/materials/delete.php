@@ -1,17 +1,24 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Ensure correct path to config.php
+require_once realpath(dirname(__FILE__) . '/../../config.php'); // Ensure config is included for $db initialization
+require_once realpath(dirname(__FILE__) . '/../../Models/Database.php'); // Include the Database class
+
+use MyApp\Models\Database; // Use the correct namespace for Database
+
+$database = new Database(); // Instantiate the Database class
+// Removed $db = $database->getConnection(); as we need to pass the Database instance, not the PDO connection
+
 require_once '../../controllers/MaterialController.php';
 
 use MyApp\Controllers\MaterialController;
 
-$controller = new MaterialController();
+$controller = new MaterialController($database); // Pass the Database instance to the constructor
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $id = $_POST['id'];
     $controller->deleteMaterial($id);
 } else {
     $id = $_GET['id'];
     $controller->viewMaterial($id);
-    include '../../views/materials/delete.php';
+    include realpath(dirname(__FILE__) . '/../../delete.php'); // Updated to use realpath
 }
 ?>
 <!DOCTYPE html>
@@ -20,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Delete Material</title>
-    <link rel="stylesheet" href="../../public/css/styles.css"> <!-- Corrected the path to the CSS file in the root directory -->
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Updated to use BASE_URL -->
 </head>
 <body>
     <?php include '../../views/header.php'; ?> <!-- Include the header file -->

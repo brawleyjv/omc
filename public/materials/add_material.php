@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Ensure correct path to config.php
+require_once realpath(dirname(__FILE__) . '/../../config.php'); // Updated to use realpath
 require_once BASE_PATH . '/Models/Database.php';
 require_once BASE_PATH . '/Models/Material.php';
 require_once BASE_PATH . '/Controllers/MaterialController.php';
@@ -44,13 +44,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-include __DIR__ . '/../../views/materials/add_material.php';
+include realpath(dirname(__FILE__) . '/../../views/materials/add_material.php'); // Updated to use realpath
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <!-- ...existing code... -->
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>css/styles.css"> <!-- Updated to use correct BASE_URL -->
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Updated to use correct BASE_URL -->
 </head>
 <body>
     <!-- ...existing code... -->

@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 ob_start(); // Start output buffering to prevent premature output
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Ensure correct path to config.php
+require_once realpath(dirname(__FILE__) . '/../config.php'); // Ensure correct path to config.php
 
 ?>
 <!DOCTYPE html>

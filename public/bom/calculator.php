@@ -1,7 +1,7 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/config.php'; // Ensure Config is included
-require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/Models/Database.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/Models/Bom.php';
+require_once realpath(dirname(__FILE__) . '/../../config.php');
+require_once realpath(dirname(__FILE__) . '/../../Models/Database.php');
+require_once realpath(dirname(__FILE__) . '/../../Models/Bom.php');
 
 use MyApp\Models\Database;
 use MyApp\Models\Bom;

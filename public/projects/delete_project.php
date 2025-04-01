@@ -1,9 +1,9 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Corrected path to config.php
+require_once realpath(dirname(__FILE__) . '/../../config.php'); // Corrected path to config.php
 require_once BASE_PATH . '/Models/Database.php';
 require_once BASE_PATH . '/Controllers/ProjectController.php';
 
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+$conn = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);

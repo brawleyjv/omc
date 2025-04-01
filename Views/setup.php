@@ -1,6 +1,6 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Explicitly reference the OMC directory
-require_once BASE_PATH . '/Models/Database.php'; // Ensure the path includes a leading slash
+require_once realpath(dirname(__FILE__) . '/../config.php'); // Updated to use realpath(dirname(__FILE__))
+require_once BASE_PATH . '/Models/Database.php'; // Updated to use BASE_PATH
 
 use MyApp\Models\Database;
 
@@ -80,8 +80,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Redirect to main.php after updating
-    header("Location: ../Views/main.php");
-    exit();
+    header("Location: " . BASE_URL . "Views/main.php");
+    exit(); // Always include `exit();` after a redirect to stop script execution
 }
 ?>
 <!DOCTYPE html>
@@ -90,10 +90,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Setup</title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/omc/styles.css"> <!-- Ensure BASE_URL is used correctly -->
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Ensure BASE_URL is used correctly -->
 </head>
 <body>
-    <?php include BASE_PATH . '/Views/header.php'; ?> <!-- Corrected path -->
+    <?php include realpath(dirname(__FILE__) . '/../Views/header.php'); ?> <!-- Updated to use realpath -->
     <div class="container">
         <h1 class="title">Setup</h1>
         <form action="setup.php" method="post">

@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Globals/Config.php';
+require_once realpath(dirname(__FILE__) . '/../../Config.php'); // Updated to use realpath
 ?>
 <!DOCTYPE html>
 <html lang="en">

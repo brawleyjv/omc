@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Updated path
+require_once realpath(dirname(__FILE__) . '/../../config.php'); // Updated path
 require_once BASE_PATH . '/Models/Database.php'; // Ensure consistent path
 require_once BASE_PATH . '/Controllers/UserController.php';
 

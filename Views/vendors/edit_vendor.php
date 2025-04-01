@@ -1,7 +1,7 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Ensure correct path to config.php
-require_once BASE_PATH . '/Models/Database.php';
-require_once BASE_PATH . '/Controllers/VendorController.php';
+require_once realpath(dirname(__FILE__) . '/../../config.php'); // Correct relative path to config.php
+require_once BASE_PATH . 'Models/Database.php'; // Correct relative path to Database.php
+require_once BASE_PATH . 'Controllers/VendorController.php'; // Correct relative path to VendorController.php
 
 use MyApp\Models\Database;
 use MyApp\Controllers\VendorController;

@@ -2,7 +2,7 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Ensure correct path to config.php
+require_once realpath(dirname(__FILE__) . '/../../config.php'); // Updated to use realpath
 require_once BASE_PATH . '/Models/Database.php';
 require_once BASE_PATH . '/Models/Material.php';
 require_once BASE_PATH . '/Controllers/MaterialController.php';

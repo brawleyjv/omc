@@ -1,6 +1,6 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Models/Database.php';
+require_once realpath(dirname(__FILE__) . '/../../Config.php'); // Updated to use realpath
+require_once BASE_PATH . '/Models/Database.php';
 
 use MyApp\Models\Database;
 
@@ -12,10 +12,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    $database = new Database(DB_HOST, DB_NAME, DB_USER, DB_PASS); // Removed Globals\Config
+    $database = new Database(DB_HOST, DB_NAME, DB_USER, DB_PASSWORD); // Removed Globals\Config
     $stmt = $database->getConnection()->prepare("INSERT INTO material_types (type_name) VALUES (?)");
     $stmt->execute([$type_name]);
 
-    echo "<script>alert('Material Type added successfully.'); window.location.href = 'http://localhost/omc/Views/material_types/add_type.php';</script>";
+    echo "<script>alert('Material Type added successfully.'); window.location.href = '" . BASE_URL . "/Views/material_types/add_type.php';</script>"; // Use BASE_URL
 }
 ?>

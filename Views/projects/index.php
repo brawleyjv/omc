@@ -1,9 +1,9 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Corrected path to config.php
-require_once BASE_PATH . '/Models/Database.php';
-require_once BASE_PATH . '/Controllers/ProjectController.php';
-require_once BASE_PATH . '/Controllers/InstallController.php';
-require_once BASE_PATH . '/Models/Settings.php';
+require_once realpath(dirname(__FILE__) . '/../../config.php'); // Updated to use realpath(dirname(__FILE__))
+require_once BASE_PATH . '/Models/Database.php'; // Updated to use BASE_PATH
+require_once BASE_PATH . '/Controllers/ProjectController.php'; // Updated to use BASE_PATH
+require_once BASE_PATH . '/Controllers/InstallController.php'; // Updated to use BASE_PATH
+require_once BASE_PATH . '/Models/Settings.php'; // Updated to use BASE_PATH
 
 use Models\Settings; // Import the Settings class
 use MyApp\Models\Database; // Import the Database class
@@ -45,14 +45,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $name = trim($_POST['name'] ?? '');
 
     if (empty($name)) {
-        header("Location: index.php?error=Name is required");
+        header("Location: " . BASE_URL . "Views/projects/index.php?error=Name is required"); // Updated to use BASE_URL
         exit();
     }
 
     $stmt = $conn->prepare("SELECT * FROM users WHERE name = :name");
     if (!$stmt) {
         error_log("Prepared statement failed: " . $conn->errorInfo()[2]);
-        header("Location: index.php?error=An unexpected error occurred");
+        header("Location: " . BASE_URL . "Views/projects/index.php?error=An unexpected error occurred"); // Updated to use BASE_URL
         exit();
     }
 
@@ -63,15 +63,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         if (count($result) > 0) {
             $_SESSION['username'] = $name;
-            header("Location: main.php");
+            header("Location: " . BASE_URL . "Views/main.php"); // Updated to use BASE_URL
             exit();
         } else {
-            header("Location: Users/register.php?name=" . urlencode($name));
+            header("Location: " . BASE_URL . "Views/Users/register.php?name=" . urlencode($name)); // Updated to use BASE_URL
             exit();
         }
     } else {
         error_log("Database error: " . $stmt->errorInfo()[2]);
-        header("Location: index.php?error=An unexpected error occurred");
+        header("Location: " . BASE_URL . "Views/projects/index.php?error=An unexpected error occurred"); // Updated to use BASE_URL
         exit();
     }
 }
@@ -85,7 +85,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>public/css/styles.css"> <!-- Corrected CSS path -->
 </head>
 <body>
-    <?php include $_SERVER['DOCUMENT_ROOT'] . '/OMC/Views/header.php'; ?> <!-- Corrected header path -->
+    <?php include realpath(dirname(__FILE__) . '/../../Views/header.php'); ?> <!-- Updated to use realpath -->
     <div class="container">
         <h1 class="title">Ozark Made Project Management System</h1>
         <h1 class="title">Projects Menu</h1>

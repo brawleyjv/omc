@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Ensure correct path to config.php
+require_once realpath(dirname(__FILE__) . '/../../../config.php'); // Updated to use realpath
 require_once BASE_PATH . '/Models/Database.php'; // Ensure Database class is included
 
 use MyApp\Models\Database; // Import Database class

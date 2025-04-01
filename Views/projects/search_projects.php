@@ -1,7 +1,7 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Corrected path to config.php
-require_once BASE_PATH . '/Models/Database.php';
-require_once BASE_PATH . '/Controllers/ProjectController.php';
+require_once realpath(dirname(__FILE__) . '/../../config.php'); // Updated to use realpath(dirname(__FILE__))
+require_once BASE_PATH . '/Models/Database.php'; // Updated to use BASE_PATH
+require_once BASE_PATH . '/Controllers/ProjectController.php'; // Updated to use BASE_PATH
 
 use MyApp\Models\Database;
 use MyApp\Controllers\ProjectController;
@@ -21,6 +21,12 @@ if (!empty($search_term)) {
         $noResults = true;
     }
 }
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // ...existing code...
+    header("Location: " . BASE_URL . "Views/projects/search_projects.php"); // Updated to use BASE_URL
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -28,7 +34,7 @@ if (!empty($search_term)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search Projects</title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>public/css/styles.css"> <!-- Corrected CSS path -->
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Corrected CSS path -->
     <style>
         .close-button {
             position: absolute;
@@ -99,12 +105,7 @@ if (!empty($search_term)) {
             document.getElementById('results').innerHTML = '';
         }
 
-        function promptEdit() {
-            var projectId = prompt('Enter the ID of the project you want to edit:');
-            if (projectId) {
-                window.location.href = '../../Views/projects/edit_projects.php?project_id=' + projectId;
-            }
-        }
+       
 
         window.onload = function() {
             if (<?php echo json_encode($noResults); ?>) {
@@ -148,13 +149,13 @@ if (!empty($search_term)) {
     </script>
 </head>
 <body>
-    <?php include $_SERVER['DOCUMENT_ROOT'] . '/OMC/Views/header.php'; ?> <!-- Corrected header path -->
+    <?php include BASE_PATH . '/Views/header.php'; ?> <!-- Updated to use BASE_PATH -->
     <h1 class="center-title">Search Projects</h1>
-    <form action="search_projects.php" method="get" style="text-align: center;" onsubmit="return validateSearchForm()">
+    <form action="<?php echo BASE_URL; ?>Views/projects/search_projects.php" method="get" style="text-align: center;" onsubmit="return validateSearchForm()"> <!-- Updated to use BASE_URL -->
         <input type="text" name="search_term" placeholder="Search for projects" value="<?php echo htmlspecialchars($search_term); ?>">
         <div style="display: inline-block; margin-top: 20px;">
             <button type="submit" class="btn styled-btn" style="margin-right: 20px;">Search</button>
-            <button type="button" class="btn styled-btn" onclick="window.location.href='index.php'">Cancel</button>
+            <button type="button" class="btn styled-btn" onclick="window.location.href='<?php echo BASE_URL; ?>Views/projects/index.php'">Cancel</button> <!-- Updated to use BASE_URL -->
         </div>
     </form>
     <h1 class="center-title">Search Results</h1>
@@ -191,7 +192,7 @@ if (!empty($search_term)) {
                                 $file_uploads = explode(',', $row['file_upload']);
                                 foreach ($file_uploads as $file_upload) {
                                     $file_upload_label = pathinfo($file_upload, PATHINFO_FILENAME);
-                                    $file_upload_path = "http://localhost/projects/project_files/{$row['project_name']}/{$file_upload}";
+                                    $file_upload_path = BASE_URL . "projects/project_files/{$row['project_name']}/{$file_upload}"; // Updated to use BASE_URL
                                     echo "<a href='{$file_upload_path}' download>{$file_upload_label}</a><br>";
                                 }
                                 ?>
@@ -203,7 +204,7 @@ if (!empty($search_term)) {
                                 $image_uploads = explode(',', $row['image_upload']);
                                 $first_image_upload = $image_uploads[0];
                                 $image_upload_paths = array_map(function($image) use ($row) {
-                                    return "http://localhost/projects/project_files/{$row['project_name']}/{$image}";
+                                    return BASE_URL . "projects/project_files/{$row['project_name']}/{$image}"; // Updated to use BASE_URL
                                 }, $image_uploads);
                                 echo "<a href='javascript:void(0);' onclick='openImage(\"{$image_upload_paths[0]}\")'><img src='{$image_upload_paths[0]}' alt='Project Image' class='thumbnail'></a>";
                                 ?>
@@ -224,6 +225,6 @@ if (!empty($search_term)) {
         </table>
     </div>
     <button class="btn styled-btn clear-button" onclick="clearResults()">Clear Results</button>
-    <button class="btn styled-btn close-button" onclick="window.location.href='index.php'">Close</button>
+    <button class="btn styled-btn close-button" onclick="window.location.href='<?php echo BASE_URL; ?>Views/projects/index.php'">Close</button> <!-- Updated to use BASE_URL -->
 </body>
 </html>

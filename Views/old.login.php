@@ -1,7 +1,8 @@
 <?php
 ob_start(); // Start output buffering to prevent premature output
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Explicitly reference the OMC directory
+require_once realpath(dirname(__FILE__) . '/../config.php'); // Updated to use realpath(dirname(__FILE__))
+require_once BASE_PATH . '/Views/header.php'; // Updated to use BASE_PATH
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start(); // Start session only if not already started
@@ -16,7 +17,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Ensure BASE_URL is used correctly -->
 </head>
 <body>
-    <?php include BASE_PATH . 'Views/header.php'; ?> <!-- Use BASE_PATH -->
+    <?php include realpath(dirname(__FILE__) . '/../Views/header.php'); ?> <!-- Updated to use realpath -->
     <!-- ...existing code... -->
 </body>
 </html>

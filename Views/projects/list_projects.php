@@ -3,9 +3,9 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Corrected path to config.php
-require_once BASE_PATH . '/Models/Database.php';
-require_once BASE_PATH . '/Controllers/ProjectController.php';
+require_once realpath(dirname(__FILE__) . '/../../config.php'); // Updated to use realpath(dirname(__FILE__))
+require_once BASE_PATH . '/Models/Database.php'; // Updated to use BASE_PATH
+require_once BASE_PATH . '/Controllers/ProjectController.php'; // Updated to use BASE_PATH
 
 use MyApp\Controllers\ProjectController;
 use MyApp\Models\Database;
@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_project_name']
     $projectName = $_POST['delete_project_name'];
     error_log("Deleting project with name: $projectName"); // Log the project name being deleted
     $projectsController->deleteProjectByName($projectName);
-    header('Location: list_projects.php'); // Redirect to refresh the list after deletion
+    header("Location: " . BASE_URL . "Views/projects/list_projects.php"); // Updated to use BASE_URL
     exit;
 }
 
@@ -30,7 +30,7 @@ $projects = $projectsController->listProjects(); // Use the correct method to li
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>List Projects</title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>public/css/styles.css"> <!-- Corrected CSS path -->
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Corrected CSS path -->
     <style>
         .top-buttons {
             display: flex;
@@ -148,10 +148,10 @@ $projects = $projectsController->listProjects(); // Use the correct method to li
     </script>
 </head>
 <body>
-    <?php include $_SERVER['DOCUMENT_ROOT'] . '/OMC/Views/header.php'; ?> <!-- Corrected header path -->
+    <?php include BASE_PATH . '/Views/header.php'; ?> <!-- Updated to use BASE_PATH -->
     <h1 class="center-title">List of Projects</h1>
     <div class="top-buttons">
-        <button class="btn styled-btn" style="margin-right: 20px;" onclick="window.location.href='<?php echo BASE_URL; ?>Views/main.php'">Close</button>
+        <button class="btn styled-btn" style="margin-right: 20px;" onclick="window.location.href='<?php echo BASE_URL; ?>Views/main.php'">Close</button> <!-- Updated to use BASE_URL -->
     </div>
     <div class="content">
         <table>
@@ -188,7 +188,7 @@ $projects = $projectsController->listProjects(); // Use the correct method to li
                                 $file_uploads = explode(',', $project['file_upload']);
                                 foreach ($file_uploads as $file_upload) {
                                     $file_upload_label = pathinfo($file_upload, PATHINFO_FILENAME);
-                                    $file_upload_path = BASE_URL . "projects/project_files/{$project['project_name']}/{$file_upload}";
+                                    $file_upload_path = BASE_URL . "projects/project_files/{$project['project_name']}/{$file_upload}"; // Updated to use BASE_URL
                                     echo "<a href='{$file_upload_path}' download>{$file_upload_label}</a><br>";
                                 }
                                 ?>
@@ -200,7 +200,7 @@ $projects = $projectsController->listProjects(); // Use the correct method to li
                                 $image_uploads = explode(',', $project['image_upload']);
                                 $first_image_upload = $image_uploads[0];
                                 $image_upload_paths = array_map(function($image) use ($project) {
-                                    return BASE_URL . "projects/project_files/{$project['project_name']}/{$image}";
+                                    return BASE_URL . "projects/project_files/{$project['project_name']}/{$image}"; // Updated to use BASE_URL
                                 }, $image_uploads);
                                 echo "<a href='javascript:void(0);' onclick='openImage(\"{$image_upload_paths[0]}\")'><img src='{$image_upload_paths[0]}' alt='Project Image' class='thumbnail'></a>";
                                 ?>
@@ -212,15 +212,15 @@ $projects = $projectsController->listProjects(); // Use the correct method to li
                                 $design_files = explode(',', $project['design_file']);
                                 foreach ($design_files as $design_file) {
                                     $design_file_label = pathinfo($design_file, PATHINFO_FILENAME);
-                                    $design_file_path = BASE_URL . "projects/project_files/{$project['project_name']}/{$design_file}";
+                                    $design_file_path = BASE_URL . "projects/project_files/{$project['project_name']}/{$design_file}"; // Updated to use BASE_URL
                                     echo "<a href='{$design_file_path}' download>{$design_file_label}</a><br>";
                                 }
                                 ?>
                             <?php endif; ?>
                         </td>
                         <td>
-                            <a href="<?php echo BASE_URL; ?>Views/projects/edit_project.php?project_name=<?php echo urlencode($project['project_name']); ?>" class="btn styled-btn white">Edit</a>
-                            <form action="<?php echo BASE_URL; ?>public/projects/list_projects.php" method="post" onsubmit="return confirm('Are you sure you want to delete this project?');" style="display:inline;">
+                            <a href="<?php echo BASE_URL; ?>Views/projects/edit_project.php?project_name=<?php echo urlencode($project['project_name']); ?>" class="btn styled-btn white">Edit</a> <!-- Updated to use BASE_URL -->
+                            <form action="<?php echo BASE_URL; ?>public/projects/list_projects.php" method="post" onsubmit="return confirm('Are you sure you want to delete this project?');" style="display:inline;"> <!-- Updated to use BASE_URL -->
                                 <input type="hidden" name="delete_project_name" value="<?php echo htmlspecialchars($project['project_name']); ?>">
                                 <input type="submit" class="btn styled-btn red" value="Delete">
                             </form>

@@ -1,0 +1,16 @@
+<?php
+require_once __DIR__ . '/../config.php'; // Corrected path to config.php
+require_once BASE_PATH . '/Models/Database.php'; // Corrected path to Database.php
+require_once BASE_PATH . '/Controllers/UserController.php'; // Corrected path to UserController.php
+
+use MyApp\Models\Database;
+use MyApp\Controllers\UserController;
+
+$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+$userController = new UserController($database);
+
+// Hash all existing plain-text passwords
+$userController->hashPasswordsForExistingUsers();
+
+echo "All plain-text passwords have been hashed.";
+?>

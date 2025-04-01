@@ -4,8 +4,8 @@ namespace MyApp\Controllers;
 use PDO; // Import the PDO class
 use MyApp\Models\ProjectModel; // Import the ProjectModel class
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/config.php'; // Corrected path to config.php
-require_once BASE_PATH . '/Models/ProjectModel.php'; // Corrected path to ProjectModel.php
+require_once realpath(dirname(__FILE__) . '/../config.php');
+require_once realpath(dirname(__FILE__) . '/../Models/ProjectModel.php');
 
 class ProjectController {
     private $database;

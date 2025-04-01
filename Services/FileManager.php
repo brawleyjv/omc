@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Include the configuration file
+require_once realpath(dirname(__FILE__) .'/../config.php'); // Include the configuration file
 
 ini_set('memory_limit', '1024M'); // Increase memory limit to 1GB
 ini_set('max_execution_time', '300'); // Increase execution time to 300 seconds (5 minutes)
@@ -19,8 +19,7 @@ class FileManager {
     }
 
     public function backupDatabase($databaseName, $username, $password) {
-        $backupFile = $_SERVER['DOCUMENT_ROOT'] . '/' . $databaseName . '_backup_' . date('Y-m-d_H-i-s') . '.sql'; // Save to htdocs
-        $mysqldumpPath = 'C:\\xampp\\mysql\\bin\\mysqldump'; // Full path to mysqldump
+        $backupFile = BASE_PATH . $databaseName . '_backup_' . date('Y-m-d_H-i-s') . '.sql';        $mysqldumpPath = 'C:\\xampp\\mysql\\bin\\mysqldump'; // Full path to mysqldump
         $command = "\"$mysqldumpPath\" -u$username --password=$password $databaseName > \"$backupFile\"";
 
         error_log("FileManager: Executing command: $command"); // Log the command for debugging

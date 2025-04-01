@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Explicitly reference the OMC directory
+  require_once realpath(dirname(__FILE__) . '/config.php'); 
 
 if (!isset($_SESSION)) {
     session_start(); // Start session if not already started

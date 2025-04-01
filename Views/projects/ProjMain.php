@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Corrected path to Config.php
+require_once realpath(dirname(__FILE__) . '/../../../config.php'); // Correct relative path to config.php
 ?>
 
 <!DOCTYPE html>

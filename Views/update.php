@@ -1,6 +1,6 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Include the configuration file
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Views/header.php'; // Include the header
+require_once realpath(dirname(__FILE__) . '/../config.php'); // Updated to use realpath(dirname(__FILE__))
+require_once BASE_PATH . '/Views/header.php'; // Updated to use BASE_PATH
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -11,6 +11,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Views/header.php'; // Include the
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Include the CSS file -->
 </head>
 <body>
+    <?php include realpath(dirname(__FILE__) . '/../Views/header.php'); ?> <!-- Updated to use realpath -->
     <div class="container">
         <h1 class="title">Update System</h1>
         
@@ -30,14 +31,15 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Views/header.php'; // Include the
         <p style="color: red; font-weight: bold;">Important: Ensure you have a backup of your files and database before proceeding with the update.</p>
         <div class="button-container">
             <a href="<?php echo BASE_URL; ?>public/update.php?action=download_zip&savePath=<?php echo urlencode($_SERVER['DOCUMENT_ROOT']); ?>" class="btn styled-btn">Download Update Package</a>
-            <a href="<?php echo BASE_URL; ?>public/update.php?action=backup_database" class="btn styled-btn">Backup Database</a>
+            <a href="<?php echo BASE_URL; ?>public/update.php?action=backup_database" class="btn styled-btn">Local bu Database</a>
+            <a href="<?php echo BASE_URL; ?>public/db_backup/remote_db_bu.php" class="btn styled-btn">Remote DB Backup</a>
             <a href="<?php echo BASE_URL; ?>Views/main.php" class="btn cancel-btn">Cancel</a>
         </div>
         <form method="post" action="update.php">
             
         </form>
         <div style="text-align: center; margin-top: 20px;">
-            <form method="get" action="/OMC/public/update.php">
+            <form method="get" action="<?php echo BASE_URL; ?>public/update.php">
                 <input type="hidden" name="action" value="import_database">
                 <button type="submit" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">Import Database</button>
             </form>

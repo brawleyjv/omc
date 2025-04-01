@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Controllers/UpdateController.php';
+require_once BASE_PATH . 'Controllers/UpdateController.php';
 
 // Check for action in both POST and GET requests
 $action = $_POST['action'] ?? $_GET['action'] ?? null;

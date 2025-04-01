@@ -8,9 +8,10 @@ use Controllers\InstallController;
 use Models\Settings;
 use MyApp\Models\Database;
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Controllers/InstallController.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Models/Settings.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/Models/Database.php';
+require_once realpath(dirname(__FILE__) . '/../../config.php'); // Corrected path to config.php
+require_once BASE_PATH . 'Controllers/InstallController.php';
+require_once BASE_PATH . 'Models/Settings.php';
+require_once BASE_PATH . 'Models/Database.php';
 
 // Ensure session is started only if not already active
 if (session_status() === PHP_SESSION_NONE) {
@@ -22,7 +23,7 @@ $settings_data = $settings->getSettings();
 $_SESSION['company_name'] = $settings_data['company_name'];
 $_SESSION['company_slogan'] = $settings_data['company_slogan'];
 
-$db = new Database(DB_HOST, DB_NAME, DB_USER, DB_PASS); // Removed Globals\Config
+$db = new Database(DB_HOST, DB_NAME, DB_USER, DB_PASSWORD); // Removed Globals\Config
 $conn = $db->getConnection();
 
 if (!$conn) { // Check if the connection is null

@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Ensure correct path to config.php
+require_once realpath(dirname(__FILE__) . '/../../../config.php'); // Updated to use realpath
 require_once BASE_PATH . '/Models/Database.php';
 require_once BASE_PATH . '/Controllers/MaterialController.php';
 
@@ -77,7 +77,7 @@ $controller->closeConnection();
     </style>
 </head>
 <body>
-    <?php include BASE_PATH . '/Views/header.php'; ?>
+    <?php include realpath(dirname(__FILE__) . '/../../../Views/header.php'); ?> <!-- Updated to use realpath -->
     <div class="container">
         <h1>Edit Material</h1>
         <?php if (isset($material) && $material): ?>

@@ -1,7 +1,7 @@
 <?php
 namespace MyApp\Controllers;
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/config.php'; // Corrected path to config.php
+require_once realpath(dirname(__FILE__) . '/../config.php'); // Corrected path to config.php
 require_once BASE_PATH . '/Models/Database.php';
 require_once BASE_PATH . '/Models/Material.php';
 require_once BASE_PATH . '/Models/MaterialModel.php'; // Ensure MaterialModel is included
@@ -13,12 +13,14 @@ use MyApp\Models\MaterialModel; // Import MaterialModel
 
 class MaterialController {
     private $db;
+    private $materialModel;
 
     public function __construct(Database $db) {
         $this->db = $db; // Assign the passed Database instance
         if (!$this->db->getConnection()) {
             throw new \Exception("Database connection is null.");
         }
+        $this->materialModel = new MaterialModel($this->db);
     }
 
     public function getMaterialByName($material_name) {
@@ -312,6 +314,25 @@ class MaterialController {
         $stmt->bindValue(':image_url', $image_url);
 
         return $stmt->execute();
+    }
+
+    public function deleteMaterial($id) {
+        error_log("MaterialController: deleteMaterial called with ID: $id"); // Debugging: Log the method call
+        $result = $this->materialModel->deleteMaterialById($id); // Call the model's method to delete the material
+        if ($result) {
+            echo "Material deleted successfully.";
+        } else {
+            echo "Failed to delete material.";
+        }
+    }
+
+    public function viewMaterial($id) {
+        error_log("MaterialController: viewMaterial called with ID: $id"); // Debugging: Log the method call
+        $material = $this->materialModel->getMaterialById($id); // Fetch material details by ID
+        if (!$material) {
+            throw new \Exception("Material not found with ID: $id");
+        }
+        return $material; // Return the material details
     }
 }
 ?>

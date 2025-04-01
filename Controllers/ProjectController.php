@@ -2,9 +2,10 @@
 namespace MyApp\Controllers;
 
 use PDO; // Import the PDO class
+use PDOException; // Import the PDOException class
 use MyApp\Models\ProjectModel; // Import the ProjectModel class
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/omc/config.php'; // Corrected path to config.php
+require_once realpath(dirname(__FILE__) . '/../config.php'); // Corrected path to config.php
 require_once BASE_PATH . '/Models/ProjectModel.php'; // Corrected path to ProjectModel.php
 
 class ProjectController {
@@ -84,7 +85,7 @@ class ProjectController {
 
             $stmt->execute();
             return $this->database->getConnection()->lastInsertId(); // Return the new project ID
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             throw new \Exception("Failed to add project: " . $e->getMessage());
         }
     }
@@ -113,7 +114,7 @@ class ProjectController {
             $stmtProject = $this->database->getConnection()->prepare($queryProject);
             $stmtProject->bindValue(':project_name', $projectName, PDO::PARAM_STR);
             return $stmtProject->execute();
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             throw new \Exception("Failed to delete project: " . $e->getMessage());
         }
     }
@@ -129,7 +130,7 @@ class ProjectController {
         $query = "SELECT * FROM projects";
         $stmt = $this->database->getConnection()->prepare($query);
         $stmt->execute();
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     // Add other methods as needed

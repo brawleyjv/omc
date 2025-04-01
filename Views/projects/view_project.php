@@ -1,7 +1,7 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/OMC/config.php'; // Corrected path to config.php
-require_once BASE_PATH . '/Models/Database.php';
-require_once BASE_PATH . '/Controllers/ProjectController.php';
+require_once realpath(dirname(__FILE__) . '/../../config.php'); // Updated to use realpath(dirname(__FILE__))
+require_once BASE_PATH . '/Models/Database.php'; // Updated to use BASE_PATH
+require_once BASE_PATH . '/Controllers/ProjectController.php'; // Updated to use BASE_PATH
 
 use MyApp\Controllers\ProjectController;
 use MyApp\Models\Database;
@@ -23,7 +23,7 @@ if (!empty($search_term)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Project</title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>public/css/styles.css"> <!-- Corrected CSS path -->
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Corrected CSS path -->
     <style>
         .container {
             margin-top: 50px;
@@ -84,10 +84,10 @@ if (!empty($search_term)) {
     </style>
 </head>
 <body>
-    <?php include $_SERVER['DOCUMENT_ROOT'] . '/OMC/Views/header.php'; ?> <!-- Corrected header path -->
+    <?php include realpath(dirname(__FILE__) . '/../../Views/header.php'); ?> <!-- Updated to use realpath -->
     <div class="container">
         <div class="search-container">
-            <form action="view_project.php" method="get">
+            <form action="<?php echo BASE_URL; ?>Views/projects/view_project.php" method="get"> <!-- Updated to use BASE_URL -->
                 <input type="text" name="search_term" placeholder="Enter Project ID, Customer Name, or Project Name" required>
                 <input type="submit" value="Search">
             </form>
@@ -99,7 +99,7 @@ if (!empty($search_term)) {
                     <?php if (!empty($project['image_upload'])): ?>
                         <?php
                         $image_upload = basename($project['image_upload']);
-                        $image_upload_path = "http://localhost/projects/project_files/{$project['project_name']}/{$image_upload}";
+                        $image_upload_path = BASE_URL . "projects/project_files/{$project['project_name']}/{$image_upload}"; // Updated to use BASE_URL
                         ?>
                         <img src="<?php echo $image_upload_path; ?>" alt="Project Image" class="project-image">
                     <?php endif; ?>
@@ -111,7 +111,7 @@ if (!empty($search_term)) {
                         $file_uploads = explode(',', $project['file_upload']);
                         foreach ($file_uploads as $file_upload) {
                             $file_upload = basename($file_upload);
-                            $file_upload_path = "http://localhost/projects/project_files/{$project['project_name']}/{$file_upload}";
+                            $file_upload_path = BASE_URL . "projects/project_files/{$project['project_name']}/{$file_upload}"; // Updated to use BASE_URL
                             echo "<li><a href='{$file_upload_path}' download>{$file_upload}</a></li>";
                         }
                         ?>
@@ -124,7 +124,7 @@ if (!empty($search_term)) {
                         $design_files = explode(',', $project['design_file']);
                         foreach ($design_files as $design_file) {
                             $design_file = basename($design_file);
-                            $design_file_path = "http://localhost/projects/project_files/{$project['project_name']}/{$design_file}";
+                            $design_file_path = BASE_URL . "projects/project_files/{$project['project_name']}/{$design_file}"; // Updated to use BASE_URL
                             echo "<li><a href='{$design_file_path}' download>{$design_file}</a></li>";
                         }
                         ?>
@@ -135,7 +135,7 @@ if (!empty($search_term)) {
             <p>Project not found.</p>
         <?php endif; ?>
         <div class="button-container">
-            <a href="<?php echo BASE_URL; ?>Views/main.php" class="btn styled-btn">Back to Main</a>
+            <a href="<?php echo BASE_URL; ?>Views/main.php" class="btn styled-btn">Back to Main</a> <!-- Updated to use BASE_URL -->
         </div>
     </div>
 </body>
