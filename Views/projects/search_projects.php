@@ -8,7 +8,8 @@ use MyApp\Controllers\ProjectController;
 
 // Ensure Database is instantiated with required arguments
 $database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
-$projectsController = new ProjectController($database);
+$db = $database->getConnection(); // Ensure $db is a PDO instance
+$projectsController = new ProjectController($db); // Pass the PDO instance to the controller
 
 $search_term = isset($_GET['search_term']) ? $_GET['search_term'] : '';
 

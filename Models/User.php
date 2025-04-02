@@ -4,20 +4,16 @@ namespace MyApp\Models;
 require_once realpath(dirname(__FILE__) . '/../config.php');
 
 use PDO; // Import PDO at the top
-use MyApp\Models\Database;
 
 class User {
-    private $conn;
+    private PDO $database;
 
-    public function __construct(Database $database) {
-        $this->conn = $database->getConnection();
-        if (!$this->conn instanceof PDO) { // Simplified \PDO to PDO
-            throw new \Exception("Invalid database connection.");
-        }
+    public function __construct(PDO $database) { // Ensure $database is a PDO instance
+        $this->database = $database; // Store the PDO instance directly
     }
 
     public function login($username, $password) {
-        if (!$this->conn) {
+        if (!$this->database) {
             throw new \Exception("Database connection is null.");
         }
         try {
@@ -25,7 +21,7 @@ class User {
             error_log("Attempting to log in user: $username");
 
             $sql = "SELECT * FROM users WHERE name = :username";
-            $stmt = $this->conn->prepare($sql);
+            $stmt = $this->database->prepare($sql);
             $stmt->bindParam(':username', $username, PDO::PARAM_STR);
             $stmt->execute();
 
@@ -62,12 +58,12 @@ class User {
     }
 
     public function isNameTaken($name) {
-        if (!$this->conn) {
+        if (!$this->database) {
             throw new \Exception("Database connection is null.");
         }
         try {
             $sql = "SELECT COUNT(*) FROM users WHERE name = :name";
-            $stmt = $this->conn->prepare($sql);
+            $stmt = $this->database->prepare($sql);
             $stmt->bindParam(':name', $name, PDO::PARAM_STR);
             $stmt->execute();
 
@@ -80,14 +76,14 @@ class User {
     }
 
     public function createUser($name, $phone, $position, $user_type, $date_of_hire, $password) {
-        if (!$this->conn) {
+        if (!$this->database) {
             throw new \Exception("Database connection is null.");
         }
         try {
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT); // Hash the password
             $sql = "INSERT INTO users (name, phone, position, user_type, date_of_hire, password) 
                     VALUES (:name, :phone, :position, :user_type, :date_of_hire, :password)";
-            $stmt = $this->conn->prepare($sql);
+            $stmt = $this->database->prepare($sql);
             $stmt->bindParam(':name', $name, PDO::PARAM_STR);
             $stmt->bindParam(':phone', $phone, PDO::PARAM_STR);
             $stmt->bindParam(':position', $position, PDO::PARAM_STR);
@@ -108,19 +104,19 @@ class User {
     }
 
     public function hashExistingPasswords() {
-        if (!$this->conn) {
+        if (!$this->database) {
             throw new \Exception("Database connection is null.");
         }
         try {
             $sql = "SELECT id, password FROM users";
-            $stmt = $this->conn->query($sql);
+            $stmt = $this->database->query($sql);
             $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             foreach ($users as $user) {
                 if (!password_get_info($user['password'])['algo']) { // Check if password is not hashed
                     $hashedPassword = password_hash($user['password'], PASSWORD_DEFAULT);
                     $updateSql = "UPDATE users SET password = :password WHERE id = :id";
-                    $updateStmt = $this->conn->prepare($updateSql);
+                    $updateStmt = $this->database->prepare($updateSql);
                     $updateStmt->bindParam(':password', $hashedPassword, PDO::PARAM_STR);
                     $updateStmt->bindParam(':id', $user['id'], PDO::PARAM_INT);
                     $updateStmt->execute();
@@ -129,6 +125,37 @@ class User {
         } catch (\Exception $e) {
             error_log("Error in hashExistingPasswords method: " . $e->getMessage());
         }
+    }
+
+    public function getUserByName($name) {
+        $query = "SELECT * FROM users WHERE name = :name";
+        $stmt = $this->database->prepare($query); // Use the PDO instance directly
+        $stmt->bindValue(':name', $name, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function updateUser($name, $phone, $position, $userType, $dateOfHire, $password = null) {
+        $query = "UPDATE users SET 
+            phone = :phone,
+            position = :position,
+            user_type = :user_type,
+            date_of_hire = :date_of_hire" . 
+            ($password ? ", password = :password" : "") . 
+            " WHERE name = :name";
+
+        $stmt = $this->database->prepare($query); // Use the PDO instance directly
+        $stmt->bindValue(':name', $name, PDO::PARAM_STR);
+        $stmt->bindValue(':phone', $phone, PDO::PARAM_STR);
+        $stmt->bindValue(':position', $position, PDO::PARAM_STR);
+        $stmt->bindValue(':user_type', $userType, PDO::PARAM_STR);
+        $stmt->bindValue(':date_of_hire', $dateOfHire, PDO::PARAM_STR);
+
+        if ($password) {
+            $stmt->bindValue(':password', password_hash($password, PASSWORD_DEFAULT), PDO::PARAM_STR);
+        }
+
+        return $stmt->execute();
     }
 }
 ?>

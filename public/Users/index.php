@@ -9,8 +9,11 @@ $database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 
 try {
     $conn = $database->getConnection(); // Ensure the connection is established
-} catch (PDOException $e) {
-    die("Database connection failed: " . $e->getMessage()); // Handle connection errors
+    if ($conn === null) { // Check if the connection is null
+        throw new Exception("Database connection failed. Please check your configuration.");
+    }
+} catch (Exception $e) {
+    die($e->getMessage()); // Handle connection errors
 }
 
 $name = '';

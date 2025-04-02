@@ -12,11 +12,11 @@ class Database {
     private $user;
     private $password;
     private $dbname;
-    private $connection;
+    private $connection; // Holds the PDO instance
 
-    public function __construct($host = DB_HOST, $user = DB_USER, $password = DB_PASSWORD, $dbname = DB_NAME) { // Use DB_PASSWORD
+    public function __construct($host = DB_HOST, $user = DB_USER, $password = DB_PASSWORD, $dbname = DB_NAME) {
         $this->host = $host;
-        $this->user = $user; // Ensure DB_USER is used for the username
+        $this->user = $user;
         $this->password = $password;
         $this->dbname = $dbname;
         $this->connection = null; // Initialize connection as null
@@ -25,7 +25,7 @@ class Database {
     private function connect() {
         try {
             $dsn = "mysql:host={$this->host};dbname={$this->dbname};charset=utf8mb4";
-            $this->connection = new PDO($dsn, $this->user, $this->password); // Use $this->user for the username
+            $this->connection = new PDO($dsn, $this->user, $this->password); // Create a PDO instance
             $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
@@ -34,11 +34,14 @@ class Database {
         }
     }
 
-    public function getConnection() {
-        if ($this->connection === null) {
-            $this->connect();
+    public function getConnection(): PDO {
+        if ($this->connection === null) { // Check if the connection is null
+            $this->connect(); // Call the connect method to initialize the connection
         }
-        return $this->connection;
+        if ($this->connection === null) { // Ensure connection is initialized
+            throw new PDOException("Database connection is not established.");
+        }
+        return $this->connection; // Return the PDO instance
     }
 }
 ?>

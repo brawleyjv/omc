@@ -5,7 +5,14 @@ require_once BASE_PATH . '/Models/Database.php'; // Use BASE_PATH
 use MyApp\Models\Database;
 
 $database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
-$users = $database->query("SELECT * FROM users")->fetchAll(PDO::FETCH_ASSOC);
+$conn = $database->getConnection(); // Retrieve the PDO instance
+if (!$conn) {
+    die("Database connection failed. Please check your configuration.");
+}
+
+$stmt = $conn->prepare("SELECT * FROM users"); // Use prepare instead of query
+$stmt->execute(); // Execute the prepared statement
+$users = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all users
 ?>
 <!DOCTYPE html>
 <html lang="en">

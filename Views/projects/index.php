@@ -33,7 +33,8 @@ try {
         throw new Exception("Database connection failed.");
     }
 
-    $projectController = new ProjectController($database); // Ensure ProjectController is instantiated
+    $db = $database->getConnection(); // Ensure $db is a PDO instance
+    $projectController = new ProjectController($db); // Pass the PDO instance to the controller
     $projects = $projectController->getAllProjects(); // Fetch all projects
 } catch (Exception $e) {
     error_log("Error: " . $e->getMessage());

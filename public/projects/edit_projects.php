@@ -6,8 +6,9 @@ require_once BASE_PATH . '/Controllers/ProjectController.php';
 use MyApp\Controllers\ProjectController;
 use MyApp\Models\Database;
 
-$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
-$controller = new ProjectController($database);
+$database = new Database();
+$db = $database->getConnection(); // Ensure $db is a PDO instance
+$controller = new ProjectController($db); // Pass the PDO instance to the controller
 
 // Check if the project name is provided in the GET or POST request
 $project_name = $_GET['project_name'] ?? $_POST['project_name'] ?? '';

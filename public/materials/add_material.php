@@ -44,7 +44,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-include realpath(dirname(__FILE__) . '/../../views/materials/add_material.php'); // Updated to use realpath
+$path = realpath(dirname(__FILE__) . '/../../views/materials/add_material.php'); // Attempt to resolve the path
+
+if (!$path || !file_exists($path)) { // Validate that $path is not empty and the file exists
+    $path = BASE_PATH . '/Views/materials/add_material.php'; // Fallback to BASE_PATH if realpath fails
+    if (!file_exists($path)) { // Check if the fallback path exists
+        throw new ValueError("Path cannot be empty or invalid: " . ($path ?: 'null'));
+    }
+}
+
+include $path;
 ?>
 <!DOCTYPE html>
 <html lang="en">

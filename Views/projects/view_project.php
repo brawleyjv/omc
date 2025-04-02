@@ -1,13 +1,14 @@
 <?php
-require_once realpath(dirname(__FILE__) . '/../../config.php'); // Updated to use realpath(dirname(__FILE__))
-require_once BASE_PATH . '/Models/Database.php'; // Updated to use BASE_PATH
-require_once BASE_PATH . '/Controllers/ProjectController.php'; // Updated to use BASE_PATH
+require_once realpath(dirname(__FILE__) . '/../../config.php'); // Corrected path to config.php
+require_once BASE_PATH . '/Models/Database.php'; // Corrected path to Database.php
+require_once BASE_PATH . '/Controllers/ProjectController.php';
 
 use MyApp\Controllers\ProjectController;
 use MyApp\Models\Database;
 
-$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME); // Use correct config values
-$controller = new ProjectController($database);
+$database = new Database();
+$db = $database->getConnection(); // Ensure $db is a PDO instance
+$controller = new ProjectController($db); // Pass the PDO instance to the controller
 
 $search_term = isset($_GET['search_term']) ? $_GET['search_term'] : '';
 $projects = [];

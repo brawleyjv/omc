@@ -6,8 +6,9 @@ require_once BASE_PATH . '/Controllers/ProjectController.php';
 use MyApp\Controllers\ProjectController;
 use MyApp\Models\Database;
 
-$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME); // Use correct config values
-$projectsController = new ProjectController($database);
+$database = new Database();
+$db = $database->getConnection(); // Ensure $db is a PDO instance
+$projectsController = new ProjectController($db); // Pass the PDO instance to the controller
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_project_name'])) {
     $projectName = $_POST['delete_project_name'];

@@ -1,12 +1,18 @@
 <?php
+namespace MyApp\Controllers;
+
 require_once realpath(dirname(__FILE__) . '/../config.php'); // Include the configuration file
-require_once BASE_PATH . 'Services/FileManager.php';
+require_once BASE_PATH . '/Services/FileManager.php'; // Ensure FileManager.php is included
+require_once BASE_PATH . '/Services/SqlImporter.php'; // Ensure SqlImporter.php is included
+
+use MyApp\Services\FileManager;
+use MyApp\Services\SqlImporter; // Correct namespace for SqlImporter
 
 class UpdateController {
     private $fileManager;
 
     public function __construct() {
-        $this->fileManager = new FileManager();
+        $this->fileManager = new FileManager(); // Initialize FileManager
     }
 
     public function downloadZip() {
@@ -32,7 +38,7 @@ class UpdateController {
                   </div>";
             ob_flush();
             flush();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             // Log and display error message
             error_log("UpdateController: Error in downloadZip(): " . $e->getMessage());
             echo "<p style='color: red; font-weight: bold; text-align: center;'>Error: " . htmlspecialchars($e->getMessage()) . "</p>";
@@ -49,10 +55,17 @@ class UpdateController {
             flush();
 
             // Use credentials from config.php
-            global $dbConfig;
-            $databaseName = $dbConfig['database'];
-            $username = $dbConfig['username'];
-            $password = $dbConfig['password'];
+            $databaseName = DB_NAME;
+            $username = DB_USER;
+            $password = DB_PASSWORD;
+
+            if (empty($databaseName) || empty($username) || empty($password)) {
+                error_log("One or more database credentials are missing in the config.");
+                echo "<p style='color: red; font-weight: bold; text-align: center;'>Error: One or more database credentials are missing in the config.</p>";
+                ob_flush();
+                flush();
+                return;
+            }
 
             error_log("UpdateController: Using database credentials - DB: $databaseName, User: $username"); // Log credentials for debugging
 
@@ -69,7 +82,7 @@ class UpdateController {
                   </div>";
             ob_flush();
             flush();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             error_log("UpdateController: Error in backupDatabase(): " . $e->getMessage());
             echo "<p style='color: red; font-weight: bold; text-align: center;'>Error: " . htmlspecialchars($e->getMessage()) . "</p>";
             ob_flush();
@@ -85,18 +98,14 @@ class UpdateController {
             flush();
 
             // Use credentials from config.php
-            global $dbConfig;
-            $host = $dbConfig['host'];
-            $username = $dbConfig['username'];
-            $password = $dbConfig['password'];
-            $database = $dbConfig['database'];
+            $pdo = new \PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASSWORD); // Use \PDO for global namespace
+            $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION); // Use \PDO for global namespace
 
-            // Find the newest .sql file in the root directory
-            $directory = $_SERVER['DOCUMENT_ROOT'];
+            $directory = BASE_PATH . 'public/db_backup/backup_files/';
             $latestFile = null;
             $latestTime = 0;
 
-            foreach (glob($directory . '/*.sql') as $file) {
+            foreach (glob($directory . '*.sql') as $file) {
                 $fileTime = filemtime($file);
                 if ($fileTime > $latestTime) {
                     $latestTime = $fileTime;
@@ -105,20 +114,19 @@ class UpdateController {
             }
 
             if (!$latestFile) {
-                throw new Exception("No .sql files found in the directory: $directory");
+                throw new \Exception("No .sql files found in the directory: $directory");
             }
 
             error_log("UpdateController: Found latest SQL file: $latestFile");
 
-            require_once BASE_PATH . '/Services/SqlImporter.php';
-            $importer = new SqlImporter(); // No arguments needed
+            $importer = new SqlImporter($pdo); // Pass the PDO instance to SqlImporter
             $importer->import($latestFile);
 
             error_log("UpdateController: Database import completed successfully.");
             echo "<p style='color: green; text-align: center;'>Database import completed successfully. File: $latestFile</p>";
             ob_flush();
             flush();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             error_log("UpdateController: Error in importDatabase(): " . $e->getMessage());
             echo "<p style='color: red; font-weight: bold; text-align: center;'>Error: " . htmlspecialchars($e->getMessage()) . "</p>";
             ob_flush();
@@ -139,7 +147,7 @@ class UpdateController {
             echo "<p style='color: green; text-align: center;'>Database update completed successfully.</p>";
             ob_flush();
             flush();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             error_log("UpdateController: Error in updateDatabase(): " . $e->getMessage());
             echo "<p style='color: red; font-weight: bold; text-align: center;'>Error: " . htmlspecialchars($e->getMessage()) . "</p>";
             ob_flush();
@@ -155,10 +163,17 @@ class UpdateController {
             flush();
 
             // Use credentials from config.php
-            global $dbConfig;
-            $databaseName = $dbConfig['database'];
-            $username = $dbConfig['username'];
-            $password = $dbConfig['password'];
+            $databaseName = DB_NAME;
+            $username = DB_USER;
+            $password = DB_PASSWORD;
+
+            if (empty($databaseName) || empty($username) || empty($password)) {
+                error_log("One or more database credentials are missing in the config.");
+                echo "<p style='color: red; font-weight: bold; text-align: center;'>Error: One or more database credentials are missing in the config.</p>";
+                ob_flush();
+                flush();
+                return;
+            }
 
             error_log("UpdateController: Using database credentials - DB: $databaseName, User: $username"); // Log credentials for debugging
 
@@ -175,7 +190,7 @@ class UpdateController {
                   </div>";
             ob_flush();
             flush();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             error_log("UpdateController: Error in manualBackup(): " . $e->getMessage());
             echo "<p style='color: red; font-weight: bold; text-align: center;'>Error: " . htmlspecialchars($e->getMessage()) . "</p>";
             ob_flush();

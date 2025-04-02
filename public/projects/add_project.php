@@ -1,12 +1,14 @@
 <?php
 require_once realpath(dirname(__FILE__) . '/../../config.php'); // Corrected path to config.php
-require_once BASE_PATH . '/Models/Database.php';
+require_once BASE_PATH . '/Models/Database.php'; // Corrected path to Database.php
 require_once BASE_PATH . '/Controllers/ProjectController.php';
 
 use MyApp\Controllers\ProjectController;
 use MyApp\Models\Database;
 
-$controller = new ProjectController($database);
+$database = new Database();
+$db = $database->getConnection(); // Ensure $db is a PDO instance
+$controller = new ProjectController($db); // Pass the PDO instance to the controller
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $project_name = $_POST['project_name'] ?? '';

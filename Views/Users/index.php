@@ -1,16 +1,21 @@
 <?php
-require_once realpath(dirname(__FILE__) . '/../../../config.php'); // Correct relative path to config.php
-require_once realpath(dirname(__FILE__) . '/../../../Models/Database.php'); // Correct relative path to Database.php
-include BASE_PATH . '/Views/header.php'; // Ensure correct path
+require_once realpath(dirname(__FILE__) . '/../../config.php'); // Corrected path to config.php
+require_once BASE_PATH . '/Models/Database.php'; // Ensure Database.php is included
+require_once BASE_PATH . '/Controllers/UserController.php'; // Ensure UserController.php is included
 
 use MyApp\Models\Database;
+use MyApp\Controllers\UserController;
 
-$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
-$conn = $database->getConnection();
-
-if (!$conn) {
-    throw new Exception("Database connection failed.");
+$database = new Database(); // Create a Database instance
+$db = $database->getConnection(); // Retrieve the PDO instance
+if (!$db) {
+    error_log("Failed to establish a database connection.");
+    header("Location: index.php?error=Database connection failed");
+    exit();
 }
+$userController = new UserController($db); // Pass the PDO instance to UserController
+
+include BASE_PATH . '/Views/header.php'; // Ensure correct path
 
 $name = '';
 $phone = '';
@@ -21,10 +26,10 @@ $date_of_hire = '';
 // Handle search functionality
 if (isset($_GET['search_name'])) {
     $search_name = $_GET['search_name'];
-    if ($conn) {
-        $stmt = $conn->prepare("SELECT * FROM users WHERE name LIKE :search_name LIMIT 1");
+    if ($db) {
+        $stmt = $db->prepare("SELECT * FROM users WHERE name LIKE :search_name LIMIT 1");
         if (!$stmt) {
-            error_log("Prepared statement failed: " . $conn->errorInfo()[2]);
+            error_log("Prepared statement failed: " . $db->errorInfo()[2]);
             header("Location: index.php?error=An unexpected error occurred");
             exit();
         }
@@ -48,7 +53,7 @@ if (isset($_GET['search_name'])) {
     }
 }
 
-$conn = null; // Close the connection
+$db = null; // Close the connection
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -67,7 +72,7 @@ $conn = null; // Close the connection
             <input type="text" id="search_name" name="search_name" placeholder="Enter user name">
             <button type="submit" class="btn styled-btn">Search</button>
         </form>
-        <form action="<?php echo BASE_URL; ?>Users/profile.php" method="post"> <!-- Removed leading slash -->
+        <form action="<?php echo BASE_URL; ?>Views/Users/profile.php" method="post"> <!-- Corrected path -->
             <label for="name">Name:</label>
             <input type="text" id="name" name="name" value="<?php echo $name; ?>" required>
             <label for="phone">Phone:</label>
@@ -85,7 +90,7 @@ $conn = null; // Close the connection
             <input type="password" id="password" name="password">
             <input type="submit" value="Update Profile" class="btn styled-btn">
         </form>
-        <a href="<?php echo BASE_URL; ?>views/main.php" class="btn styled-btn red">Return to Main</a> <!-- Removed leading slash -->
+        <a href="<?php echo BASE_URL; ?>Views/main.php" class="btn styled-btn red">Return to Main</a> <!-- Corrected path -->
     </div>
 </body>
 </html>

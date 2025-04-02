@@ -6,14 +6,38 @@ require_once BASE_PATH . '/Controllers/ProjectController.php';
 use MyApp\Controllers\ProjectController;
 use MyApp\Models\Database;
 
-$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
-$controller = new ProjectController($database);
+$database = new Database();
+$db = $database->getConnection(); // Ensure $db is a PDO instance
+$controller = new ProjectController($db); // Pass the PDO instance to the controller
 
-$project_name = isset($_GET['project_name']) ? $_GET['project_name'] : '';
+$project_name = $_GET['project_name'] ?? '';
 $project = $controller->getProjectByName($project_name);
 
-if (!$project) {
-    echo "<script>alert('Project not found.'); window.location.href = '" . BASE_URL . "Views/projects/list_projects.php';</script>";
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $updated_project_name = $_POST['project_name'] ?? '';
+    $design_date = $_POST['design_date'] ?? '';
+    $customer_name = $_POST['customer_name'] ?? '';
+    $laser_time = $_POST['laser_time'] ?? 0;
+    $router_time = $_POST['router_time'] ?? 0;
+    $labor_hours = $_POST['labor_hours'] ?? 0;
+    $project_description = $_POST['project_description'] ?? '';
+    $due_date = $_POST['due_date'] ?? '';
+
+    $controller->updateProject(
+        $project['id'],
+        $updated_project_name,
+        $design_date,
+        $customer_name,
+        $laser_time,
+        $router_time,
+        $labor_hours,
+        $project_description,
+        $due_date,
+        $project['file_upload'],
+        $project['image_upload']
+    );
+
+    header('Location: ' . BASE_URL . 'Views/projects/list_projects.php');
     exit;
 }
 ?>

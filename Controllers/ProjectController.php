@@ -11,8 +11,8 @@ require_once BASE_PATH . '/Models/ProjectModel.php'; // Corrected path to Projec
 class ProjectController {
     private $database;
 
-    public function __construct($database) {
-        $this->database = $database; // Store the database object
+    public function __construct(PDO $database) { // Ensure $database is a PDO instance
+        $this->database = $database; // Store the PDO instance
     }
 
     public function getProjectById($projectId) {
@@ -43,6 +43,10 @@ class ProjectController {
         $image_upload,
         $design_file
     ) {
+        if ($this->database === null) {
+            throw new \Exception("Database connection is not initialized.");
+        }
+
         try {
             $query = "INSERT INTO projects (
                 project_name, 
@@ -70,7 +74,7 @@ class ProjectController {
                 :design_file
             )";
 
-            $stmt = $this->database->getConnection()->prepare($query);
+            $stmt = $this->database->prepare($query); // Use the PDO instance directly
             $stmt->bindValue(':project_name', $project_name, PDO::PARAM_STR);
             $stmt->bindValue(':design_date', $design_date, PDO::PARAM_STR);
             $stmt->bindValue(':customer_name', $customer_name, PDO::PARAM_STR);
@@ -84,15 +88,19 @@ class ProjectController {
             $stmt->bindValue(':design_file', $design_file, PDO::PARAM_STR);
 
             $stmt->execute();
-            return $this->database->getConnection()->lastInsertId(); // Return the new project ID
+            return $this->database->lastInsertId(); // Return the new project ID
         } catch (PDOException $e) {
             throw new \Exception("Failed to add project: " . $e->getMessage());
         }
     }
 
     public function searchProjects($searchTerm) {
+        if ($this->database === null) {
+            throw new \Exception("Database connection is not initialized.");
+        }
+
         $query = "SELECT * FROM projects WHERE project_name LIKE :search_term OR project_description LIKE :search_term";
-        $stmt = $this->database->getConnection()->prepare($query); // Use the PDO connection
+        $stmt = $this->database->prepare($query); // Use the PDO instance directly
         $likeTerm = '%' . $searchTerm . '%';
         $stmt->bindValue(':search_term', $likeTerm, PDO::PARAM_STR);
         $stmt->execute();
@@ -100,18 +108,26 @@ class ProjectController {
     }
 
     public function getProjectByName($projectName) {
+        if ($this->database === null) {
+            throw new \Exception("Database connection is not initialized.");
+        }
+
         $query = "SELECT * FROM projects WHERE project_name = :project_name LIMIT 1";
-        $stmt = $this->database->getConnection()->prepare($query);
+        $stmt = $this->database->prepare($query);
         $stmt->bindValue(':project_name', $projectName, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public function deleteProjectByName($projectName) {
+        if ($this->database === null) {
+            throw new \Exception("Database connection is not initialized.");
+        }
+
         try {
             // Delete the project from the `projects` table
             $queryProject = "DELETE FROM projects WHERE project_name = :project_name";
-            $stmtProject = $this->database->getConnection()->prepare($queryProject);
+            $stmtProject = $this->database->prepare($queryProject);
             $stmtProject->bindValue(':project_name', $projectName, PDO::PARAM_STR);
             return $stmtProject->execute();
         } catch (PDOException $e) {
@@ -120,15 +136,23 @@ class ProjectController {
     }
 
     public function listProjects() {
+        if ($this->database === null) {
+            throw new \Exception("Database connection is not initialized.");
+        }
+
         $query = "SELECT * FROM projects";
-        $stmt = $this->database->getConnection()->prepare($query);
+        $stmt = $this->database->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getAllProjects() {
+        if ($this->database === null) {
+            throw new \Exception("Database connection is not initialized.");
+        }
+
         $query = "SELECT * FROM projects";
-        $stmt = $this->database->getConnection()->prepare($query);
+        $stmt = $this->database->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

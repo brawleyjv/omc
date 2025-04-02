@@ -3,46 +3,51 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-require_once realpath(dirname(__FILE__) . '/../Views/header.php'); // Include the header
-require_once realpath(dirname(__FILE__) . '/../Controllers/UpdateController.php'); // Include the UpdateController
+require_once realpath(dirname(__FILE__) . '/../config.php'); // Load config
+require_once BASE_PATH . '/Controllers/UpdateController.php'; // Ensure UpdateController.php is included
 
-$controller = new UpdateController();
+use MyApp\Controllers\UpdateController; // Correct namespace for UpdateController
 
-if (isset($_GET['action'])) {
-    $action = $_GET['action'];
-    error_log("update.php: Received action: $action"); // Log the action for debugging
-    echo "<p style='color: blue; text-align: center;'>Action received: $action</p>"; // Display action for debugging
+// Initialize the UpdateController
+$updateController = new UpdateController();
+
+// Get the action from the query string
+$action = $_GET['action'] ?? '';
+
+if (empty($action)) {
+    echo "<p style='color: red; font-weight: bold; text-align: center;'>Error: No action specified.</p>";
+    exit;
+}
+
+// Handle the specified action
+try {
     switch ($action) {
-        case 'download_zip':
-            error_log("update.php: Calling downloadZip() method.");
-            $controller->downloadZip();
-            break;
-        case 'update_database':
-            error_log("update.php: Calling updateDatabase() method.");
-            // Remove or comment out the following line if the method is not needed
-            // $controller->updateDatabase();
-            echo "<p style='color: red; text-align: center;'>The updateDatabase action is not implemented.</p>";
-            break;
-        case 'manual_backup':
-            error_log("update.php: Calling manualBackup() method.");
-            // Remove or comment out the following line if the method is not needed
-            // $controller->manualBackup();
-            echo "<p style='color: red; text-align: center;'>The manualBackup action is not implemented.</p>";
-            break;
         case 'backup_database':
-            error_log("update.php: Calling backupDatabase() method.");
-            $controller->backupDatabase();
+            $updateController->backupDatabase();
             break;
+
+        case 'download_zip':
+            $updateController->downloadZip();
+            break;
+
         case 'import_database':
-            error_log("update.php: Calling importDatabase() method.");
-            $controller->importDatabase(); // No arguments needed
+            $updateController->importDatabase();
             break;
+
+        case 'update_database':
+            $updateController->updateDatabase();
+            break;
+
+        case 'manual_backup':
+            $updateController->manualBackup();
+            break;
+
         default:
-            error_log("update.php: Invalid action specified.");
-            echo "<p style='color: red; text-align: center;'>Invalid action specified.</p>";
+            echo "<p style='color: red; font-weight: bold; text-align: center;'>Error: Unknown action '$action'.</p>";
+            break;
     }
-} else {
-    error_log("update.php: No action specified.");
-    require_once BASE_PATH . 'Views/update.php'; // Include the HTML view
+} catch (Exception $e) {
+    error_log("Error handling action '$action': " . $e->getMessage());
+    echo "<p style='color: red; font-weight: bold; text-align: center;'>Error: " . htmlspecialchars($e->getMessage()) . "</p>";
 }
 ?>

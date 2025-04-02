@@ -9,6 +9,10 @@ use MyApp\Models\Database;
 $database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 $conn = $database->getConnection();
 
+if (!$conn) {
+    die("Database connection failed: " . mysqli_connect_error());
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = $_POST['name'];
     $phone = $_POST['phone'];

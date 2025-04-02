@@ -11,7 +11,8 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 $database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME); // Create Database instance
-$loginController = new LoginController($database); // Pass Database instance to LoginController
+$pdo = $database->getConnection(); // Retrieve the PDO instance
+$loginController = new LoginController($pdo); // Pass the PDO instance to LoginController
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'];

@@ -5,11 +5,18 @@ require_once BASE_PATH . '/Models/Database.php'; // Use BASE_PATH
 use MyApp\Models\Database;
 
 $database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+$conn = $database->getConnection(); // Retrieve the PDO instance
+if (!$conn) {
+    die("Database connection failed. Please check your configuration.");
+}
 $user = null;
 
 if (isset($_GET['user_id'])) {
     $userId = $_GET['user_id'];
-    $user = $database->query("SELECT * FROM users WHERE id = ?", [$userId])->fetch(PDO::FETCH_ASSOC);
+    $stmt = $conn->prepare("SELECT * FROM users WHERE id = :id"); // Use prepare and bindParam
+    $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
+    $stmt->execute();
+    $user = $stmt->fetch(PDO::FETCH_ASSOC); // Fetch the user data
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -17,7 +24,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'];
     $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
 
-    $database->query("UPDATE users SET username = ?, password = ? WHERE id = ?", [$username, $password, $userId]);
+    $stmt = $conn->prepare("UPDATE users SET username = :username, password = :password WHERE id = :id");
+    $stmt->bindParam(':username', $username, PDO::PARAM_STR);
+    $stmt->bindParam(':password', $password, PDO::PARAM_STR);
+    $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
+    $stmt->execute();
 
     header("Location: " . BASE_URL . "Views/users/list_users.php"); // Use BASE_URL
     exit();
