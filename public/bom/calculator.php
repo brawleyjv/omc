@@ -21,8 +21,9 @@ if (!defined('DB_HOST') || !defined('DB_USER') || !defined('DB_PASSWORD') || !de
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME); // Updated to use constants directly
-    $bom = new Bom($database);
+    $database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME); // Ensure required arguments are passed
+    $conn = $database->getConnection(); // Get the PDO connection
+    $bom = new Bom($conn); // Pass the PDO connection
 
     $project_id = $_POST['project_id'];
     $material_names = $_POST['material_name'];
@@ -46,3 +47,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit();
 }
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Updated to use BASE_URL -->
+    <!-- ...existing code... -->
+</head>
+<body>
+    <!-- ...existing code... -->
+</body>
+</html>

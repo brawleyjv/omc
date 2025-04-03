@@ -22,7 +22,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_project_name']
     exit;
 }
 
-$projects = $projectsController->listProjects(); // Use the correct method to list projects
+$customerId = $_GET['customer_id'] ?? null;
+
+if ($customerId) {
+    $projects = $projectsController->getProjectsByCustomerId($customerId); // Fetch projects for the specific customer
+} else {
+    $projects = $projectsController->listProjects(); // Fetch all projects
+}
 ?>
 
 <!DOCTYPE html>
@@ -159,8 +165,8 @@ $projects = $projectsController->listProjects(); // Use the correct method to li
             <thead>
                 <tr>
                     <th>Project Name</th>
-                    <th>Design Date</th>
-                    <th>Customer Name</th>
+                    <th>Customer Name</th> <!-- Corrected label -->
+                    <th>Design Date</th> <!-- Corrected label -->
                     <th>Laser Time</th>
                     <th>Router Time</th>
                     <th>Labor Hours</th>
@@ -175,9 +181,9 @@ $projects = $projectsController->listProjects(); // Use the correct method to li
             <tbody>
                 <?php foreach ($projects as $project): ?>
                     <tr>
-                        <td><?php echo htmlspecialchars($project['project_name']); ?></td>
-                        <td><?php echo htmlspecialchars($project['design_date']); ?></td>
-                        <td><?php echo htmlspecialchars($project['customer_name']); ?></td>
+                        <td><?php echo htmlspecialchars($project['project_name'] ?? ''); ?></td>
+                        <td><?php echo htmlspecialchars($project['customer_name'] ?? 'Unknown'); // Corrected data ?></td>
+                        <td><?php echo htmlspecialchars($project['design_date']); // Corrected data ?></td>
                         <td><?php echo htmlspecialchars($project['laser_time']); ?></td>
                         <td><?php echo htmlspecialchars($project['router_time']); ?></td>
                         <td><?php echo htmlspecialchars($project['labor_hours']); ?></td>

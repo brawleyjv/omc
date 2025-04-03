@@ -1,13 +1,41 @@
 <?php
-require_once realpath(dirname(__FILE__) . '/../../config.php'); // Updated to use realpath(dirname(__FILE__))
-require_once BASE_PATH . '/Models/Database.php'; // Updated to use BASE_PATH
-require_once BASE_PATH . '/Controllers/ProjectController.php'; // Updated to use BASE_PATH
+require_once realpath(dirname(__FILE__) . '/../../config.php');
+require_once BASE_PATH . '/Models/Database.php';
+require_once BASE_PATH . '/Controllers/CustomerController.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // ...existing code...
-    header("Location: " . BASE_URL . "Views/projects/list_projects.php"); // Updated to use BASE_URL
-    exit();
+use MyApp\Models\Database;
+use MyApp\Controllers\CustomerController;
+
+$database = new Database();
+$db = $database->getConnection();
+$customerController = new CustomerController($db);
+
+$customer_id = $_GET['customer_id'] ?? ''; // Capture the customer_id from the query string
+$customer_name = $_GET['customer_name'] ?? '';
+$project_name = $_GET['project_name'] ?? ''; // Capture the project name from the query string
+
+if (empty($customer_name)) {
+    // Ask for the customer name
+    echo "<script>
+        var customerName = prompt('Enter the customer name:');
+        if (customerName) {
+            window.location.href = '?customer_name=' + encodeURIComponent(customerName);
+        } else {
+            window.location.href = '" . BASE_URL . "Views/projects/index.php';
+        }
+    </script>";
+    exit;
 }
+
+$customer = $customerController->viewCustomerByName($customer_name);
+
+if (!$customer) {
+    // Redirect to add_customer.php if the customer doesn't exist
+    header("Location: " . BASE_URL . "Views/customers/add_customer.php?customer_name=" . urlencode($customer_name) . "&project_name=" . urlencode($project_name) . "&redirect_to=" . urlencode(BASE_URL . "Views/projects/add_project.php"));
+    exit;
+}
+
+// Continue loading the add_project form
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -89,10 +117,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
         </div>
         <form id="project-form" action="<?php echo BASE_URL; ?>public/projects/add_project.php" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
+            <input type="hidden" name="customer_id" value="<?php echo htmlspecialchars($customer_id); ?>"> <!-- Prefill customer_id -->
             <div class="form-container">
                 <div class="form-group">
                     <label for="project_name">Project Name:</label>
-                    <input type="text" id="project_name" name="project_name" required>
+                    <input type="text" id="project_name" name="project_name" value="<?php echo htmlspecialchars($project_name); ?>" required>
                 </div>
                 <div class="form-group">
                     <label for="design_date">Design Date:</label>
@@ -100,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <div class="form-group">
                     <label for="customer_name">Customer Name:</label>
-                    <input type="text" id="customer_name" name="customer_name">
+                    <input type="text" id="customer_name" name="customer_name" value="<?php echo htmlspecialchars($customer_name); ?>" readonly>
                 </div>
                 <div class="form-group">
                     <label for="laser_time">Laser Time (minutes):</label>
@@ -133,6 +162,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="due-date-group">
                     <label for="due_date">Project Due By Date:</label>
                     <input type="date" id="due_date" name="due_date">
+                </div>
+                <div class="form-group">
+                    <label for="customers">Assign Customers:</label>
+                    <select name="customers[]" id="customers" multiple>
+                        <?php foreach ($customers as $customer): ?>
+                            <option value="<?php echo $customer['customer_id']; ?>"><?php echo $customer['name']; ?></option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
             </div>
             <div class="button-container">

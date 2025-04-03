@@ -2,15 +2,23 @@
 
 namespace MyApp\Controllers;
 
-require_once BASE_PATH . 'Models/CustomerModel.php'; // Include the CustomerModel class
+use PDO;
+use MyApp\Models\CustomerModel; // Import the CustomerModel class
+use MyApp\Models\ProjectModel; // Import the ProjectModel class
 
-use MyApp\Models\CustomerModel;
+require_once realpath(dirname(__FILE__) . '/../config.php'); // Corrected path to config.php
+require_once BASE_PATH . '/Models/CustomerModel.php'; // Ensure CustomerModel is included
+require_once BASE_PATH . '/Models/ProjectModel.php'; // Ensure ProjectModel is included
 
 class CustomerController {
-    private $customerModel;
+    private PDO $database;
+    private CustomerModel $customerModel;
+    private ProjectModel $projectModel;
 
-    public function __construct($db) {
-        $this->customerModel = new CustomerModel($db);
+    public function __construct(PDO $database) {
+        $this->database = $database;
+        $this->customerModel = new CustomerModel($database);
+        $this->projectModel = new ProjectModel($database);
     }
 
     public function listCustomers() {
@@ -21,16 +29,49 @@ class CustomerController {
         return $this->customerModel->getCustomerById($id);
     }
 
-    public function createCustomer($name, $email, $phone) {
-        return $this->customerModel->addCustomer($name, $email, $phone);
+    public function createCustomer($name, $project, $address, $city, $state, $zip, $phone, $email, $notes) {
+        $project_ids = json_encode([]); // Initialize as an empty array
+        return $this->customerModel->addCustomer($name, $project, $address, $city, $state, $zip, $phone, $email, $notes, $project_ids); // Pass $project_ids
     }
 
-    public function editCustomer($id, $name, $email, $phone) {
-        return $this->customerModel->updateCustomer($id, $name, $email, $phone);
+    public function editCustomer($id, $name, $project, $address, $city, $state, $zip, $phone, $email, $notes) {
+        return $this->customerModel->updateCustomer($id, $name, $project, $address, $city, $state, $zip, $phone, $email, $notes);
     }
 
     public function removeCustomer($id) {
         return $this->customerModel->deleteCustomer($id);
+    }
+
+    public function addCustomerWithProjects($name, $project, $address, $city, $state, $zip, $phone, $email, $notes, $projectIds) {
+        $this->database->beginTransaction();
+        try {
+            // Add the customer with the correct number of arguments
+            $project_ids = json_encode($projectIds); // Convert project IDs to JSON
+            $customerId = $this->customerModel->addCustomer($name, $project, $address, $city, $state, $zip, $phone, $email, $notes, $project_ids);
+
+            // Assign projects to the customer directly in the `projects` table
+            foreach ($projectIds as $projectId) {
+                $query = "UPDATE projects SET customer_id = :customer_id WHERE project_id = :project_id";
+                $stmt = $this->database->prepare($query);
+                $stmt->bindValue(':customer_id', $customerId, PDO::PARAM_INT);
+                $stmt->bindValue(':project_id', $projectId, PDO::PARAM_INT);
+                $stmt->execute();
+            }
+
+            $this->database->commit();
+            return $customerId;
+        } catch (\Exception $e) {
+            $this->database->rollBack();
+            throw $e;
+        }
+    }
+
+    public function viewCustomerByName($name) {
+        $query = "SELECT * FROM customers WHERE name = :name LIMIT 1";
+        $stmt = $this->database->prepare($query);
+        $stmt->bindValue(':name', $name, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }
 ?>

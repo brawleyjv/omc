@@ -1,24 +1,24 @@
 <?php
 namespace MyApp\Controllers;
 
-include realpath(dirname(__FILE__) . '/../config.php');require_once BASE_PATH . '/Models/Database.php';
+use PDO; // Import the PDO class
+require_once realpath(dirname(__FILE__) . '/../config.php');
 require_once BASE_PATH . '/Models/Bom.php';
 
-use MyApp\Models\Database;
 use MyApp\Models\Bom;
 
 class BomController {
-    private $database;
-    private $bom;
+    private PDO $database;
+    private Bom $bom;
 
-    public function __construct(Database $database) {
+    public function __construct(PDO $database) { // Accept a PDO object
         $this->database = $database;
-        $this->bom = new Bom($database);
+        $this->bom = new Bom($database); // Pass the PDO object to the Bom model
     }
 
-    public function addBom($project_name, $material_names, $lengths, $widths, $thicknesses, $quantities) {
-        if (empty($project_name)) {
-            echo "<script>alert('Project Name is required.'); window.history.back();</script>";
+    public function addBom($project_id, $material_names, $lengths, $widths, $thicknesses, $quantities) {
+        if (empty($project_id)) {
+            echo "<script>alert('Project ID is required.'); window.history.back();</script>";
             exit();
         }
 
@@ -28,11 +28,24 @@ class BomController {
             $thickness = $thicknesses[$index];
             $quantity = $quantities[$index];
 
-            $this->bom->addBom($project_name, $material_name, $length, $width, $thickness, $quantity);
+            $this->bom->addBom($project_id, $material_name, $length, $width, $thickness, $quantity);
         }
 
-        header("Location: " . BASE_URL . "Views/estimate/add_estimate.php?project_name=$project_name");
+        header("Location: " . BASE_URL . "Views/estimate/add_estimate.php?project_id=$project_id");
         exit();
+    }
+
+    public function addBomForProject($projectId, $materials) {
+        foreach ($materials as $material) {
+            $this->bom->addBom(
+                $projectId,
+                $material['material_name'],
+                $material['length'],
+                $material['width'],
+                $material['thickness'],
+                $material['quantity']
+            );
+        }
     }
 
     public function getBomByProjectName($project_name) {

@@ -1,5 +1,5 @@
 <?php
-require_once realpath(dirname(__FILE__, 3) . '/config.php'); // Adjust path to config.php
+require_once realpath(dirname(__FILE__) . '/config.php'); // Adjust path to config.php
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = intval($_POST['id']);

@@ -5,15 +5,15 @@ require_once realpath(dirname(__FILE__) . '/../../Models/Database.php');
 use MyApp\Models\Database;
 
 try {
-    $material_id = $_GET['material_id'];
+    $id = $_GET['id']; // Use 'id' instead of 'material_id'
 
-    if (empty($material_id)) {
+    if (empty($id)) {
         throw new Exception('Material ID is missing.');
     }
 
     $database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
-    $stmt = $database->getConnection()->prepare("SELECT m.material_name, m.type, m.length, m.width, m.thickness FROM materials m WHERE m.id = ?");
-    $stmt->execute([$material_id]);
+    $stmt = $database->getConnection()->prepare("SELECT material_id, material_name, type, length, width, thickness FROM materials WHERE material_id = ?");
+    $stmt->execute([$id]); // Use 'material_id'
     $material = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$material) {

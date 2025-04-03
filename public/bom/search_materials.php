@@ -1,27 +1,25 @@
 <?php
 require_once realpath(dirname(__FILE__) . '/../../config.php'); // Updated to use realpath
-include realpath(dirname(__FILE__) . '/../../../Views/header.php'); // Updated to use realpath
-
 require_once BASE_PATH . 'Models/Database.php';
 
 use MyApp\Models\Database;
 
 try {
-    $search_query = $_GET['query'];
+    $search_query = $_GET['query'] ?? '';
 
     if (empty($search_query)) {
         throw new Exception('Search query is missing.');
     }
 
     $database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
-    $stmt = $database->getConnection()->prepare("SELECT id, material_name, type FROM materials WHERE material_name LIKE ?");
+    $stmt = $database->getConnection()->prepare("SELECT id, material_name, type, length, width, thickness FROM materials WHERE material_name LIKE ?");
     $stmt->execute(['%' . $search_query . '%']);
     $materials = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     header('Content-Type: application/json');
     echo json_encode($materials);
 } catch (Exception $e) {
-    error_log($e->getMessage());
+    error_log($e->getMessage()); // Log the error for debugging
     header('Content-Type: application/json', true, 500);
     echo json_encode(['error' => 'An error occurred while searching for materials: ' . $e->getMessage()]);
 }

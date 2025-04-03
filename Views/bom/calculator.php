@@ -7,7 +7,7 @@ require_once BASE_PATH . '/Models/Database.php';
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Updated to use BASE_URL -->
     <!-- ...existing code... -->
 </head>
 <body>
