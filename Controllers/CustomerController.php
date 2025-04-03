@@ -30,8 +30,7 @@ class CustomerController {
     }
 
     public function createCustomer($name, $project, $address, $city, $state, $zip, $phone, $email, $notes) {
-        $project_ids = json_encode([]); // Initialize as an empty array
-        return $this->customerModel->addCustomer($name, $project, $address, $city, $state, $zip, $phone, $email, $notes, $project_ids); // Pass $project_ids
+        return $this->customerModel->addCustomer($name, $project, $address, $city, $state, $zip, $phone, $email, $notes);
     }
 
     public function editCustomer($id, $name, $project, $address, $city, $state, $zip, $phone, $email, $notes) {
@@ -39,15 +38,21 @@ class CustomerController {
     }
 
     public function removeCustomer($id) {
-        return $this->customerModel->deleteCustomer($id);
+        error_log("Debug: Calling CustomerModel->deleteCustomer with ID: $id");
+        $result = $this->customerModel->deleteCustomer($id);
+        if ($result) {
+            error_log("Debug: CustomerModel->deleteCustomer returned true for ID: $id");
+        } else {
+            error_log("Debug: CustomerModel->deleteCustomer returned false for ID: $id");
+        }
+        return $result;
     }
 
     public function addCustomerWithProjects($name, $project, $address, $city, $state, $zip, $phone, $email, $notes, $projectIds) {
         $this->database->beginTransaction();
         try {
-            // Add the customer with the correct number of arguments
-            $project_ids = json_encode($projectIds); // Convert project IDs to JSON
-            $customerId = $this->customerModel->addCustomer($name, $project, $address, $city, $state, $zip, $phone, $email, $notes, $project_ids);
+            // Add the customer
+            $customerId = $this->customerModel->addCustomer($name, $project, $address, $city, $state, $zip, $phone, $email, $notes);
 
             // Assign projects to the customer directly in the `projects` table
             foreach ($projectIds as $projectId) {

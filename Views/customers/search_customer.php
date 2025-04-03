@@ -59,41 +59,51 @@ require_once BASE_PATH . '/public/Customers/search_customer.php'; // Include the
     <h1>Search Customers</h1>
     <form method="get" action="">
         <input type="text" name="query" placeholder="Search by name or email" value="<?php echo htmlspecialchars($query); ?>">
-        <button type="submit">Search</button>
+        <button type="submit" class="btn styled-btn">Search</button>
     </form>
+
+    <div class="button-container">
+        <button class="btn styled-btn red" onclick="window.location.href='<?php echo BASE_URL; ?>Views/customers/index.php';">Close</button>
+    </div>
 
     <?php if (!empty($customers)): ?>
         <table>
             <thead>
                 <tr>
+                    <th>Customer ID</th>
                     <th>Name</th>
                     <th>Email</th>
                     <th>Phone</th>
                     <th>City</th>
                     <th>State</th>
                     <th>Zip</th>
+                    <th>Address</th>
+                    <th>Project</th>
+                    <th>Notes</th>
                     <th>Actions</th> <!-- Add Actions column -->
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($customers as $customer): ?>
                     <tr>
+                        <td><?php echo htmlspecialchars($customer['customer_id']); ?></td>
                         <td><?php echo htmlspecialchars($customer['name']); ?></td>
                         <td><?php echo htmlspecialchars($customer['email']); ?></td>
                         <td><?php echo htmlspecialchars($customer['phone']); ?></td>
                         <td><?php echo htmlspecialchars($customer['city']); ?></td>
                         <td><?php echo htmlspecialchars($customer['state']); ?></td>
                         <td><?php echo htmlspecialchars($customer['zip']); ?></td>
+                        <td><?php echo htmlspecialchars($customer['address']); ?></td>
+                        <td><?php echo htmlspecialchars($customer['Project']); ?></td>
+                        <td><?php echo htmlspecialchars($customer['notes']); ?></td>
                         <td>
                             <!-- Edit button -->
-                            <a href="<?php echo BASE_URL; ?>public/Customers/update_customer.php?id=<?php echo urlencode($customer['customer_id']); ?>" class="btn styled-btn white">Edit</a>
+                            <a href="<?php echo BASE_URL; ?>Views/customers/edit_customer.php?id=<?php echo urlencode($customer['customer_id']); ?>" class="btn styled-btn white">Edit</a>
                             <!-- Delete button -->
                             <form action="<?php echo BASE_URL; ?>public/Customers/delete_customer.php" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this customer?');">
                                 <input type="hidden" name="id" value="<?php echo htmlspecialchars($customer['customer_id']); ?>">
                                 <input type="submit" class="btn styled-btn red" value="Delete">
                             </form>
-                            <!-- View Projects button -->
-                            <a href="<?php echo BASE_URL; ?>Views/projects/list_projects.php?customer_id=<?php echo urlencode($customer['customer_id']); ?>" class="btn styled-btn white">View Projects</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>

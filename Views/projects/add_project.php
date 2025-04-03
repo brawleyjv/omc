@@ -2,20 +2,23 @@
 require_once realpath(dirname(__FILE__) . '/../../config.php');
 require_once BASE_PATH . '/Models/Database.php';
 require_once BASE_PATH . '/Controllers/CustomerController.php';
+require_once BASE_PATH . '/Controllers/ProjectController.php';
 
 use MyApp\Models\Database;
 use MyApp\Controllers\CustomerController;
+use MyApp\Controllers\ProjectController;
 
-$database = new Database();
-$db = $database->getConnection();
-$customerController = new CustomerController($db);
+$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+$conn = $database->getConnection();
+$customerController = new CustomerController($conn);
+$projectController = new ProjectController($conn);
 
 $customer_id = $_GET['customer_id'] ?? ''; // Capture the customer_id from the query string
 $customer_name = $_GET['customer_name'] ?? '';
 $project_name = $_GET['project_name'] ?? ''; // Capture the project name from the query string
 
-if (empty($customer_name)) {
-    // Ask for the customer name
+if (empty($customer_name) && empty($customer_id)) {
+    // Ask for the customer name only if both customer_name and customer_id are missing
     echo "<script>
         var customerName = prompt('Enter the customer name:');
         if (customerName) {
@@ -27,12 +30,59 @@ if (empty($customer_name)) {
     exit;
 }
 
-$customer = $customerController->viewCustomerByName($customer_name);
+if (!empty($customer_name)) {
+    $customer = $customerController->viewCustomerByName($customer_name);
 
-if (!$customer) {
-    // Redirect to add_customer.php if the customer doesn't exist
-    header("Location: " . BASE_URL . "Views/customers/add_customer.php?customer_name=" . urlencode($customer_name) . "&project_name=" . urlencode($project_name) . "&redirect_to=" . urlencode(BASE_URL . "Views/projects/add_project.php"));
-    exit;
+    if (!$customer) {
+        // Redirect to add_customer.php if the customer doesn't exist
+        header("Location: " . BASE_URL . "Views/customers/add_customer.php?customer_name=" . urlencode($customer_name) . "&project_name=" . urlencode($project_name) . "&redirect_to=" . urlencode(BASE_URL . "Views/projects/add_project.php"));
+        exit;
+    }
+
+    $customer_id = $customer['customer_id']; // Set the customer_id from the database
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $projectName = trim($_POST['project_name']);
+    $designDate = trim($_POST['design_date']);
+    $laserTime = intval($_POST['laser_time'] ?? 0);
+    $routerTime = intval($_POST['router_time'] ?? 0);
+    $laborHours = intval($_POST['labor_hours'] ?? 0);
+    $projectDescription = trim($_POST['project_description']);
+    $dueDate = trim($_POST['due_date']);
+    $fileUpload = implode(',', $_FILES['file_upload']['name'] ?? []);
+    $imageUpload = implode(',', $_FILES['image_upload']['name'] ?? []);
+    $designFile = implode(',', $_FILES['design_file']['name'] ?? []);
+    $customerId = intval($_POST['customer_id']); // Ensure customer_id is passed
+
+    if (empty($customerId) || empty($projectName)) {
+        header("Location: " . BASE_URL . "Views/projects/add_project.php?error=Customer ID and Project Name are required");
+        exit();
+    }
+
+    try {
+        $projectId = $projectController->addProject(
+            $projectName,
+            $designDate,
+            $customer_name,
+            $laserTime,
+            $routerTime,
+            $laborHours,
+            $projectDescription,
+            $dueDate,
+            $fileUpload,
+            $imageUpload,
+            $designFile,
+            $customerId // Pass customer_id
+        );
+
+        // Redirect to list_projects.php with customer_id in the query string
+        header("Location: " . BASE_URL . "Views/projects/list_projects.php?customer_id=" . urlencode($customerId) . "&success=Project added successfully");
+    } catch (Exception $e) {
+        error_log("Failed to add project: " . $e->getMessage());
+        header("Location: " . BASE_URL . "Views/projects/add_project.php?error=Failed to add project");
+    }
+    exit();
 }
 
 // Continue loading the add_project form
@@ -116,7 +166,7 @@ if (!$customer) {
                 <?php echo htmlspecialchars($_GET['error']); ?>
             <?php endif; ?>
         </div>
-        <form id="project-form" action="<?php echo BASE_URL; ?>public/projects/add_project.php" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
+        <form id="project-form" action="" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
             <input type="hidden" name="customer_id" value="<?php echo htmlspecialchars($customer_id); ?>"> <!-- Prefill customer_id -->
             <div class="form-container">
                 <div class="form-group">

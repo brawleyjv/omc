@@ -24,10 +24,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'] ?? '';
     $notes = $_POST['notes'] ?? '';
 
-    // Save the customer and get the customer_id
+    // Save the customer
     $customer_id = $customerController->createCustomer($name, $project, $address, $city, $state, $zip, $phone, $email, $notes);
 
-    // Redirect back to the add_project.php page with customer_id and project name prefilled
+    // Redirect back to the add_project.php page
     header("Location: " . $redirect_to . "?customer_id=" . urlencode($customer_id) . "&customer_name=" . urlencode($name) . "&project_name=" . urlencode($project));
     exit;
 }

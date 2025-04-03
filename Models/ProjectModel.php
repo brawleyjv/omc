@@ -124,75 +124,48 @@ class ProjectModel {
         $stmt->execute();
     }
 
-    public function addProject($projectName, $designDate, $customerName, $laserTime, $routerTime, $laborHours, $projectDescription, $dueDate, $fileUpload, $imageUpload, $designFile) {
-        $this->database->beginTransaction(); // Start a transaction
+    public function addProject($projectData) {
+        $query = "INSERT INTO projects (
+            project_name, 
+            design_date, 
+            customer_id, 
+            laser_time, 
+            router_time, 
+            labor_hours, 
+            project_description, 
+            due_date, 
+            file_upload, 
+            image_upload, 
+            design_file
+        ) VALUES (
+            :project_name, 
+            :design_date, 
+            :customer_id, 
+            :laser_time, 
+            :router_time, 
+            :labor_hours, 
+            :project_description, 
+            :due_date, 
+            :file_upload, 
+            :image_upload, 
+            :design_file
+        )";
 
-        try {
-            // Check if the customer already exists in the `customers` table
-            $query = "SELECT customer_id FROM customers WHERE name = :customer_name LIMIT 1";
-            $stmt = $this->database->prepare($query);
-            $stmt->bindValue(':customer_name', $customerName, PDO::PARAM_STR);
-            $stmt->execute();
-            $customer = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt = $this->database->prepare($query);
+        $stmt->bindValue(':project_name', $projectData['project_name'], PDO::PARAM_STR);
+        $stmt->bindValue(':design_date', $projectData['design_date'], PDO::PARAM_STR);
+        $stmt->bindValue(':customer_id', $projectData['customer_id'], PDO::PARAM_INT); // Associate with customer_id
+        $stmt->bindValue(':laser_time', $projectData['laser_time'], PDO::PARAM_INT);
+        $stmt->bindValue(':router_time', $projectData['router_time'], PDO::PARAM_INT);
+        $stmt->bindValue(':labor_hours', $projectData['labor_hours'], PDO::PARAM_INT);
+        $stmt->bindValue(':project_description', $projectData['project_description'], PDO::PARAM_STR);
+        $stmt->bindValue(':due_date', $projectData['due_date'], PDO::PARAM_STR);
+        $stmt->bindValue(':file_upload', $projectData['file_upload'], PDO::PARAM_STR);
+        $stmt->bindValue(':image_upload', $projectData['image_upload'], PDO::PARAM_STR);
+        $stmt->bindValue(':design_file', $projectData['design_file'], PDO::PARAM_STR);
 
-            // If the customer doesn't exist, add them to the `customers` table
-            if (!$customer) {
-                $query = "INSERT INTO customers (name) VALUES (:customer_name)";
-                $stmt = $this->database->prepare($query);
-                $stmt->bindValue(':customer_name', $customerName, PDO::PARAM_STR);
-                $stmt->execute();
-                $customerId = $this->database->lastInsertId(); // Get the new customer ID
-            } else {
-                $customerId = $customer['customer_id']; // Use the existing customer ID
-            }
-
-            // Add the project to the `projects` table
-            $query = "INSERT INTO projects (
-                project_name, 
-                design_date, 
-                customer_id, 
-                laser_time, 
-                router_time, 
-                labor_hours, 
-                project_description, 
-                due_date, 
-                file_upload, 
-                image_upload, 
-                design_file
-            ) VALUES (
-                :project_name, 
-                :design_date, 
-                :customer_id, 
-                :laser_time, 
-                :router_time, 
-                :labor_hours, 
-                :project_description, 
-                :due_date, 
-                :file_upload, 
-                :image_upload, 
-                :design_file
-            )";
-
-            $stmt = $this->database->prepare($query);
-            $stmt->bindValue(':project_name', $projectName, PDO::PARAM_STR);
-            $stmt->bindValue(':design_date', $designDate, PDO::PARAM_STR);
-            $stmt->bindValue(':customer_id', $customerId, PDO::PARAM_INT); // Use the customer ID
-            $stmt->bindValue(':laser_time', $laserTime, PDO::PARAM_INT);
-            $stmt->bindValue(':router_time', $routerTime, PDO::PARAM_INT);
-            $stmt->bindValue(':labor_hours', $laborHours, PDO::PARAM_INT);
-            $stmt->bindValue(':project_description', $projectDescription, PDO::PARAM_STR);
-            $stmt->bindValue(':due_date', $dueDate, PDO::PARAM_STR);
-            $stmt->bindValue(':file_upload', $fileUpload, PDO::PARAM_STR);
-            $stmt->bindValue(':image_upload', $imageUpload, PDO::PARAM_STR);
-            $stmt->bindValue(':design_file', $designFile, PDO::PARAM_STR);
-
-            $stmt->execute();
-            $this->database->commit(); // Commit the transaction
-            return $this->database->lastInsertId(); // Return the new project ID
-        } catch (PDOException $e) { // Simplified from \PDOException
-            $this->database->rollBack(); // Roll back the transaction on error
-            throw new \Exception("Failed to add project: " . $e->getMessage());
-        }
+        $stmt->execute();
+        return $this->database->lastInsertId();
     }
 }
 ?>

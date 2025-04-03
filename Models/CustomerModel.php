@@ -24,9 +24,9 @@ class CustomerModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function addCustomer($name, $project, $address, $city, $state, $zip, $phone, $email, $notes, $project_ids) {
-        $query = "INSERT INTO customers (name, Project, address, city, state, zip, phone, email, notes, project_ids) 
-                  VALUES (:name, :project, :address, :city, :state, :zip, :phone, :email, :notes, :project_ids)";
+    public function addCustomer($name, $project, $address, $city, $state, $zip, $phone, $email, $notes) {
+        $query = "INSERT INTO customers (name, Project, address, city, state, zip, phone, email, notes) 
+                  VALUES (:name, :project, :address, :city, :state, :zip, :phone, :email, :notes)";
         $stmt = $this->db->prepare($query);
         $stmt->bindValue(':name', $name, PDO::PARAM_STR);
         $stmt->bindValue(':project', $project, PDO::PARAM_STR);
@@ -37,7 +37,6 @@ class CustomerModel {
         $stmt->bindValue(':phone', $phone, PDO::PARAM_INT);
         $stmt->bindValue(':email', $email, PDO::PARAM_STR);
         $stmt->bindValue(':notes', $notes, PDO::PARAM_STR);
-        $stmt->bindValue(':project_ids', $project_ids, PDO::PARAM_STR); // Store as JSON
         $stmt->execute();
         return $this->db->lastInsertId(); // Return the ID of the newly added customer
     }
@@ -69,7 +68,14 @@ class CustomerModel {
     }
 
     public function deleteCustomer($id) {
+        error_log("Debug: Preparing to delete customer with ID: $id");
         $stmt = $this->db->prepare("DELETE FROM customers WHERE customer_id = ?");
-        return $stmt->execute([$id]);
+        $result = $stmt->execute([$id]);
+        if ($result) {
+            error_log("Debug: Successfully deleted customer with ID: $id");
+        } else {
+            error_log("Debug: Failed to delete customer with ID: $id. Error: " . implode(", ", $stmt->errorInfo()));
+        }
+        return $result;
     }
 }

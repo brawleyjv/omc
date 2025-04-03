@@ -141,6 +141,14 @@ class ProjectController {
             $stmt->execute();
             $project_id = $this->database->lastInsertId(); // Get the new project ID
 
+            // Update the `customers` table with the project name and ID
+            $updateQuery = "UPDATE customers SET project = :project_name, proj_id = :project_id WHERE customer_id = :customer_id";
+            $updateStmt = $this->database->prepare($updateQuery);
+            $updateStmt->bindValue(':project_name', $project_name, PDO::PARAM_STR);
+            $updateStmt->bindValue(':project_id', $project_id, PDO::PARAM_INT);
+            $updateStmt->bindValue(':customer_id', $customer_id, PDO::PARAM_INT);
+            $updateStmt->execute();
+
             return $project_id; // Return the new project ID
         } catch (PDOException $e) { // Simplified from \PDOException
             throw new \Exception("Failed to add project: " . $e->getMessage());
@@ -209,8 +217,11 @@ class ProjectController {
     }
 
     public function getProjectsByCustomerId($customerId) {
-        $projectModel = new ProjectModel($this->database);
-        return $projectModel->getProjectsByCustomerId($customerId);
+        $query = "SELECT * FROM projects WHERE customer_id = :customer_id";
+        $stmt = $this->database->prepare($query);
+        $stmt->bindValue(':customer_id', $customerId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function assignProjectToCustomer($customerId, $projectId) {

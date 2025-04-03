@@ -27,7 +27,7 @@ $customerId = $_GET['customer_id'] ?? null;
 if ($customerId) {
     $projects = $projectsController->getProjectsByCustomerId($customerId); // Fetch projects for the specific customer
 } else {
-    $projects = $projectsController->listProjects(); // Fetch all projects
+    $projects = $projectsController->getAllProjects(); // Fetch all projects if no customer_id is provided
 }
 ?>
 
