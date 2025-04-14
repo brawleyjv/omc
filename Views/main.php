@@ -55,6 +55,8 @@ error_log("Main.php: Session username: " . (isset($_SESSION['username']) ? $_SES
                 <a href="<?php echo BASE_URL; ?>Views/Scale.php" class="btn styled-btn">Scale Project</a>
                 <a href="<?php echo BASE_URL; ?>Views/estimate/estimate.php" class="btn styled-btn">Estimate</a>
                 <a href="<?php echo BASE_URL; ?>Views/Chipload/chipload.php" class="btn styled-btn">Chipload</a>
+                <a href="<?php echo BASE_URL; ?>Views/rotary/rotary_setup.php" class="btn styled-btn">Rotary</a>
+
                 <a href="<?php echo BASE_URL; ?>Views/update.php" class="btn styled-btn">Update</a>
             </div>
         </div>

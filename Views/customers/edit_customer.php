@@ -5,7 +5,7 @@ require_once BASE_PATH . 'Models/Database.php'; // Include the Database class
 use MyApp\Models\Database;
 
 if (!isset($_GET['id']) || empty($_GET['id'])) {
-    header("Location: " . BASE_URL . "Views/customers/search_customer.php?error=Customer ID is required");
+    header("Location: " . BASE_URL . "Views/customers/list_customers.php?error=Customer ID is required");
     exit();
 }
 
@@ -17,13 +17,13 @@ try {
     $connection = $db->getConnection();
 
     if ($connection instanceof PDO) { // Ensure connection is a valid PDO object
-        $query = "SELECT * FROM customers WHERE customer_id = ?";
+        $query = "SELECT * FROM customers WHERE id = ?";
         $stmt = $connection->prepare($query);
         $stmt->execute([$customerId]);
         $customer = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$customer) {
-            header("Location: " . BASE_URL . "Views/customers/search_customer.php?error=Customer not found");
+            header("Location: " . BASE_URL . "Views/customers/list_customers.php?error=Customer not found");
             exit();
         }
     } else {
@@ -31,7 +31,7 @@ try {
     }
 } catch (Exception $e) {
     error_log("Error fetching customer: " . $e->getMessage());
-    header("Location: " . BASE_URL . "Views/customers/search_customer.php?error=Failed to fetch customer");
+    header("Location: " . BASE_URL . "Views/customers/list_customers.php?error=Failed to fetch customer");
     exit();
 }
 ?>
@@ -48,7 +48,7 @@ try {
     <div class="container">
         <h1 class="title">Edit Customer</h1>
         <form action="<?php echo BASE_URL; ?>public/customers/update_customer.php" method="post"> <!-- Use BASE_URL -->
-            <input type="hidden" name="id" value="<?php echo htmlspecialchars($customer['customer_id'] ?? ''); ?>">
+            <input type="hidden" name="id" value="<?php echo htmlspecialchars($customer['id'] ?? ''); ?>">
 
             <label for="name">Name:</label>
             <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($customer['name'] ?? ''); ?>" maxlength="100" required>
@@ -84,7 +84,7 @@ try {
 
             <div class="button-container">
                 <button type="submit" class="btn styled-btn">Update Customer</button>
-                <a href="<?php echo BASE_URL; ?>Views/customers/search_customer.php" class="btn styled-btn red">Cancel</a>
+                <a href="<?php echo BASE_URL; ?>Views/customers/list_customers.php" class="btn styled-btn red">Cancel</a>
             </div>
         </form>
     </div>

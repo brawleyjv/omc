@@ -134,7 +134,7 @@ require_once BASE_PATH . '/Views/header.php'; // Updated to use BASE_PATH
             <button class="btn styled-btn" onclick="clearFields()">Clear
                 <div class="help-dialog">Click to clear all input fields.</div>
             </button>
-            <button class="btn styled-btn" onclick="window.location.href='<?php echo BASE_URL; ?>views/main.php'">Main Menu
+            <button class="btn styled-btn" onclick="window.location.href='<?php echo BASE_URL; ?>Views/main.php'">Main Menu
                 <div class="help-dialog">Click to return to the main menu.</div>
             </button>
         </div>

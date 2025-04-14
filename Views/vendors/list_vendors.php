@@ -11,10 +11,8 @@ if (!defined('DB_HOST') || !defined('DB_NAME') || !defined('DB_USER') || !define
     die('Database configuration constants are not defined. Please check config.php.');
 }
 
-$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME); // Use DB_PASSWORD
-$conn = $database->getConnection(); // Get the connection
-
-$vendorController = new VendorController($conn); // Pass connection to VendorController
+$database = new Database(DB_HOST, DB_USER, '', DB_NAME); // Removed DB_PASSWORD
+$vendorController = new VendorController($database); // Pass Database instance to VendorController
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_vendor_id'])) {
     $vendorId = $_POST['delete_vendor_id'];
@@ -23,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_vendor_id'])) 
     exit;
 }
 
-$vendors = $vendorController->getVendors(); // Ensure this function returns an array
+$vendors = $vendorController->getVendors();
 ?>
 
 <?php require_once BASE_PATH . '/Views/header.php'; ?> <!-- Include header -->

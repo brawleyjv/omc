@@ -47,7 +47,7 @@ class RegisterController {
             } else {
                 return false; // Registration failed
             }
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             error_log("Database error: " . $e->getMessage()); // Log the error
             return false;
         }

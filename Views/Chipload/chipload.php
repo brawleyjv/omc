@@ -91,8 +91,8 @@ require_once BASE_PATH . '/Views/header.php'; // BASE_PATH is assumed to be defi
             </form>
             <div class="result" id="result"></div>
         </div>
-        <a href="<?php echo BASE_PATH; ?>/views/main.php" class="btn styled-btn">Return to Main</a> <!-- Updated to use BASE_PATH -->
-    </div>
+        <button class="btn styled-btn" onclick="window.location.href='<?php echo BASE_URL; ?>Views/main.php'">Main Menu
+        </div>
     <script>
         function calculateFeedRate() {
             const material = document.getElementById('material').value;

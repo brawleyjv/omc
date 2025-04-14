@@ -22,6 +22,8 @@ require_once BASE_PATH . '/Views/header.php'; // Updated to use BASE_PATH
             <label for="thickness">Thickness (inches):</label>
             <input type="number" id="thickness" name="thickness" required>
             <button type="submit" class="btn styled-btn">Calculate</button>
+            <button class="btn styled-btn" onclick="window.location.href='<?php echo BASE_URL; ?>Views/main.php'">Main Menu
+
         </form>
         <?php
         if ($_SERVER["REQUEST_METHOD"] == "POST") {

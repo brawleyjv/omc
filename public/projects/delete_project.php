@@ -3,33 +3,31 @@ require_once realpath(dirname(__FILE__) . '/../../config.php'); // Corrected pat
 require_once BASE_PATH . '/Models/Database.php';
 require_once BASE_PATH . '/Controllers/ProjectController.php';
 
-use MyApp\Models\Database;
-use MyApp\Controllers\ProjectController;
+$conn = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 
-$database = new Database();
-$db = $database->getConnection(); // Ensure $db is a PDO instance
-$projectController = new ProjectController($db);
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $project_id = $_POST['project_id'] ?? null;
-
-    if (!$project_id) {
-        echo "<script>alert('Project ID is missing.'); window.history.back();</script>";
-        exit;
-    }
-
-    try {
-        $success = $projectController->deleteProject($project_id);
-
-        if ($success) {
-            echo "<script>alert('Project deleted successfully.'); window.location.href = '" . BASE_URL . "Views/projects/list_projects.php';</script>";
-        } else {
-            echo "<script>alert('Failed to delete project.'); window.history.back();</script>";
-        }
-    } catch (Exception $e) {
-        echo "<script>alert('Error: " . $e->getMessage() . "'); window.history.back();</script>";
-    }
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
 }
+
+$project_id = $_GET['project_id'];
+
+$delete_bom_sql = "DELETE FROM bom WHERE project_id = '$project_id'";
+$conn->query($delete_bom_sql);
+
+$delete_project_sql = "DELETE FROM projects WHERE id = '$project_id'";
+if ($conn->query($delete_project_sql) === TRUE) {
+    echo "<script>
+            alert('Project and associated BOM entries deleted successfully.');
+            window.location.href = '" . BASE_URL . "public/projects/list_projects.php';
+          </script>";
+} else {
+    echo "<script>
+            alert('Error deleting project: " . $conn->error . "');
+            window.history.back();
+          </script>";
+}
+
+$conn->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">

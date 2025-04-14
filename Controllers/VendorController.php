@@ -1,9 +1,6 @@
 <?php
 namespace MyApp\Controllers;
 
-use PDO; // Import the PDO class
-use Exception; // Import the Exception class
-use PDOException; // Import the PDOException class
 require_once realpath(dirname(__FILE__) . '/../config.php');
 require_once realpath(dirname(__FILE__) . '/../Models/VendorModel.php');
 
@@ -13,7 +10,7 @@ class VendorController {
     private $database; // Declare the $database property
     private $vendorModel;
 
-    public function __construct(PDO $database) { // Ensure $database is of type PDO
+    public function __construct($database) {
         $this->database = $database; // Initialize the $database property
         $this->vendorModel = new VendorModel($this->database); // Pass the database instance to the VendorModel
     }
@@ -40,15 +37,8 @@ class VendorController {
         }
     }
 
-    public function getVendors(): array {
-        try {
-            $query = "SELECT * FROM vendors"; // Replace 'vendors' with your actual table name
-            $stmt = $this->database->prepare($query);
-            $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC); // Return the list of vendors as an array
-        } catch (PDOException $e) {
-            throw new Exception("Failed to fetch vendors: " . $e->getMessage());
-        }
+    public function getVendors() {
+        return $this->vendorModel->getAllVendors(); // Use the initialized vendorModel
     }
 
     public function getVendorById($vendorId) {
@@ -72,18 +62,25 @@ class VendorController {
     public function listVendors() {
         error_log("VendorController: listVendors() method called."); // Log method call
         try {
+            $connection = $this->database->getConnection(); // Use the database object to get the connection
+
             $query = "SELECT * FROM vendors";
-            $stmt = $this->database->query($query); // Use the PDO object directly
+            $result = $connection->query($query);
+
+            if (!$result) {
+                throw new \Exception("Error fetching vendors: " . $connection->error);
+            }
 
             $vendors = [];
-            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            while ($row = $result->fetch_assoc()) {
                 $vendors[] = $row;
             }
 
+            $connection->close();
             return $vendors;
-        } catch (PDOException $e) {
+        } catch (\Exception $e) {
             error_log("VendorController: Error in listVendors(): " . $e->getMessage());
-            throw new Exception("Error fetching vendors: " . $e->getMessage());
+            throw $e;
         }
     }
 

@@ -1,5 +1,5 @@
 <?php
-require_once realpath(dirname(__FILE__, 3) . '/config.php'); // Corrected path to config.php
+require_once realpath(dirname(__FILE__, 3) . '/config.php'); // Adjust path to config.php
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = intval($_POST['id']);
@@ -23,21 +23,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $db = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASSWORD);
         $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        $query = "UPDATE customers SET name = ?, Project = ?, address = ?, city = ?, state = ?, zip = ?, phone = ?, email = ?, notes = ? WHERE customer_id = ?";
+        $query = "UPDATE customers SET name = ?, Project = ?, address = ?, city = ?, state = ?, zip = ?, phone = ?, email = ?, notes = ? WHERE id = ?";
         $stmt = $db->prepare($query);
         $stmt->execute([$name, $project, $address, $city, $state, $zip, $phone, $email, $notes, $id]);
 
-        // Redirect back to the customer search results
-        $redirect_to = $_POST['redirect_to'] ?? BASE_URL . "Views/customers/search_customer.php";
-        header("Location: " . $redirect_to . "?success=Customer updated successfully");
+        header("Location: " . BASE_URL . "Views/customers/list_customers.php?success=Customer updated successfully");
     } catch (PDOException $e) {
         error_log("Database error: " . $e->getMessage());
         header("Location: " . BASE_URL . "Views/customers/edit_customer.php?id=$id&error=Failed to update customer");
     }
-    exit();
-} else {
-    // If accessed directly, redirect to the customer search page
-    header("Location: " . BASE_URL . "Views/customers/search_customer.php");
     exit();
 }
 ?>

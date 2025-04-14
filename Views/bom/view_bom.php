@@ -8,7 +8,7 @@ require_once BASE_PATH . '/Controllers/BomController.php';
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Updated to use BASE_URL -->
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css">
     <!-- ...existing code... -->
 </head>
 <body>

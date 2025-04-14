@@ -258,15 +258,12 @@ class MaterialController {
             throw new \Exception("Database connection is null.");
         }
 
-        $query = "SELECT materials.*, vendors.vendor AS vendor_name FROM materials 
-                  LEFT JOIN vendors ON materials.vendor = vendors.id 
-                  WHERE material_name LIKE :search_term 
-                  OR type LIKE :search_term 
-                  OR vendors.vendor LIKE :search_term";
+        $query = "SELECT id, material_name FROM materials 
+                  WHERE material_name LIKE :search_term";
         $stmt = $conn->prepare($query);
-        $searchTerm = "%$searchTerm%";
-        $stmt->bindParam(':search_term', $searchTerm, PDO::PARAM_STR);
+        $stmt->bindValue(':search_term', '%' . $searchTerm . '%', PDO::PARAM_STR);
         $stmt->execute();
+
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

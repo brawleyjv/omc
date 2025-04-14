@@ -56,21 +56,11 @@ try {
             font-size: 14px; /* Adjust font size */
         }
     </style>
-    <script>
-        function confirmDeletion(event) {
-            if (!confirm('Are you sure you want to delete this customer?')) {
-                event.preventDefault(); // Prevent form submission if user cancels
-            }
-        }
-    </script>
 </head>
 <body>
     <?php include BASE_PATH . '/Views/header.php'; ?> <!-- Include header -->
     <div class="container">
         <h1 class="title">List of Customers</h1>
-        <div class="button-container">
-            <button class="btn styled-btn red" onclick="window.location.href='<?php echo BASE_URL; ?>Views/customers/index.php';">Close</button>
-        </div>
         <table>
             <thead>
                 <tr>
@@ -91,9 +81,9 @@ try {
                 <?php if (!empty($customers)): ?>
                     <?php foreach ($customers as $customer): ?>
                         <tr>
-                            <td><?php echo htmlspecialchars($customer['customer_id'] ?? ''); ?></td>
+                            <td><?php echo htmlspecialchars($customer['id'] ?? ''); ?></td>
                             <td><?php echo htmlspecialchars($customer['name'] ?? ''); ?></td>
-                            <td><?php echo htmlspecialchars($customer['Project'] ?? ''); ?></td>
+                            <td><?php echo htmlspecialchars($customer['Project'] ?? ''); ?></td> <!-- Handle NULL values -->
                             <td><?php echo htmlspecialchars($customer['address'] ?? ''); ?></td>
                             <td><?php echo htmlspecialchars($customer['city'] ?? ''); ?></td>
                             <td><?php echo htmlspecialchars($customer['state'] ?? ''); ?></td>
@@ -102,9 +92,9 @@ try {
                             <td><?php echo htmlspecialchars($customer['email'] ?? ''); ?></td>
                             <td><?php echo htmlspecialchars($customer['notes'] ?? ''); ?></td>
                             <td class="action-cell">
-                                <a href="<?php echo BASE_URL; ?>Views/customers/edit_customer.php?id=<?php echo htmlspecialchars($customer['customer_id'] ?? ''); ?>" class="btn styled-btn">Edit</a>
-                                <form action="<?php echo BASE_URL; ?>public/customers/delete_customer.php" method="post" onsubmit="confirmDeletion(event);" style="display:inline;">
-                                    <input type="hidden" name="id" value="<?php echo htmlspecialchars($customer['customer_id'] ?? ''); ?>">
+                                <a href="<?php echo BASE_URL; ?>Views/customers/edit_customer.php?id=<?php echo htmlspecialchars($customer['id'] ?? ''); ?>" class="btn styled-btn">Edit</a>
+                                <form action="<?php echo BASE_URL; ?>public/customers/delete_customer.php" method="post" onsubmit="return confirm('Are you sure you want to delete this customer?');" style="display:inline;">
+                                    <input type="hidden" name="id" value="<?php echo htmlspecialchars($customer['id'] ?? ''); ?>">
                                     <button type="submit" class="btn styled-btn red">Delete</button>
                                 </form>
                             </td>

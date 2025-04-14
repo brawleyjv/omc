@@ -2,7 +2,6 @@
 namespace MyApp\Controllers;
 
 use PDO; // Import the PDO class
-use PDOException; // Import the PDOException class
 use MyApp\Models\ProjectModel; // Import the ProjectModel class
 
 require_once realpath(dirname(__FILE__) . '/../config.php');
@@ -85,7 +84,7 @@ class ProjectController {
 
             $stmt->execute();
             return $this->database->getConnection()->lastInsertId(); // Return the new project ID
-        } catch (PDOException $e) { // Simplified from \PDOException
+        } catch (\PDOException $e) {
             throw new \Exception("Failed to add project: " . $e->getMessage());
         }
     }
@@ -114,7 +113,7 @@ class ProjectController {
             $stmtProject = $this->database->getConnection()->prepare($queryProject);
             $stmtProject->bindValue(':project_name', $projectName, PDO::PARAM_STR);
             return $stmtProject->execute();
-        } catch (PDOException $e) { // Simplified from \PDOException
+        } catch (\PDOException $e) {
             throw new \Exception("Failed to delete project: " . $e->getMessage());
         }
     }
@@ -130,7 +129,7 @@ class ProjectController {
         $query = "SELECT * FROM projects";
         $stmt = $this->database->getConnection()->prepare($query);
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     public function addBom($arg1, $arg2, $arg3, $arg4, $arg5, $arg6, $arg7) {

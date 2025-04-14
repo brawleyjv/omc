@@ -1,15 +1,8 @@
 <?php
-// Enable error reporting for debugging
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+require_once realpath(dirname(__FILE__, 3) . '/config.php'); // Adjust path to config.php
 
-require_once realpath(dirname(__FILE__, 3) . '/config.php'); // Corrected syntax
-
-$query = $_GET['query'] ?? ''; // Initialize query variable
-
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && !empty($query)) {
-    $query = trim($query);
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['query'])) {
+    $query = trim($_GET['query']);
 
     // Database connection using PDO
     try {
@@ -23,14 +16,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !empty($query)) {
 
         $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        if (empty($customers)) {
-            error_log("No customers found for query: $query");
-        }
+        header("Content-Type: application/json");
+        echo json_encode($customers);
     } catch (PDOException $e) {
         error_log("Database error: " . $e->getMessage());
-        $customers = [];
+        http_response_code(500);
+        echo json_encode(["error" => "Failed to search customers"]);
     }
-} else {
-    $customers = [];
+    exit();
 }
 ?>
