@@ -14,13 +14,13 @@ if (!defined('DB_HOST')) {
     define('DB_HOST', 'localhost'); // Replace with your database host
 }
 if (!defined('DB_USER')) {
-    define('DB_USER', 'root'); // Replace with your database username
+    define('DB_USER', 'root2'); // Replace with your database username
 }
 if (!defined('DB_PASSWORD')) {
     define('DB_PASSWORD', '4873'); // Replace with your database password
 }
 if (!defined('DB_NAME')) {
-    define('DB_NAME', 'omc_db'); // Replace with your database name
+    define('DB_NAME', 'dbs14052036'); // Replace with your database name
 }
 if (!defined('BASE_PATH')) {
     define('BASE_PATH', realpath(__DIR__) . '/');

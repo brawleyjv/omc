@@ -6,7 +6,6 @@ error_reporting(E_ALL);
 
 // Include the header and ensure BASE_PATH is defined
 require_once realpath(dirname(__FILE__) . '/../../config.php');
-include BASE_PATH . '/Views/header.php';
 
 // Initialize variables to avoid warnings
 $projects = $projects ?? [];
@@ -18,202 +17,263 @@ $bomMaterials = $bomMaterials ?? [];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Estimate</title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css?v=<?php echo time(); ?>">
-    <style>
-        .container {
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            text-align: center; /* Center the text */
-            width: 80%;
-            max-width: 1024px;
-            margin-top: 20px; /* Adjust the top margin to ensure the container is visible */
-            padding: 20px; /* Add padding to the container */
-        }
-        .title {
-            text-align: center;
-            margin-top: 20px; /* Adjust the top margin for the title */
-            color: #333;
-            margin-bottom: 20px;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        label {
-            margin-bottom: 10px;
-            font-size: 18px;
-        }
-        input[type="text"], input[type="number"] {
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            width: 100%;
-            max-width: 300px;
-        }
-        input[type="submit"], .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            background-color: #007BFF;
-            color: white;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 10px;
-        }
-        input[type="submit"]:hover, .btn:hover {
-            background-color: #0056b3;
-        }
-        .project-list {
-            list-style-type: none;
-            padding: 0;
-        }
-        .project-list li {
-            padding: 10px;
-            border: 1px solid #ccc;
-            margin-bottom: 10px;
-            cursor: pointer;
-        }
-        .project-list li:hover {
-            background-color: #f0f0f0;
-        }
-        .project-details {
-            text-align: left;
-            margin-top: 20px;
-        }
-        .project-details label {
-            font-weight: bold;
-        }
-        .bom-details {
-            text-align: left;
-            margin-top: 20px;
-        }
-        .bom-details label {
-            font-weight: bold;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        table th, table td {
-            border: 1px solid #ccc;
-            padding: 8px;
-            text-align: left;
-        }
-        table th {
-            background-color: #f4f4f4;
-        }
-    </style>
+    <title>Add Estimate - OMC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles-modern.css">
 </head>
 <body>
-    <div class="container">
-        <h1 class="title">Add Estimate</h1>
-        <?php if (!empty($errorMessage)): ?>
-            <p class="error"><?php echo htmlspecialchars($errorMessage); ?></p>
-        <?php endif; ?>
-
-        <!-- Project Search Form -->
-        <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
-            <label for="project_search">Search Project:</label>
-            <input type="text" id="project_search" name="project_search" placeholder="Enter project name or description">
-            <input type="submit" value="Search" class="btn styled-btn">
-        </form>
-
-        <!-- Display Matching Projects -->
-        <?php if (!empty($matchingProjects)): ?>
-            <h3>Matching Projects</h3>
-            <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Project Name</th>
-                            <th>Project Description</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($matchingProjects as $project): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($project['project_name']); ?></td>
-                                <td><?php echo htmlspecialchars($project['project_description']); ?></td>
-                                <td>
-                                    <button type="submit" name="select_project" value="<?php echo htmlspecialchars($project['id']); ?>" class="btn styled-btn">Select</button>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </form>
-        <?php elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($matchingProjects)): ?>
-            <p>No projects found matching your search criteria. Please try again.</p>
-        <?php endif; ?>
-        <?php if (!empty($projects)): ?>
-            <h2>Select a Project</h2>
-            <ul class="project-list">
-                <?php foreach ($projects as $project): ?>
-                    <li onclick="selectProject(<?php echo htmlspecialchars(json_encode($project)); ?>)">
-                        <?php echo htmlspecialchars($project['project_name']); ?>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-        <?php endif; ?>
-        <?php if ($selectedProject): ?>
-            <div class="project-details">
-                <h2>Project Details</h2>
-                <p><label>Project Name:</label> <?php echo htmlspecialchars($selectedProject['project_name'] ?? 'Not Available'); ?></p>
-                <p><label>Project Description:</label> <?php echo htmlspecialchars($selectedProject['project_description'] ?? 'Not Available'); ?></p>
-                <p><label>Router Time:</label> <?php echo htmlspecialchars($selectedProject['router_time'] ?? 'Not Available'); ?></p>
-                <p><label>Laser Time:</label> <?php echo htmlspecialchars($selectedProject['laser_time'] ?? 'Not Available'); ?></p>
+    <!-- Modern Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-brand">
+                <div class="header-brand-text">
+                    <h1>Create Estimate</h1>
+                    <p>Generate project cost estimates and quotations</p>
+                </div>
             </div>
-            <div class="bom-details">
-                <h2>BOM Details</h2>
-                <?php if (!empty($bomMaterials)): ?>
-                    <ul>
-                        <?php foreach ($bomMaterials as $material): ?>
-                            <li>
-                                <p><label>Material Name:</label> <?php echo htmlspecialchars($material['material_name'] ?? ''); ?></p>
-                                <p><label>Length:</label> <?php echo htmlspecialchars($material['length'] ?? ''); ?></p>
-                                <p><label>Width:</label> <?php echo htmlspecialchars($material['width'] ?? ''); ?></p>
-                                <p><label>Thickness:</label> <?php echo htmlspecialchars($material['thickness'] ?? ''); ?></p>
-                                <p><label>Quantity:</label> <?php echo htmlspecialchars($material['quantity'] ?? ''); ?></p>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
-                <?php else: ?>
-                    <p>No BOM found for this project.</p>
+            <nav class="header-nav">
+                <a href="<?php echo BASE_URL; ?>Views/main.php" class="nav-link">Dashboard</a>
+                <a href="<?php echo BASE_URL; ?>Views/estimate/estimate.php" class="nav-link">Estimates Home</a>
+                <a href="<?php echo BASE_URL; ?>Views/projects/list_projects.php" class="nav-link">Projects</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-header-content">
+                <h1 class="page-title">New Project Estimate</h1>
+                <div class="page-actions">
+                    <a href="<?php echo BASE_URL; ?>Views/estimate/estimate.php" class="btn btn-ghost">
+                        <span class="icon">📊</span>
+                        All Estimates
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- Estimate Creation Form -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Project Estimate</h2>
+                <p class="card-subtitle">Search for a project to create an estimate</p>
+            </div>
+            <div class="card-body">
+                <?php if (!empty($errorMessage)): ?>
+                    <div class="notification notification-error">
+                        <?php echo htmlspecialchars($errorMessage); ?>
+                    </div>
+                <?php endif; ?>
+
+                <!-- Project Search Form -->
+                <div class="form-section">
+                    <h3 class="form-section-title">Find Project</h3>
+                    <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="project_search" class="form-label">Search Project</label>
+                                <input type="text" id="project_search" name="project_search" class="form-control" 
+                                       placeholder="Enter project name or description">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <span class="icon">🔍</span>
+                                Search Projects
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Display Matching Projects -->
+                <?php if (!empty($matchingProjects)): ?>
+                    <div class="form-section">
+                        <h3 class="form-section-title">Matching Projects</h3>
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Project Name</th>
+                                        <th>Description</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($matchingProjects as $project): ?>
+                                        <tr>
+                                            <td><?php echo htmlspecialchars($project['project_name']); ?></td>
+                                            <td><?php echo htmlspecialchars($project['project_description']); ?></td>
+                                            <td>
+                                                <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post" style="display: inline;">
+                                                    <button type="submit" name="select_project" value="<?php echo htmlspecialchars($project['id']); ?>" class="btn btn-primary btn-sm">
+                                                        Select
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                <?php elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($matchingProjects)): ?>
+                    <div class="notification notification-warning">
+                        No projects found matching your search criteria. Please try again.
+                    </div>
+                <?php endif; ?>
+
+                <!-- Project List -->
+                <?php if (!empty($projects)): ?>
+                    <div class="form-section">
+                        <h3 class="form-section-title">Available Projects</h3>
+                        <div class="grid grid-cols-1 gap-3">
+                            <?php foreach ($projects as $project): ?>
+                                <div class="card card-hover" onclick="selectProject(<?php echo htmlspecialchars(json_encode($project)); ?>)">
+                                    <div class="card-body">
+                                        <h4 class="card-title"><?php echo htmlspecialchars($project['project_name']); ?></h4>
+                                        <p class="card-subtitle"><?php echo htmlspecialchars($project['project_description'] ?? 'No description'); ?></p>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
+                <!-- Selected Project Details -->
+                <?php if ($selectedProject): ?>
+                    <div class="form-section">
+                        <h3 class="form-section-title">Project Details</h3>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <label class="info-label">Project Name:</label>
+                                <span class="info-value"><?php echo htmlspecialchars($selectedProject['project_name'] ?? 'Not Available'); ?></span>
+                            </div>
+                            <div class="info-item">
+                                <label class="info-label">Description:</label>
+                                <span class="info-value"><?php echo htmlspecialchars($selectedProject['project_description'] ?? 'Not Available'); ?></span>
+                            </div>
+                            <div class="info-item">
+                                <label class="info-label">Router Time:</label>
+                                <span class="info-value"><?php echo htmlspecialchars($selectedProject['router_time'] ?? 'Not Available'); ?> minutes</span>
+                            </div>
+                            <div class="info-item">
+                                <label class="info-label">Laser Time:</label>
+                                <span class="info-value"><?php echo htmlspecialchars($selectedProject['laser_time'] ?? 'Not Available'); ?> minutes</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BOM Details -->
+                    <div class="form-section">
+                        <h3 class="form-section-title">Bill of Materials</h3>
+                        <?php if (!empty($bomMaterials)): ?>
+                            <div class="table-container">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Material</th>
+                                            <th>Length</th>
+                                            <th>Width</th>
+                                            <th>Thickness</th>
+                                            <th>Quantity</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($bomMaterials as $material): ?>
+                                            <tr>
+                                                <td><?php echo htmlspecialchars($material['material_name'] ?? ''); ?></td>
+                                                <td><?php echo htmlspecialchars($material['length'] ?? ''); ?></td>
+                                                <td><?php echo htmlspecialchars($material['width'] ?? ''); ?></td>
+                                                <td><?php echo htmlspecialchars($material['thickness'] ?? ''); ?></td>
+                                                <td><?php echo htmlspecialchars($material['quantity'] ?? ''); ?></td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <?php else: ?>
+                            <div class="notification notification-info">
+                                No BOM found for this project.
+                            </div>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Estimate Form -->
+                    <div class="form-section">
+                        <h3 class="form-section-title">Create Estimate</h3>
+                        <form action="<?php echo BASE_URL; ?>public/Estimate/add_estimate.php" method="post">
+                            <input type="hidden" name="project_id" value="<?php echo htmlspecialchars($selectedProject['id'] ?? ''); ?>">
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="project_name" class="form-label">Project Name</label>
+                                    <input type="text" id="project_name" name="project_name" class="form-control" 
+                                           value="<?php echo htmlspecialchars($selectedProject['project_name'] ?? ''); ?>" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="router_time" class="form-label">Router Time (minutes)</label>
+                                    <input type="number" id="router_time" name="router_time" class="form-control" 
+                                           value="<?php echo htmlspecialchars($selectedProject['router_time'] ?? ''); ?>" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="laser_time" class="form-label">Laser Time (minutes)</label>
+                                    <input type="number" id="laser_time" name="laser_time" class="form-control" 
+                                           value="<?php echo htmlspecialchars($selectedProject['laser_time'] ?? ''); ?>" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="labor_time" class="form-label">Labor Time (minutes)</label>
+                                    <input type="number" id="labor_time" name="labor_time" class="form-control" 
+                                           value="<?php echo htmlspecialchars($selectedProject['labor_time'] ?? ''); ?>" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <span class="icon">📊</span>
+                                    Generate Estimate
+                                </button>
+                                <a href="<?php echo BASE_URL; ?>Views/estimate/estimate.php" class="btn btn-secondary">
+                                    <span class="icon">✖️</span>
+                                    Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
                 <?php endif; ?>
             </div>
-            <h2>Edit Project Details</h2>
-            <form action="<?php echo BASE_URL; ?>public/Estimate/add_estimate.php" method="post">
-                <input type="hidden" name="project_id" value="<?php echo htmlspecialchars($selectedProject['id'] ?? ''); ?>">
-                <label for="project_name">Project Name:</label>
-                <input type="text" id="project_name" name="project_name" value="<?php echo htmlspecialchars($selectedProject['project_name'] ?? ''); ?>" readonly>
-                <label for="router_time">Router Time:</label>
-                <input type="number" id="router_time" name="router_time" value="<?php echo htmlspecialchars($selectedProject['router_time'] ?? ''); ?>" readonly>
-                <label for="laser_time">Laser Time:</label>
-                <input type="number" id="laser_time" name="laser_time" value="<?php echo htmlspecialchars($selectedProject['laser_time'] ?? ''); ?>" readonly>
-                <label for="labor_time">Labor Time:</label>
-                <input type="number" id="labor_time" name="labor_time" value="<?php echo htmlspecialchars($selectedProject['labor_time'] ?? ''); ?>" readonly>
-                <input type="submit" value="Start Estimate" class="btn styled-btn">
-            </form>
-        <?php endif; ?>
+        </div>
+
+        <!-- Hidden Form for Project Selection -->
         <form id="select-project-form" action="<?php echo BASE_URL; ?>public/Estimate/add_estimate.php" method="post" style="display: none;">
-            <input type="hidden" id="project_id" name="project_id">
-            <input type="hidden" id="project_name" name="project_name">
-            <input type="hidden" id="project_description" name="project_description">
-            <input type="hidden" id="router_time" name="router_time">
-            <input type="hidden" id="laser_time" name="laser_time">
+            <input type="hidden" id="hidden_project_id" name="project_id">
+            <input type="hidden" id="hidden_project_name" name="project_name">
+            <input type="hidden" id="hidden_project_description" name="project_description">
+            <input type="hidden" id="hidden_router_time" name="router_time">
+            <input type="hidden" id="hidden_laser_time" name="laser_time">
         </form>
-    </div>
+    </main>
+
     <script>
         function selectProject(project) {
-            document.getElementById('project_id').value = project.id;
-            document.getElementById('project_name').value = project.project_name;
-            document.getElementById('project_description').value = project.project_description;
-            document.getElementById('router_time').value = project.router_time;
+            document.getElementById('hidden_project_id').value = project.id;
+            document.getElementById('hidden_project_name').value = project.project_name;
+            document.getElementById('hidden_project_description').value = project.project_description;
+            document.getElementById('hidden_router_time').value = project.router_time;
+            document.getElementById('hidden_laser_time').value = project.laser_time;
+            document.getElementById('select-project-form').submit();
+        }
+    </script>
+</body>
+</html>
             document.getElementById('laser_time').value = project.laser_time;
             document.getElementById('select-project-form').submit();
         }

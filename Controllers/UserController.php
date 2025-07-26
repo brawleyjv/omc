@@ -1,7 +1,7 @@
 <?php
 namespace MyApp\Controllers;
 
-require_once realpath(dirname(__FILE__) . '/../config.php');
+require_once __DIR__ . '/../config.php';
 require_once BASE_PATH . 'Models/Database.php';
 require_once BASE_PATH . 'Models/User.php';
 
@@ -53,8 +53,10 @@ class UserController {
     }
 
     public function hashPasswordsForExistingUsers() {
-        $query = "SELECT id, password FROM users WHERE password NOT LIKE '$2y$%'";
+        $query = "SELECT id, password FROM users WHERE password NOT LIKE ?";
         $stmt = $this->db->prepare($query); // Use the initialized $db property
+        $pattern = '$2y$%';
+        $stmt->bindParam(1, $pattern, PDO::PARAM_STR);
         $stmt->execute();
 
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {

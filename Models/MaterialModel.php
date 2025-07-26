@@ -1,7 +1,7 @@
 <?php
 namespace MyApp\Models;
 
-require_once realpath(dirname(__FILE__) . '/../config.php');
+require_once __DIR__ . '/../config.php';
 
 use PDO;
 
@@ -87,6 +87,26 @@ class MaterialModel {
         $result = $stmt->execute();
         unset($stmt);
         return $result;
+    }
+
+    public function searchMaterials($query) {
+        if (!$this->connection) {
+            throw new \Exception("Database connection is null.");
+        }
+        
+        $searchTerm = '%' . $query . '%';
+        $stmt = $this->connection->prepare('
+            SELECT m.*, v.vendor_name 
+            FROM materials m 
+            LEFT JOIN vendors v ON m.vendor_id = v.id 
+            WHERE m.material_name LIKE :query 
+               OR m.type LIKE :query 
+               OR m.Item_no LIKE :query 
+               OR v.vendor_name LIKE :query
+            ORDER BY m.material_name ASC
+        ');
+        $stmt->execute(['query' => $searchTerm]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
 ?>

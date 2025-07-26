@@ -1,5 +1,5 @@
 <?php
-require_once realpath(dirname(__FILE__) . '/../../config.php'); // Updated to use realpath(dirname(__FILE__))
+require_once __DIR__ . '/../../config.php'; // Updated to use __DIR__
 require_once BASE_PATH . '/Models/Database.php'; // Updated to use BASE_PATH
 require_once BASE_PATH . '/Controllers/ProjectController.php'; // Updated to use BASE_PATH
 

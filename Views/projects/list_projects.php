@@ -3,14 +3,14 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-require_once realpath(dirname(__FILE__) . '/../../config.php'); // Updated to use realpath(dirname(__FILE__))
+require_once __DIR__ . '/../../config.php'; // Updated to use __DIR__
 require_once BASE_PATH . '/Models/Database.php'; // Updated to use BASE_PATH
 require_once BASE_PATH . '/Controllers/ProjectController.php'; // Updated to use BASE_PATH
 
 use MyApp\Controllers\ProjectController;
 use MyApp\Models\Database;
 
-$database = new Database();
+$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 $db = $database->getConnection(); // Ensure $db is a PDO instance
 $projectsController = new ProjectController($db); // Pass the PDO instance to the controller
 
@@ -30,95 +30,23 @@ $projects = $projectsController->listProjects(); // Use the correct method to li
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>List Projects</title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Corrected CSS path -->
-    <style>
-        .top-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 0px; /* Remove margin to bring the buttons up */
-        }
-        .center-title {
-            text-align: center;
-            margin-top: 20px; /* Adjust margin to bring the title up */
-        }
-        .content {
-            margin-top: 0px; /* Remove margin to bring the content up */
-        }
-        .button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            background-color: #007BFF;
-            color: white;
-            text-decoration: none;
-            font-size: 16px;
-            cursor: pointer;
-            display: inline-block;
-            margin-top: 20px;
-        }
-        .button:hover {
-            background-color: #0056b3;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        table, th, td {
-            border: 2px solid #007BFF; /* Enhance border appearance */
-        }
-        th, td {
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-        .thumbnail {
-            max-width: 100px;
-            max-height: 100px;
-            cursor: pointer;
-        }
-        .btn.styled-btn.red {
-            background-color: #DC3545; /* Red background */
-            color: white; /* White text */
-            padding: 5px 10px; /* Reduce padding */
-            font-size: 14px; /* Reduce font size */
-            border: none; /* Remove border */
-        }
-        .btn.styled-btn.red:hover {
-            background-color: #c82333; /* Darker red on hover */
-        }
-        .btn.styled-btn {
-            padding: 5px 10px; /* Reduce padding */
-            font-size: 14px; /* Reduce font size */
-            border: none; /* Remove border */
-        }
-        .btn.styled-btn.white {
-            background-color: white; /* White background */
-            color: #007BFF; /* Blue text */
-            padding: 5px 10px; /* Reduce padding */
-            font-size: 14px; /* Reduce font size */
-            border: 2px solid #007BFF; /* Blue border */
-        }
-        .btn.styled-btn.white:hover {
-            background-color: #f2f2f2; /* Light gray on hover */
-        }
-    </style>
+    <title>List Projects - OMC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles-modern.css">
     <script>
         function openImage(url) {
+            if (!url || url.trim() === '') {
+                alert('No image URL available');
+                return;
+            }
+            
             const imgWindow = window.open("", "_blank", "width=800,height=600");
             imgWindow.document.write(`
                 <html>
                 <head>
-                    <title>Image Viewer</title>
+                    <title>Project Image Viewer</title>
                     <style>
                         body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #000; }
                         img { max-width: 100%; max-height: 100%; }
@@ -137,11 +65,21 @@ $projects = $projectsController->listProjects(); // Use the correct method to li
                         .close-button:hover {
                             background-color: #c82333;
                         }
+                        .error-message {
+                            color: white;
+                            text-align: center;
+                            font-family: Arial, sans-serif;
+                        }
                     </style>
                 </head>
                 <body>
                     <button class="close-button" onclick="window.close()">Close</button>
-                    <img src="${url}" alt="Project Image">
+                    <img src="${url}" alt="Project Image" 
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="error-message" style="display:none;">
+                        <p>Image could not be loaded.</p>
+                        <p><a href="${url}" target="_blank" style="color: #007bff;">Open image in new tab</a></p>
+                    </div>
                 </body>
                 </html>
             `);
@@ -149,87 +87,328 @@ $projects = $projectsController->listProjects(); // Use the correct method to li
     </script>
 </head>
 <body>
-    <?php include BASE_PATH . '/Views/header.php'; ?> <!-- Updated to use BASE_PATH -->
-    <h1 class="center-title">List of Projects</h1>
-    <div class="top-buttons">
-        <button class="btn styled-btn" style="margin-right: 20px;" onclick="window.location.href='<?php echo BASE_URL; ?>Views/main.php'">Close</button> <!-- Updated to use BASE_URL -->
-    </div>
-    <div class="content">
-        <table>
-            <thead>
-                <tr>
-                    <th>Project Name</th>
-                    <th>Design Date</th>
-                    <th>Customer Name</th>
-                    <th>Laser Time</th>
-                    <th>Router Time</th>
-                    <th>Labor Hours</th>
-                    <th>Project Description</th>
-                    <th>Due Date</th>
-                    <th>Machine File</th>
-                    <th>Project Image</th>
-                    <th>Design File</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($projects as $project): ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($project['project_name']); ?></td>
-                        <td><?php echo htmlspecialchars($project['design_date']); ?></td>
-                        <td><?php echo htmlspecialchars($project['customer_name']); ?></td>
-                        <td><?php echo htmlspecialchars($project['laser_time']); ?></td>
-                        <td><?php echo htmlspecialchars($project['router_time']); ?></td>
-                        <td><?php echo htmlspecialchars($project['labor_hours']); ?></td>
-                        <td><?php echo htmlspecialchars($project['project_description']); ?></td>
-                        <td><?php echo htmlspecialchars($project['due_date']); ?></td>
-                        <td>
-                            <?php if (!empty($project['file_upload'])): ?>
-                                <?php
-                                $file_uploads = explode(',', $project['file_upload']);
-                                foreach ($file_uploads as $file_upload) {
-                                    $file_upload_label = pathinfo($file_upload, PATHINFO_FILENAME);
-                                    $file_upload_path = BASE_URL . "projects/project_files/{$project['project_name']}/{$file_upload}"; // Updated to use BASE_URL
-                                    echo "<a href='{$file_upload_path}' download>{$file_upload_label}</a><br>";
-                                }
-                                ?>
-                            <?php endif; ?>
-                        </td>
-                        <td>
-                            <?php if (!empty($project['image_upload'])): ?>
-                                <?php
-                                $image_uploads = explode(',', $project['image_upload']);
-                                $first_image_upload = $image_uploads[0];
-                                $image_upload_paths = array_map(function($image) use ($project) {
-                                    return BASE_URL . "projects/project_files/{$project['project_name']}/{$image}"; // Updated to use BASE_URL
-                                }, $image_uploads);
-                                echo "<a href='javascript:void(0);' onclick='openImage(\"{$image_upload_paths[0]}\")'><img src='{$image_upload_paths[0]}' alt='Project Image' class='thumbnail'></a>";
-                                ?>
-                            <?php endif; ?>
-                        </td>
-                        <td>
-                            <?php if (!empty($project['design_file'])): ?>
-                                <?php
-                                $design_files = explode(',', $project['design_file']);
-                                foreach ($design_files as $design_file) {
-                                    $design_file_label = pathinfo($design_file, PATHINFO_FILENAME);
-                                    $design_file_path = BASE_URL . "projects/project_files/{$project['project_name']}/{$design_file}"; // Updated to use BASE_URL
-                                    echo "<a href='{$design_file_path}' download>{$design_file_label}</a><br>";
-                                }
-                                ?>
-                            <?php endif; ?>
-                        </td>
-                        <td>
-                            <a href="<?php echo BASE_URL; ?>Views/projects/edit_project.php?project_name=<?php echo urlencode($project['project_name']); ?>" class="btn styled-btn white">Edit</a> <!-- Updated to use BASE_URL -->
-                            <form action="<?php echo BASE_URL; ?>public/projects/list_projects.php" method="post" onsubmit="return confirm('Are you sure you want to delete this project?');" style="display:inline;"> <!-- Updated to use BASE_URL -->
-                                <input type="hidden" name="delete_project_name" value="<?php echo htmlspecialchars($project['project_name']); ?>">
-                                <input type="submit" class="btn styled-btn red" value="Delete">
-                            </form>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
+    <!-- Modern Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-brand">
+                <div class="header-brand-text">
+                    <h1>Project Management</h1>
+                    <p>Track and manage your woodworking projects</p>
+                </div>
+            </div>
+            <nav class="header-nav">
+                <a href="<?php echo BASE_URL; ?>Views/main.php" class="nav-link">Dashboard</a>
+                <a href="<?php echo BASE_URL; ?>Views/projects/index.php" class="nav-link">Projects Home</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-header-content">
+                <h1 class="page-title">Project List</h1>
+                <div class="page-actions">
+                    <a href="<?php echo BASE_URL; ?>Views/projects/add_project.php" class="btn btn-primary">
+                        <span class="icon">📋</span>
+                        Add Project
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Projects Table Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">All Projects</h2>
+                <p class="card-subtitle">Manage your woodworking projects from design to completion</p>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Project</th>
+                                <th>Customer</th>
+                                <th>Timeline</th>
+                                <th>Hours</th>
+                                <th>Description</th>
+                                <th>Files</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($projects as $project): ?>
+                                <tr>
+                                    <td>
+                                        <div class="project-info">
+                                            <strong><?php echo htmlspecialchars($project['project_name']); ?></strong>
+                                            <div class="text-sm text-muted">
+                                                Created: <?php echo htmlspecialchars($project['design_date']); ?>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="customer-info">
+                                            <?php if (!empty($project['customer_name'])): ?>
+                                                <span class="badge badge-info"><?php echo htmlspecialchars($project['customer_name']); ?></span>
+                                            <?php else: ?>
+                                                <span class="text-muted">No customer assigned</span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="timeline-info">
+                                            <?php if (!empty($project['due_date'])): ?>
+                                                <div class="text-sm">
+                                                    <span class="icon">📅</span>
+                                                    Due: <?php echo htmlspecialchars($project['due_date']); ?>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="hours-info">
+                                            <?php if (!empty($project['laser_time'])): ?>
+                                                <div class="text-sm">⚡ Laser: <?php echo htmlspecialchars($project['laser_time']); ?>h</div>
+                                            <?php endif; ?>
+                                            <?php if (!empty($project['router_time'])): ?>
+                                                <div class="text-sm">🔧 Router: <?php echo htmlspecialchars($project['router_time']); ?>h</div>
+                                            <?php endif; ?>
+                                            <?php if (!empty($project['labor_hours'])): ?>
+                                                <div class="text-sm">👷 Labor: <?php echo htmlspecialchars($project['labor_hours']); ?>h</div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <?php if (!empty($project['project_description'])): ?>
+                                            <span class="text-truncate" title="<?php echo htmlspecialchars($project['project_description']); ?>">
+                                                <?php echo htmlspecialchars(substr($project['project_description'], 0, 60)) . (strlen($project['project_description']) > 60 ? '...' : ''); ?>
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="text-muted">No description</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <div class="files-info">
+                                            <!-- Machine Files -->
+                                            <?php if (!empty($project['file_upload'])): ?>
+                                                <?php
+                                                $file_uploads = explode(',', $project['file_upload']);
+                                                $file_count = count($file_uploads);
+                                                $project_id = $project['id'] ?? $project['project_name']; // Use project ID or name for unique identifiers
+                                                ?>
+                                                
+                                                <!-- Always show first file -->
+                                                <?php if ($file_count > 0): ?>
+                                                    <?php
+                                                    $first_file = trim($file_uploads[0]);
+                                                    if (!empty($first_file)) {
+                                                        $file_upload_label = pathinfo($first_file, PATHINFO_FILENAME);
+                                                        $file_upload_path = BASE_URL . "projects/project_files/{$project['project_name']}/{$first_file}";
+                                                        echo "<div class='text-sm'><a href='{$file_upload_path}' download class='text-link'>📄 {$file_upload_label}</a></div>";
+                                                    }
+                                                    ?>
+                                                <?php endif; ?>
+                                                
+                                                <!-- Show second file if exists -->
+                                                <?php if ($file_count > 1): ?>
+                                                    <?php
+                                                    $second_file = trim($file_uploads[1]);
+                                                    if (!empty($second_file)) {
+                                                        $file_upload_label = pathinfo($second_file, PATHINFO_FILENAME);
+                                                        $file_upload_path = BASE_URL . "projects/project_files/{$project['project_name']}/{$second_file}";
+                                                        echo "<div class='text-sm'><a href='{$file_upload_path}' download class='text-link'>📄 {$file_upload_label}</a></div>";
+                                                    }
+                                                    ?>
+                                                <?php endif; ?>
+                                                
+                                                <!-- Show expandable section for additional files -->
+                                                <?php if ($file_count > 2): ?>
+                                                    <div class="text-sm">
+                                                        <button type="button" class="btn-link text-muted" onclick="toggleFiles('files-<?php echo $project_id; ?>')">
+                                                            <span id="files-toggle-<?php echo $project_id; ?>">+<?php echo $file_count - 2; ?> more files</span>
+                                                        </button>
+                                                    </div>
+                                                    <div id="files-<?php echo $project_id; ?>" class="additional-files" style="display: none;">
+                                                        <?php
+                                                        for ($i = 2; $i < $file_count; $i++) {
+                                                            $file_upload = trim($file_uploads[$i]);
+                                                            if (!empty($file_upload)) {
+                                                                $file_upload_label = pathinfo($file_upload, PATHINFO_FILENAME);
+                                                                $file_upload_path = BASE_URL . "projects/project_files/{$project['project_name']}/{$file_upload}";
+                                                                echo "<div class='text-sm'><a href='{$file_upload_path}' download class='text-link'>📄 {$file_upload_label}</a></div>";
+                                                            }
+                                                        }
+                                                        ?>
+                                                    </div>
+                                                <?php endif; ?>
+                                            <?php endif; ?>
+                                            
+                                            <!-- Project Images -->
+                                            <?php if (!empty($project['image_upload'])): ?>
+                                                <?php
+                                                $image_uploads = explode(',', $project['image_upload']);
+                                                $image_count = count($image_uploads);
+                                                $first_image_upload = trim($image_uploads[0]);
+                                                
+                                                if (!empty($first_image_upload)) {
+                                                    $project_name_encoded = urlencode($project['project_name']);
+                                                    $image_upload_path = BASE_URL . "projects/project_files/" . $project_name_encoded . "/" . urlencode($first_image_upload);
+                                                    $image_display_path = BASE_URL . "projects/project_files/{$project['project_name']}/{$first_image_upload}";
+                                                    ?>
+                                                    <div class='mt-1'>
+                                                        <!-- Thumbnail Image -->
+                                                        <div class="image-thumbnail-container" style="margin-bottom: 0.5rem;">
+                                                            <img src="<?php echo htmlspecialchars($image_display_path); ?>" 
+                                                                 alt="<?php echo htmlspecialchars($project['project_name']); ?> Image" 
+                                                                 class="image-thumbnail"
+                                                                 onclick="openImage('<?php echo htmlspecialchars($image_display_path); ?>')"
+                                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';"
+                                                                 title="Click to view full size: <?php echo htmlspecialchars($first_image_upload); ?>">
+                                                            <button onclick="openImage('<?php echo htmlspecialchars($image_display_path); ?>')" 
+                                                                    class="btn btn-ghost btn-sm" 
+                                                                    style="display: none;"
+                                                                    title="View project image: <?php echo htmlspecialchars($first_image_upload); ?>">
+                                                                🖼️ View Image
+                                                            </button>
+                                                        </div>
+                                                        
+                                                        <!-- Additional Images -->
+                                                        <?php if ($image_count > 1): ?>
+                                                            <div class="text-sm">
+                                                                <button type="button" class="btn-link text-muted" onclick="toggleFiles('images-<?php echo $project_id; ?>')">
+                                                                    <span id="images-toggle-<?php echo $project_id; ?>">+<?php echo $image_count - 1; ?> more images</span>
+                                                                </button>
+                                                            </div>
+                                                            <div id="images-<?php echo $project_id; ?>" class="additional-images" style="display: none;">
+                                                                <?php
+                                                                for ($i = 1; $i < $image_count; $i++) {
+                                                                    $image_upload = trim($image_uploads[$i]);
+                                                                    if (!empty($image_upload)) {
+                                                                        $image_display_path = BASE_URL . "projects/project_files/{$project['project_name']}/{$image_upload}";
+                                                                        $image_name = pathinfo($image_upload, PATHINFO_FILENAME);
+                                                                        ?>
+                                                                        <div class="image-thumbnail-container" style="margin-bottom: 0.25rem;">
+                                                                            <img src="<?php echo htmlspecialchars($image_display_path); ?>" 
+                                                                                 alt="<?php echo htmlspecialchars($project['project_name']); ?> Image <?php echo $i + 1; ?>" 
+                                                                                 class="image-thumbnail small"
+                                                                                 onclick="openImage('<?php echo htmlspecialchars($image_display_path); ?>')"
+                                                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';"
+                                                                                 title="Click to view: <?php echo htmlspecialchars($image_upload); ?>">
+                                                                            <button onclick="openImage('<?php echo htmlspecialchars($image_display_path); ?>')" 
+                                                                                    class="btn btn-ghost btn-xs" 
+                                                                                    style="display: none;"
+                                                                                    title="View: <?php echo htmlspecialchars($image_name); ?>">
+                                                                                🖼️ <?php echo htmlspecialchars($image_name); ?>
+                                                                            </button>
+                                                                        </div>
+                                                                        <?php
+                                                                    }
+                                                                }
+                                                                ?>
+                                                            </div>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                    <?php
+                                                }
+                                                ?>
+                                            <?php else: ?>
+                                                <div class="text-sm text-muted">No images</div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <a href="<?php echo BASE_URL; ?>Views/projects/edit_project.php?project_name=<?php echo urlencode($project['project_name']); ?>" 
+                                               class="btn btn-ghost btn-sm" title="Edit Project">
+                                                <span class="icon">✏️</span>
+                                                Edit
+                                            </a>
+                                            <form action="<?php echo BASE_URL; ?>public/projects/list_projects.php" method="post" 
+                                                  onsubmit="return confirm('Are you sure you want to delete this project?');" 
+                                                  style="display:inline;">
+                                                <input type="hidden" name="delete_project_name" value="<?php echo htmlspecialchars($project['project_name']); ?>">
+                                                <button type="submit" class="btn btn-danger btn-sm" title="Delete Project">
+                                                    <span class="icon">🗑️</span>
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function toggleFiles(elementId) {
+            const element = document.getElementById(elementId);
+            const isHidden = element.style.display === 'none';
+            
+            if (isHidden) {
+                element.style.display = 'block';
+                // Update toggle text to show "Hide"
+                const toggleElement = document.getElementById(elementId.replace('files-', 'files-toggle-').replace('images-', 'images-toggle-'));
+                if (toggleElement) {
+                    const currentText = toggleElement.textContent;
+                    toggleElement.textContent = 'Hide additional ' + (elementId.includes('files-') ? 'files' : 'images');
+                }
+            } else {
+                element.style.display = 'none';
+                // Restore original toggle text
+                const toggleElement = document.getElementById(elementId.replace('files-', 'files-toggle-').replace('images-', 'images-toggle-'));
+                if (toggleElement) {
+                    if (elementId.includes('files-')) {
+                        const fileCount = element.children.length;
+                        toggleElement.textContent = '+' + fileCount + ' more files';
+                    } else {
+                        const imageCount = element.children.length;
+                        toggleElement.textContent = '+' + imageCount + ' more images';
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .btn-link {
+            background: none;
+            border: none;
+            color: var(--color-primary);
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: inherit;
+            padding: 0;
+        }
+        
+        .btn-link:hover {
+            color: var(--color-primary-dark);
+        }
+        
+        .additional-files,
+        .additional-images {
+            margin-top: 0.25rem;
+            padding-top: 0.25rem;
+            border-top: 1px solid var(--color-border-light);
+        }
+        
+        .image-thumbnail.small {
+            width: 30px;
+            height: 30px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        
+        .image-thumbnail-container {
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+    </style>
 </body>
 </html>

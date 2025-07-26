@@ -1,6 +1,6 @@
 <?php
-require_once BASE_PATH . __DIR__ . '/../../config.php'; // Updated path to config.php
-require_once BASE_PATH . '/Models/Database.php'; // Use BASE_PATH
+require_once __DIR__ . '/../../config.php'; // Load config first to get BASE_PATH
+require_once BASE_PATH . '/Models/Database.php'; // Now BASE_PATH is available
 
 use MyApp\Models\Database;
 
@@ -19,37 +19,153 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all users
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>List Users</title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Use BASE_URL -->
+    <title>User List - OMC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles-modern.css">
 </head>
 <body>
-    <?php include BASE_PATH . 'Views/header.php'; ?> <!-- Use BASE_PATH -->
-    <div class="container">
-        <h1 class="title">List of Users</h1>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Username</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($users as $user): ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($user['id']); ?></td>
-                        <td><?php echo htmlspecialchars($user['username']); ?></td>
-                        <td>
-                            <a href="<?php echo rtrim(BASE_URL, '/'); ?>/Views/users/edit_user.php?user_id=<?php echo $user['id']; ?>" class="btn styled-btn">Edit</a>
-                            <form action="<?php echo rtrim(BASE_URL, '/'); ?>/public/users/delete_user.php" method="post" onsubmit="return confirm('Are you sure you want to delete this user?');" style="display:inline;">
-                                <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-                                <input type="submit" class="btn styled-btn red" value="Delete">
-                            </form>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
+    <!-- Modern Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-brand">
+                <div class="header-brand-text">
+                    <h1>User Management</h1>
+                    <p>Manage system users and permissions</p>
+                </div>
+            </div>
+            <nav class="header-nav">
+                <a href="<?php echo BASE_URL; ?>Views/main.php" class="nav-link">Dashboard</a>
+                <a href="<?php echo BASE_URL; ?>Views/Users/index.php" class="nav-link">User Profile</a>
+                <a href="<?php echo BASE_URL; ?>Views/Users/add_user.php" class="nav-link">Add User</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-header-content">
+                <h1 class="page-title">System Users</h1>
+                <div class="page-actions">
+                    <a href="<?php echo BASE_URL; ?>Views/Users/add_user.php" class="btn btn-primary">
+                        <span class="icon">👤</span>
+                        Add New User
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users List -->
+        <?php if (!empty($users)): ?>
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">All Users</h2>
+                    <p class="card-subtitle">Total: <?php echo count($users); ?> users</p>
+                </div>
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Name</th>
+                                <th>User Type</th>
+                                <th>Position</th>
+                                <th>Date of Hire</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($users as $user): ?>
+                                <tr>
+                                    <td>
+                                        <span class="font-mono text-sm"><?php echo htmlspecialchars($user['id'] ?? 'N/A'); ?></span>
+                                    </td>
+                                    <td>
+                                        <div class="font-semibold"><?php echo htmlspecialchars($user['username'] ?? 'N/A'); ?></div>
+                                    </td>
+                                    <td>
+                                        <?php echo htmlspecialchars($user['name'] ?? 'N/A'); ?>
+                                    </td>
+                                    <td>
+                                        <?php 
+                                        $user_type = $user['user_type'] ?? 'user';
+                                        $badge_class = $user_type === 'admin' ? 'badge-danger' : 
+                                                      ($user_type === 'manager' ? 'badge-warning' : 'badge-info');
+                                        ?>
+                                        <span class="badge <?php echo $badge_class; ?>"><?php echo ucfirst($user_type); ?></span>
+                                    </td>
+                                    <td>
+                                        <?php echo htmlspecialchars($user['position'] ?? 'N/A'); ?>
+                                    </td>
+                                    <td>
+                                        <?php 
+                                        $hire_date = $user['date_of_hire'] ?? null;
+                                        if (!empty($hire_date)) {
+                                            echo date('M j, Y', strtotime($hire_date));
+                                        } else {
+                                            echo '<span class="text-muted">Not set</span>';
+                                        }
+                                        ?>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="<?php echo BASE_URL; ?>Views/Users/edit_user.php?user_id=<?php echo htmlspecialchars($user['id'] ?? ''); ?>" 
+                                               class="btn btn-sm btn-secondary">
+                                                <span class="icon">✏️</span>
+                                                Edit
+                                            </a>
+                                            <button onclick="confirmDelete(<?php echo htmlspecialchars($user['id'] ?? ''); ?>)" 
+                                                    class="btn btn-sm btn-danger">
+                                                <span class="icon">🗑️</span>
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        <?php else: ?>
+            <div class="card">
+                <div class="card-body text-center py-12">
+                    <div class="icon-wrapper mb-4">
+                        <span class="icon text-6xl">👥</span>
+                    </div>
+                    <h3 class="card-title">No Users Found</h3>
+                    <p class="text-muted mb-6">There are no users in the system yet.</p>
+                    <a href="<?php echo BASE_URL; ?>Views/Users/add_user.php" class="btn btn-primary">
+                        <span class="icon">➕</span>
+                        Add Your First User
+                    </a>
+                </div>
+            </div>
+        <?php endif; ?>
+    </main>
+
+    <script>
+        function confirmDelete(userId) {
+            if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+                // Create and submit form
+                var form = document.createElement('form');
+                form.method = 'post';
+                form.action = '<?php echo BASE_URL; ?>public/Users/delete_user.php';
+                
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'user_id';
+                input.value = userId;
+                
+                form.appendChild(input);
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
 </body>
 </html>

@@ -4,7 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Correct path to config.php
-require_once realpath(dirname(__FILE__, 3) . '/config.php'); // Adjusted to go three levels up
+require_once __DIR__ . '/../../config.php'; // Updated to use __DIR__
 
 // Log session details for debugging
 error_log("Login.php: Session username: " . (isset($_SESSION['username']) ? $_SESSION['username'] : "Not set"));

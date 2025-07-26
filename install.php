@@ -52,12 +52,18 @@ if (\$conn->connect_error) {
 
     if (mysqli_num_rows($record_exists) > 0) {
         // Update the existing record
-        $update_query = "UPDATE settings SET company_name='$company_name', company_slogan='$company_slogan' WHERE id=1";
-        mysqli_query($conn, $update_query);
+        $update_query = "UPDATE settings SET company_name=?, company_slogan=? WHERE id=1";
+        $stmt = $conn->prepare($update_query);
+        $stmt->bind_param("ss", $company_name, $company_slogan);
+        $stmt->execute();
+        $stmt->close();
     } else {
         // Insert a new record
-        $insert_query = "INSERT INTO settings (company_name, company_slogan) VALUES ('$company_name', '$company_slogan')";
-        mysqli_query($conn, $insert_query);
+        $insert_query = "INSERT INTO settings (company_name, company_slogan) VALUES (?, ?)";
+        $stmt = $conn->prepare($insert_query);
+        $stmt->bind_param("ss", $company_name, $company_slogan);
+        $stmt->execute();
+        $stmt->close();
     }
 
     session_start();

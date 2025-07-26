@@ -45,11 +45,25 @@ class DatabaseManager {
             // Get all table names in the database
             $result = $connection->query("SHOW TABLES");
             if ($result) {
+                // Define allowed table prefixes/patterns for security
+                $allowedTablePrefixes = ['bom', 'customers', 'estimates', 'materials', 'projects', 'settings', 'setup', 'vendors'];
+                
                 while ($row = $result->fetch_row()) {
                     $table = $row[0];
                     if ($table !== 'users') { // Skip the 'users' table
-                        if (!$connection->query("DROP TABLE `$table`")) {
-                            throw new Exception("Failed to drop table `$table`: " . $connection->error);
+                        // Validate table name against allowed patterns
+                        $isValidTable = false;
+                        foreach ($allowedTablePrefixes as $prefix) {
+                            if (strpos($table, $prefix) === 0) {
+                                $isValidTable = true;
+                                break;
+                            }
+                        }
+                        
+                        if ($isValidTable && preg_match('/^[a-zA-Z0-9_]+$/', $table)) {
+                            if (!$connection->query("DROP TABLE `$table`")) {
+                                throw new Exception("Failed to drop table `$table`: " . $connection->error);
+                            }
                         }
                     }
                 }

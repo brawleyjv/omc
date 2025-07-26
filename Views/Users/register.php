@@ -1,5 +1,5 @@
 <?php
-require_once realpath(dirname(__FILE__) . '/../../config.php'); // Ensure the path points to config.php
+require_once __DIR__ . '/../../config.php'; // Updated to use __DIR__
 ?>
 <!DOCTYPE html>
 <html lang="en">

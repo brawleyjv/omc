@@ -1,67 +1,66 @@
 <?php
-require_once realpath(dirname(__FILE__) . '/../../config.php'); // Updated to use realpath
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+require_once realpath(dirname(__FILE__) . '/../../config.php');
 require_once BASE_PATH . '/Models/Database.php';
 require_once BASE_PATH . '/Models/Material.php';
 require_once BASE_PATH . '/Controllers/MaterialController.php';
 
 use MyApp\Controllers\MaterialController;
 use MyApp\Models\Database;
-use Globals\Config;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME); // Updated initialization
-    $materialsController = new MaterialController($database);
+    try {
+        $database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+        $materialsController = new MaterialController($database);
 
-    $data = [
-        'material_name' => $_POST['material_name'],
-        'length' => $_POST['length'] ?? null,
-        'width' => $_POST['width'] ?? null,
-        'thickness' => $_POST['thickness'] ?? null,
-        'price' => $_POST['price'] ?? null,
-        'quantity_on_hand' => $_POST['quantity_on_hand'] ?? null,
-        'type' => $_POST['type'] ?? null,
-        'vendor' => $_POST['vendor'] ?? null,
-        'item_no' => $_POST['item_no'] ?? null,
-        'item_url' => $_POST['item_url'] ?? null,
-        'image_url' => $_POST['image_url'] ?? null
-    ];
+        $data = [
+            'material_name' => $_POST['material_name'] ?? '',
+            'length' => !empty($_POST['length']) ? (float)$_POST['length'] : null,
+            'width' => !empty($_POST['width']) ? (float)$_POST['width'] : null,
+            'thickness' => !empty($_POST['thickness']) ? (float)$_POST['thickness'] : null,
+            'price' => !empty($_POST['price']) ? (float)$_POST['price'] : null,
+            'quantity_on_hand' => !empty($_POST['quantity_on_hand']) ? (int)$_POST['quantity_on_hand'] : null,
+            'type' => $_POST['type'] ?? '',
+            'vendor' => $_POST['vendor'] ?? '',
+            'item_no' => $_POST['item_no'] ?? '',
+            'item_url' => $_POST['item_url'] ?? '',
+            'image_url' => $_POST['image_url'] ?? ''
+        ];
 
-    $materialsController->submitMaterial(
-        $data['material_name'],
-        $data['length'],
-        $data['width'],
-        $data['thickness'],
-        $data['price'],
-        $data['quantity_on_hand'],
-        $data['type'],
-        $data['vendor'],
-        $data['item_no'],
-        $data['item_url'],
-        $data['image_url']
-    );
+        $materialsController->submitMaterial(
+            $data['material_name'],
+            $data['length'],
+            $data['width'],
+            $data['thickness'],
+            $data['price'],
+            $data['quantity_on_hand'],
+            $data['type'],
+            $data['vendor'],
+            $data['item_no'],
+            $data['item_url'],
+            $data['image_url']
+        );
 
-    header('Location: ' . BASE_URL . 'Views/materials/index.php');
-    exit;
-}
-
-$path = realpath(dirname(__FILE__) . '/../../views/materials/add_material.php'); // Attempt to resolve the path
-
-if (!$path || !file_exists($path)) { // Validate that $path is not empty and the file exists
-    $path = BASE_PATH . '/Views/materials/add_material.php'; // Fallback to BASE_PATH if realpath fails
-    if (!file_exists($path)) { // Check if the fallback path exists
-        throw new ValueError("Path cannot be empty or invalid: " . ($path ?: 'null'));
+        header('Location: ' . BASE_URL . 'Views/materials/list_materials.php?success=1');
+        exit;
+    } catch (Exception $e) {
+        $error_message = "Error adding material: " . $e->getMessage();
+        error_log($error_message);
+        header('Location: ' . BASE_URL . 'Views/materials/add_material.php?error=' . urlencode($error_message));
+        exit;
     }
 }
 
-include $path;
+// If not a POST request, include the form
+$path = BASE_PATH . '/Views/materials/add_material.php';
+if (file_exists($path)) {
+    include $path;
+} else {
+    echo "<h1>Error</h1>";
+    echo "<p>The add material form could not be found at: " . $path . "</p>";
+    echo "<p><a href='" . BASE_URL . "Views/materials/list_materials.php'>Back to Materials</a></p>";
+}
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <!-- ...existing code... -->
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Updated to use correct BASE_URL -->
-</head>
-<body>
-    <!-- ...existing code... -->
-</body>
-</html>

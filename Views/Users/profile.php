@@ -1,12 +1,12 @@
 <?php
-require_once realpath(dirname(__FILE__) . '/../../config.php'); // Corrected path to config.php
+require_once __DIR__ . '/../../config.php'; // Corrected path to config.php
 require_once BASE_PATH . '/Models/Database.php'; // Ensure Database.php is included
 require_once BASE_PATH . '/Models/User.php'; // Ensure User.php is included
 
 use MyApp\Models\Database;
 use MyApp\Models\User;
 
-$database = new Database();
+$database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 $db = $database->getConnection(); // Ensure $db is a PDO instance
 
 if (!$db) { // Check if $db is null

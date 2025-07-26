@@ -1,5 +1,5 @@
 <?php
-require_once realpath(dirname(__FILE__) . '/../../config.php'); // Correct relative path to config.php
+require_once __DIR__ . '/../../config.php'; // Correct relative path to config.php
 require_once BASE_PATH . '/Models/Database.php';
 require_once BASE_PATH . '/Models/Material.php';
 require_once BASE_PATH . '/Controllers/MaterialController.php';
@@ -27,85 +27,23 @@ $materials = $materialsController->getAllMaterials();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>List Materials</title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles.css"> <!-- Corrected path -->
-    <style>
-        .top-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 0px; /* Remove margin to bring the buttons up */
-        }
-        .center-title {
-            text-align: center;
-            margin-top: 20px; /* Adjust margin to bring the title up */
-        }
-        .content {
-            margin-top: 0px; /* Remove margin to bring the content up */
-        }
-        .button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            background-color: #007BFF;
-            color: white;
-            text-decoration: none;
-            font-size: 16px;
-            cursor: pointer;
-            display: inline-block;
-            margin-top: 20px;
-        }
-        .button:hover {
-            background-color: #0056b3;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        table, th, td {
-            border: 2px solid #007BFF; /* Enhance border appearance */
-        }
-        th, td {
-            padding: 8px;
-            text-align: center; /* Center the text */
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-        .btn.styled-btn.red {
-            background-color: #DC3545; /* Red background */
-            color: white; /* White text */
-            padding: 5px 10px; /* Reduce padding */
-            font-size: 14px; /* Reduce font size */
-            border: none; /* Remove border */
-        }
-        .btn.styled-btn.red:hover {
-            background-color: #c82333; /* Darker red on hover */
-        }
-        .thumbnail {
-            max-width: 100px;
-            max-height: 100px;
-            cursor: pointer;
-        }
-        .action-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 5px; /* Space between buttons */
-        }
-    </style>
+    <title>List Materials - OMC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>styles-modern.css">
     <script>
         function openImage(url) {
+            if (!url || url.trim() === '') {
+                alert('No image URL available');
+                return;
+            }
+            
             const imgWindow = window.open("", "_blank", "width=800,height=600");
             imgWindow.document.write(`
                 <html>
                 <head>
-                    <title>Image</title>
+                    <title>Material Image</title>
                     <style>
                         body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #000; }
                         img { max-width: 100%; max-height: 100%; }
@@ -124,11 +62,21 @@ $materials = $materialsController->getAllMaterials();
                         .close-button:hover {
                             background-color: #c82333;
                         }
+                        .error-message {
+                            color: white;
+                            text-align: center;
+                            font-family: Arial, sans-serif;
+                        }
                     </style>
                 </head>
                 <body>
                     <button class="close-button" onclick="window.close()">Close</button>
-                    <img src="${url}" alt="Material Image">
+                    <img src="${url}" alt="Material Image" 
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="error-message" style="display:none;">
+                        <p>Image could not be loaded.</p>
+                        <p><a href="${url}" target="_blank" style="color: #007bff;">Open image in new tab</a></p>
+                    </div>
                 </body>
                 </html>
             `);
@@ -139,65 +87,160 @@ $materials = $materialsController->getAllMaterials();
             link.href = img.src;
             link.target = '_blank';
             link.textContent = 'View Image';
+            link.className = 'text-link';
             img.parentNode.replaceChild(link, img);
         }
     </script>
 </head>
 <body>
-    <?php include BASE_PATH . '/Views/header.php'; ?>
-    <h1 class="center-title">List of Materials</h1>
-    <div class="top-buttons">
-        <button class="btn styled-btn" style="margin-right: 20px;" onclick="window.location.href='<?php echo BASE_URL; ?>Views/materials/index.php'">Close</button>
-    </div>
-    <div class="content">
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Material Name</th>
-                    <th>Length</th>
-                    <th>Width</th>
-                    <th>Thickness</th>
-                    <th>Price</th>
-                    <th>Quantity on Hand</th>
-                    <th>Type</th>
-                    <th>Vendor</th>
-                    <th>Item No</th>
-                    <th>Item URL</th>
-                    <th>Image URL</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($materials as $material): ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($material['id'] ?? ''); ?></td>
-                        <td><?php echo htmlspecialchars($material['material_name'] ?? ''); ?></td>
-                        <td><?php echo htmlspecialchars($material['Length'] ?? ''); ?></td>
-                        <td><?php echo htmlspecialchars($material['Width'] ?? ''); ?></td>
-                        <td><?php echo htmlspecialchars($material['Thickness'] ?? ''); ?></td>
-                        <td><?php echo htmlspecialchars($material['Price'] ?? ''); ?></td>
-                        <td><?php echo htmlspecialchars($material['Quantity_on_Hand'] ?? ''); ?></td>
-                        <td><?php echo htmlspecialchars($material['type'] ?? ''); ?></td>
-                        <td><?php echo htmlspecialchars($material['vendor_name'] ?? ''); ?></td>
-                        <td><?php echo htmlspecialchars($material['Item_no'] ?? ''); ?></td>
-                        <td><a href="<?php echo htmlspecialchars($material['item_url'] ?? ''); ?>" target="_blank">Link</a></td>
-                        <td>
-                            <?php if (!empty($material['image_url'])): ?>
-                                <img src="<?php echo htmlspecialchars($material['image_url']); ?>" alt="Material Image" class="thumbnail" onclick="openImage('<?php echo htmlspecialchars($material['image_url']); ?>')" onerror="handleImageError(this)">
-                            <?php endif; ?>
-                        </td>
-                        <td class="action-buttons">
-                            <button class="btn styled-btn" onclick="window.location.href='<?php echo BASE_URL; ?>Views/materials/edit_material.php?id=<?php echo urlencode($material['id'] ?? ''); ?>'">Edit</button>
-                            <form action="list_materials.php" method="post" onsubmit="return confirm('Are you sure you want to delete this material?');">
-                                <input type="hidden" name="delete_material_name" value="<?php echo htmlspecialchars($material['material_name'] ?? ''); ?>">
-                                <input type="submit" class="btn styled-btn red" value="Delete">
-                            </form>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
+    <!-- Modern Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-brand">
+                <div class="header-brand-text">
+                    <h1>Material Management</h1>
+                    <p>Manage inventory, track costs, and plan material requirements</p>
+                </div>
+            </div>
+            <nav class="header-nav">
+                <a href="<?php echo BASE_URL; ?>Views/main.php" class="nav-link">Dashboard</a>
+                <a href="<?php echo BASE_URL; ?>Views/materials/index.php" class="nav-link">Materials Home</a>
+            </nav>
+        </div>
+    </header>
+    <!-- Main Content -->
+    <main class="main-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-header-content">
+                <h1 class="page-title">Material Inventory</h1>
+                <div class="page-actions">
+                    <a href="<?php echo BASE_URL; ?>Views/materials/add_material.php" class="btn btn-primary">
+                        <span class="icon">🪵</span>
+                        Add Material
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Materials Table Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">All Materials</h2>
+                <p class="card-subtitle">Track your material inventory and vendor information</p>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Material</th>
+                                <th>Dimensions</th>
+                                <th>Pricing</th>
+                                <th>Inventory</th>
+                                <th>Vendor Info</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($materials as $material): ?>
+                                <tr>
+                                    <td>
+                                        <span class="badge badge-secondary"><?php echo htmlspecialchars($material['id'] ?? ''); ?></span>
+                                    </td>
+                                    <td>
+                                        <div class="material-info">
+                                            <strong><?php echo htmlspecialchars($material['material_name'] ?? ''); ?></strong>
+                                            <?php if (!empty($material['type'])): ?>
+                                                <div class="text-sm">
+                                                    <span class="badge badge-info"><?php echo htmlspecialchars($material['type']); ?></span>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="dimensions-info">
+                                            <?php 
+                                            $dimensions = array_filter([
+                                                !empty($material['Length']) ? 'L: ' . $material['Length'] : '',
+                                                !empty($material['Width']) ? 'W: ' . $material['Width'] : '',
+                                                !empty($material['Thickness']) ? 'T: ' . $material['Thickness'] : ''
+                                            ]);
+                                            if (!empty($dimensions)): ?>
+                                                <?php foreach ($dimensions as $dimension): ?>
+                                                    <div class="text-sm"><?php echo htmlspecialchars($dimension); ?></div>
+                                                <?php endforeach; ?>
+                                            <?php else: ?>
+                                                <span class="text-muted">No dimensions</span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <?php if (!empty($material['Price'])): ?>
+                                            <span class="badge badge-success">$<?php echo htmlspecialchars($material['Price']); ?></span>
+                                        <?php else: ?>
+                                            <span class="text-muted">No price</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <?php if (!empty($material['Quantity_on_Hand'])): ?>
+                                            <span class="badge badge-warning"><?php echo htmlspecialchars($material['Quantity_on_Hand']); ?> in stock</span>
+                                        <?php else: ?>
+                                            <span class="badge badge-danger">Out of stock</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <div class="vendor-info">
+                                            <?php if (!empty($material['vendor_name'])): ?>
+                                                <div class="text-sm"><strong><?php echo htmlspecialchars($material['vendor_name']); ?></strong></div>
+                                            <?php endif; ?>
+                                            <?php if (!empty($material['Item_no'])): ?>
+                                                <div class="text-sm">Item: <?php echo htmlspecialchars($material['Item_no']); ?></div>
+                                            <?php endif; ?>
+                                            <?php if (!empty($material['item_url'])): ?>
+                                                <div class="text-sm">
+                                                    <a href="<?php echo htmlspecialchars($material['item_url']); ?>" target="_blank" class="text-link">
+                                                        View Product
+                                                    </a>
+                                                </div>
+                                            <?php endif; ?>
+                                            <?php if (!empty($material['image_url'])): ?>
+                                                <div class="text-sm mt-1">
+                                                    <button onclick="openImage('<?php echo htmlspecialchars($material['image_url']); ?>')" 
+                                                            class="btn btn-ghost btn-sm"
+                                                            title="View material image">
+                                                        🖼️ View Image
+                                                    </button>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <a href="<?php echo BASE_URL; ?>Views/materials/edit_material.php?id=<?php echo urlencode($material['id'] ?? ''); ?>" 
+                                               class="btn btn-ghost btn-sm" title="Edit Material">
+                                                <span class="icon">✏️</span>
+                                                Edit
+                                            </a>
+                                            <form action="list_materials.php" method="post" 
+                                                  onsubmit="return confirm('Are you sure you want to delete this material?');" 
+                                                  style="display:inline;">
+                                                <input type="hidden" name="delete_material_name" value="<?php echo htmlspecialchars($material['material_name'] ?? ''); ?>">
+                                                <button type="submit" class="btn btn-danger btn-sm" title="Delete Material">
+                                                    <span class="icon">🗑️</span>
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
 </body>
 </html>
