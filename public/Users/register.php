@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once realpath(dirname(__FILE__) . '/../../config.php'); // Updated path
 require_once BASE_PATH . '/Models/Database.php'; // Ensure consistent path
 
@@ -14,38 +16,56 @@ if ($conn === null) { // Check if the connection is null
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $name = $_POST['name'];
-    $phone = $_POST['phone'];
-    $position = $_POST['position'];
-    $user_type = $_POST['user_type'];
-    $date_of_hire = $_POST['date_of_hire'];
-    $password = $_POST['password'];
+    try {
+        $name = $_POST['name'];
+        $phone = $_POST['phone'];
+        $position = $_POST['position'];
+        $user_type = $_POST['user_type'];
+        $date_of_hire = $_POST['date_of_hire'];
+        $password = $_POST['password'];
 
-    // Hash the password before storing it
-    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        // Log registration attempt for debugging
+        error_log("Registration attempt for user: " . $name);
 
-    // Check for duplicate name
-    $check_sql = "SELECT * FROM users WHERE name=:name";
-    $check_stmt = $conn->prepare($check_sql);
-    $check_stmt->bindValue(':name', $name, PDO::PARAM_STR);
-    $check_stmt->execute();
+        // Hash the password before storing it
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-    if ($check_stmt->rowCount() > 0) {
-        $error_message = "The name '$name' is already taken. Please choose a different name.";
-    } else {
-        $sql = "INSERT INTO users (name, phone, position, user_type, date_of_hire, password) VALUES (:name, :phone, :position, :user_type, :date_of_hire, :password)";
-        $stmt = $conn->prepare($sql);
-        $stmt->bindValue(':name', $name, PDO::PARAM_STR);
-        $stmt->bindValue(':phone', $phone, PDO::PARAM_STR);
-        $stmt->bindValue(':position', $position, PDO::PARAM_STR);
-        $stmt->bindValue(':user_type', $user_type, PDO::PARAM_STR);
-        $stmt->bindValue(':date_of_hire', $date_of_hire, PDO::PARAM_STR);
-        $stmt->bindValue(':password', $hashed_password, PDO::PARAM_STR);
-        $stmt->execute();
+        // Check for duplicate name
+        $check_sql = "SELECT * FROM users WHERE name=:name";
+        $check_stmt = $conn->prepare($check_sql);
+        $check_stmt->bindValue(':name', $name, PDO::PARAM_STR);
+        $check_stmt->execute();
 
-        $_SESSION['username'] = $name;
-        $conn = null; // Close the connection
-        header("Location: " . BASE_URL . "/Views/Users/login.php"); // Ensure correct BASE_URL
+        if ($check_stmt->rowCount() > 0) {
+            $error_message = "The name '$name' is already taken. Please choose a different name.";
+            error_log("Registration failed: Duplicate name - " . $name);
+        } else {
+            $sql = "INSERT INTO users (name, phone, position, user_type, date_of_hire, password) VALUES (:name, :phone, :position, :user_type, :date_of_hire, :password)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bindValue(':name', $name, PDO::PARAM_STR);
+            $stmt->bindValue(':phone', $phone, PDO::PARAM_STR);
+            $stmt->bindValue(':position', $position, PDO::PARAM_STR);
+            $stmt->bindValue(':user_type', $user_type, PDO::PARAM_STR);
+            $stmt->bindValue(':date_of_hire', $date_of_hire, PDO::PARAM_STR);
+            $stmt->bindValue(':password', $hashed_password, PDO::PARAM_STR);
+            
+            if ($stmt->execute()) {
+                $_SESSION['username'] = $name;
+                $conn = null; // Close the connection
+                error_log("Registration successful for user: " . $name);
+                header("Location: " . BASE_URL . "/Views/Users/login.php"); // Ensure correct BASE_URL
+                exit();
+            } else {
+                $error_message = "An error occurred during registration. Please try again.";
+                error_log("Registration failed: SQL execution failed for user - " . $name);
+                error_log("SQL Error: " . print_r($stmt->errorInfo(), true));
+            }
+        }
+    } catch (Exception $e) {
+        $error_message = "An error occurred during registration. Please try again.";
+        error_log("Registration exception: " . $e->getMessage());
+    }
+}
         exit();
     }
 }

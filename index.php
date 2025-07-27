@@ -1,9 +1,7 @@
 <?php
-  require_once realpath(dirname(__FILE__) . '/config.php'); 
+require_once realpath(dirname(__FILE__) . '/config.php'); 
 
-if (!isset($_SESSION)) {
-    session_start(); // Start session if not already started
-}
+// Session is already started in config.php, no need to start again
 
 // Log session details for debugging
 error_log("Index.php: Session username: " . (isset($_SESSION['username']) ? $_SESSION['username'] : "Not set"));

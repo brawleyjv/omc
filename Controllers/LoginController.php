@@ -15,18 +15,41 @@ class LoginController {
     }
 
     public function login($username, $password) {
-        $query = "SELECT * FROM users WHERE name = :username LIMIT 1";
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':username', $username, PDO::PARAM_STR);
-        $stmt->execute();
+        try {
+            error_log("LoginController: Attempting login for username: " . $username);
+            
+            $query = "SELECT * FROM users WHERE name = :username LIMIT 1";
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(':username', $username, PDO::PARAM_STR);
+            $stmt->execute();
 
-        if ($stmt->rowCount() > 0) {
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
-            if (password_verify($password, $user['password'])) { // Verify the hashed password
-                return $user; // Return user data on successful login
+            error_log("LoginController: Query executed, rows found: " . $stmt->rowCount());
+
+            if ($stmt->rowCount() > 0) {
+                $user = $stmt->fetch(PDO::FETCH_ASSOC);
+                error_log("LoginController: User found: " . $user['name']);
+                error_log("LoginController: Stored password hash: " . substr($user['password'], 0, 20) . "...");
+                
+                if (password_verify($password, $user['password'])) {
+                    error_log("LoginController: Password verification successful");
+                    return $user; // Return user data on successful login
+                } else {
+                    error_log("LoginController: Password verification failed");
+                    // Check if password might be stored as plain text (legacy)
+                    if ($password === $user['password']) {
+                        error_log("LoginController: Plain text password match found - security issue!");
+                        return $user;
+                    }
+                }
+            } else {
+                error_log("LoginController: No user found with username: " . $username);
             }
+            
+            return false; // Return false if login fails
+        } catch (Exception $e) {
+            error_log("LoginController: Exception during login: " . $e->getMessage());
+            return false;
         }
-        return false; // Return false if login fails
     }
 }
 ?>

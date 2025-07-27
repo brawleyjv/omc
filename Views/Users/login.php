@@ -1,10 +1,31 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start(); // Start session only if not already started
+// Flexible path resolution for config.php to handle different server structures
+function findConfig($startDir) {
+    $paths = [
+        $startDir . '/../../config.php',              // Standard: Views/Users -> root
+        $startDir . '/../../../config.php',           // Nested: omc/omc/Views/Users -> omc/config.php  
+        $startDir . '/../../../../config.php',        // Deep nested
+    ];
+    
+    foreach ($paths as $path) {
+        if (file_exists($path)) {
+            return $path;
+        }
+    }
+    
+    // Search up directory tree as fallback
+    $current = $startDir;
+    for ($i = 0; $i < 6; $i++) {
+        if (file_exists($current . '/config.php')) {
+            return $current . '/config.php';
+        }
+        $current = dirname($current);
+    }
+    
+    die("Error: config.php not found");
 }
 
-// Correct path to config.php
-require_once __DIR__ . '/../../config.php'; // Updated to use __DIR__
+require_once findConfig(__DIR__);
 
 // Log session details for debugging
 error_log("Login.php: Session username: " . (isset($_SESSION['username']) ? $_SESSION['username'] : "Not set"));

@@ -1,5 +1,31 @@
 <?php
-require_once realpath(dirname(__FILE__) . '/../../config.php'); // Updated path
+// Flexible path resolution for config.php
+function findConfig($startDir) {
+    $paths = [
+        $startDir . '/../../config.php',              // Standard: public/Users -> root
+        $startDir . '/../../../config.php',           // Nested: omc/omc/public/Users -> omc/config.php  
+        $startDir . '/../../../../config.php',        // Deep nested
+    ];
+    
+    foreach ($paths as $path) {
+        if (file_exists($path)) {
+            return $path;
+        }
+    }
+    
+    // Search up directory tree as fallback
+    $current = $startDir;
+    for ($i = 0; $i < 6; $i++) {
+        if (file_exists($current . '/config.php')) {
+            return $current . '/config.php';
+        }
+        $current = dirname($current);
+    }
+    
+    die("Error: config.php not found");
+}
+
+require_once findConfig(__DIR__);
 require_once BASE_PATH . '/Models/Database.php'; // Ensure consistent path
 require_once BASE_PATH . '/Controllers/LoginController.php';
 
