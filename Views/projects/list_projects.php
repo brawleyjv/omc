@@ -19,12 +19,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_production_sta
     $projectId = $_POST['project_id'];
     $newStatus = $_POST['production_status'];
     
-    $updateQuery = "UPDATE projects SET production_status = :status WHERE id = :id";
-    $updateStmt = $db->prepare($updateQuery);
-    $updateStmt->execute([
-        ':status' => $newStatus,
-        ':id' => $projectId
-    ]);
+    // If changing to 'ready' or 'active', validate that an estimate exists
+    if (in_array($newStatus, ['ready', 'active'])) {
+        $checkQuery = "SELECT p.estimate_id, e.total_estimate 
+                       FROM projects p 
+                       LEFT JOIN estimates e ON p.estimate_id = e.id 
+                       WHERE p.id = :id";
+        $checkStmt = $db->prepare($checkQuery);
+        $checkStmt->execute([':id' => $projectId]);
+        $projectData = $checkStmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$projectData['estimate_id'] || !$projectData['total_estimate']) {
+            header("Location: " . BASE_URL . "Views/projects/list_projects.php?error=no_estimate");
+            exit;
+        }
+        
+        // Update cost_per_unit from estimate when going to ready/active
+        $updateQuery = "UPDATE projects 
+                        SET production_status = :status,
+                            cost_per_unit = (SELECT total_estimate FROM estimates WHERE id = :estimate_id)
+                        WHERE id = :id";
+        $updateStmt = $db->prepare($updateQuery);
+        $updateStmt->execute([
+            ':status' => $newStatus,
+            ':estimate_id' => $projectData['estimate_id'],
+            ':id' => $projectId
+        ]);
+    } else {
+        // For 'design' or 'discontinued', just update status
+        $updateQuery = "UPDATE projects SET production_status = :status WHERE id = :id";
+        $updateStmt = $db->prepare($updateQuery);
+        $updateStmt->execute([
+            ':status' => $newStatus,
+            ':id' => $projectId
+        ]);
+    }
     
     header("Location: " . BASE_URL . "Views/projects/list_projects.php?updated=1");
     exit;
@@ -149,6 +178,21 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="card" style="background-color: #f0f9ff; border-left: 4px solid #3b82f6;">
             <div class="card-body">
                 <h3 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: #1e40af;">📊 Production Status Guide</h3>
+                
+                <?php if (isset($_GET['error']) && $_GET['error'] === 'no_estimate'): ?>
+                    <div style="background: #fef2f2; border: 2px solid #dc2626; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+                        <strong style="color: #991b1b;">⚠️ Cannot Change Status:</strong>
+                        <span style="color: #7f1d1d;">This project requires an estimate before it can be marked as Ready or Active. Please create an estimate first.</span>
+                    </div>
+                <?php endif; ?>
+                
+                <?php if (isset($_GET['updated']) && $_GET['updated'] === '1'): ?>
+                    <div style="background: #f0fdf4; border: 2px solid #10b981; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+                        <strong style="color: #065f46;">✓ Status Updated:</strong>
+                        <span style="color: #064e3b;">Production status has been successfully changed.</span>
+                    </div>
+                <?php endif; ?>
+                
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; font-size: 0.875rem;">
                     <div>
                         <strong style="color: #6b7280;">📝 Design</strong>
@@ -159,13 +203,13 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div>
                         <strong style="color: #059669;">✅ Ready</strong>
                         <div style="color: #4b5563; margin-top: 0.25rem;">
-                            Approved design, ready to produce. <strong>Shows in inventory, can record batches.</strong>
+                            Approved design, ready to produce. <strong>Requires estimate. Shows in inventory.</strong>
                         </div>
                     </div>
                     <div>
                         <strong style="color: #dc2626;">🏭 Active</strong>
                         <div style="color: #4b5563; margin-top: 0.25rem;">
-                            Regular production item. <strong>Fully tracked, monitored for reorder points.</strong>
+                            Regular production item. <strong>Requires estimate. Fully tracked and monitored.</strong>
                         </div>
                     </div>
                     <div>

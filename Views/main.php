@@ -184,6 +184,15 @@ error_log("Main.php: Session username: " . (isset($_SESSION['username']) ? $_SES
                 <p class="menu-card-description">View stock levels, low stock alerts, and production history</p>
             </a>
 
+            <!-- Reports Hub Card -->
+            <a href="<?php echo BASE_URL; ?>Views/reports/index.php" class="menu-card" style="border-left: 4px solid #6366f1;">
+                <div class="menu-card-icon">
+                    <span class="icon">📊</span>
+                </div>
+                <h3 class="menu-card-title">Reports Hub</h3>
+                <p class="menu-card-description">Access all reports: Production, Inventory, Etsy Sales, and Financial Analytics</p>
+            </a>
+
             <!-- Etsy Integration Card -->
             <?php if ($etsyConnected): ?>
                 <a href="<?php echo BASE_URL; ?>public/etsy/dashboard.php" class="menu-card" style="border-left: 4px solid #f56400;">

@@ -35,6 +35,34 @@ $batchId = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'record_batch') {
     
+    // Get project and estimate to calculate costs
+    $project = $projectModel->getProjectById($_POST['project_id']);
+    $materialCost = 0;
+    $laborCost = 0;
+    
+    if ($project && $project['estimate_id']) {
+        // Get estimate costs
+        $estimateQuery = "SELECT materials_cost, labor_cost, machine_cost, subtotal FROM estimates WHERE id = :estimate_id";
+        $estimateStmt = $db->prepare($estimateQuery);
+        $estimateStmt->execute([':estimate_id' => $project['estimate_id']]);
+        $estimate = $estimateStmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($estimate) {
+            $quantityProduced = (int)$_POST['quantity_produced'];
+            
+            // Calculate per-unit costs from estimate
+            // Material cost per unit = materials_cost from estimate
+            $materialCost = $estimate['materials_cost'] ?? 0;
+            
+            // Labor cost per unit = labor_cost + machine_cost from estimate
+            $laborCost = ($estimate['labor_cost'] ?? 0) + ($estimate['machine_cost'] ?? 0);
+            
+            // Multiply by quantity produced for batch total
+            $materialCost = $materialCost * $quantityProduced;
+            $laborCost = $laborCost * $quantityProduced;
+        }
+    }
+    
     $data = [
         'project_id' => $_POST['project_id'],
         'batch_number' => $_POST['batch_number'] ?? null,
@@ -43,8 +71,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         'labor_hours' => !empty($_POST['labor_hours']) ? (float)$_POST['labor_hours'] : null,
         'laser_time' => !empty($_POST['laser_time']) ? (float)$_POST['laser_time'] : null,
         'mill_time' => !empty($_POST['mill_time']) ? (float)$_POST['mill_time'] : null,
-        'material_cost' => !empty($_POST['material_cost']) ? (float)$_POST['material_cost'] : null,
-        'labor_cost' => !empty($_POST['labor_cost']) ? (float)$_POST['labor_cost'] : null,
+        'material_cost' => $materialCost,
+        'labor_cost' => $laborCost,
         'notes' => $_POST['notes'] ?? null,
         'produced_by' => $_SESSION['username']
     ];
@@ -297,15 +325,9 @@ $lowStock = $productionModel->getLowStockProjects();
 
                         <!-- Row 2: Quantity and Machine Times -->
                         <div class="form-group col-2">
-                            <label for="quantity_produced" class="form-label required">Qty Produced</label>
+                            <label for="quantity_produced" class="form-label required">Quantity</label>
                             <input type="number" name="quantity_produced" id="quantity_produced" 
-                                   class="form-control narrow" min="1" required>
-                        </div>
-                        
-                        <div class="form-group col-2">
-                            <label for="batch_qty" class="form-label">Qty/Batch</label>
-                            <input type="number" name="batch_qty" id="batch_qty" 
-                                   class="form-control narrow" min="1" placeholder="1" value="1">
+                                   class="form-control narrow" min="1" required placeholder="Units made">
                         </div>
                         
                         <div class="form-group col-2">
@@ -401,7 +423,7 @@ $lowStock = $productionModel->getLowStockProjects();
     <script>
         // Calculate time per piece based on batch quantity
         function updateCostSummary() {
-            const batchQty = parseFloat(document.getElementById('batch_qty').value) || 1;
+            const batchQty = parseFloat(document.getElementById('quantity_produced').value) || 1;
             const laborHours = parseFloat(document.getElementById('labor_hours').value) || 0;
             const laserMins = parseFloat(document.getElementById('laser_time').value) || 0;
             const millMins = parseFloat(document.getElementById('mill_time').value) || 0;
@@ -427,7 +449,7 @@ $lowStock = $productionModel->getLowStockProjects();
         }
         
         // Attach event listeners
-        document.getElementById('batch_qty').addEventListener('input', updateCostSummary);
+        document.getElementById('quantity_produced').addEventListener('input', updateCostSummary);
         document.getElementById('labor_hours').addEventListener('input', updateCostSummary);
         document.getElementById('laser_time').addEventListener('input', updateCostSummary);
         document.getElementById('mill_time').addEventListener('input', updateCostSummary);

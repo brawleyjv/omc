@@ -104,6 +104,25 @@ If they DON'T exist, run these:
 
 ---
 
+### **Phase 7: Cost Integration & Reports (December 20, 2025)**
+
+**14. sync_project_cost_from_estimates.sql** - Sync project costs
+    - Updates `projects.cost_per_unit` from linked estimate totals
+    - Only affects projects with production_status = 'ready' or 'active'
+    - ⚠️ **Must run AFTER #8** (requires estimate_id in projects)
+    - ⚠️ **Must run AFTER #13** (requires cost_per_unit column)
+    - Purpose: Populates cost data for inventory value calculations
+
+**15. sync_batch_costs_from_estimates.sql** - Sync batch production costs
+    - Updates `production_batches` material_cost and labor_cost from estimates
+    - Calculates: material_cost = estimate.materials_cost × quantity_produced
+    - Calculates: labor_cost = (estimate.labor_cost + machine_cost) × quantity_produced
+    - ⚠️ **Must run AFTER #13** (requires production_batches table)
+    - ⚠️ **Must run AFTER #8** (requires projects linked to estimates)
+    - Purpose: Populates batch costs for profit analysis reports
+
+---
+
 ## ⚠️ CRITICAL CONFLICTS IDENTIFIED
 
 ### **Projects Table Conflicts:**
@@ -139,6 +158,8 @@ If they DON'T exist, run these:
 | create_etsy_tables.sql | settings, etsy_orders, etsy_sync_log | ALTER/CREATE | Low |
 | create_etsy_order_items.sql | etsy_order_items, etsy_product_mappings, etsy_orders | CREATE/ALTER | Low |
 | add_production_tracking.sql | projects, production_batches, inventory_transactions, etsy_order_items | ALTER/CREATE | Low |
+| sync_project_cost_from_estimates.sql | projects | UPDATE | Low |
+| sync_batch_costs_from_estimates.sql | production_batches | UPDATE | Low |
 
 **Note on Migration #13 (add_production_tracking.sql):**
 - `laser_time` and `mill_time` columns store time in **MINUTES** (not hours)
@@ -186,6 +207,8 @@ Since your production server is IONOS with phpMyAdmin access:
    ✅ 11. create_etsy_tables.sql
    ✅ 12. create_etsy_order_items.sql
    ⬜ 13. add_production_tracking.sql
+   ⬜ 14. sync_project_cost_from_estimates.sql
+   ⬜ 15. sync_batch_costs_from_estimates.sql
    ```
 
 4. **Verify After Each Migration:**
@@ -216,13 +239,15 @@ $migrations = @(
     'add_company_info_fields.sql',          # 9 - Settings: company
     'add_email_settings.sql',               # 10 - Settings: email
     'create_etsy_tables.sql',               # 11 - Etsy Phase 1
-    'create_etsy_order_items.sql',          # 12 - Etsy Phase 2.5
-    'add_production_tracking.sql'           # 13 - Production & Inventory
+    'create_etsy_order_items.sql',          # 12 - Etsy Phase 2
+    'add_production_tracking.sql',          # 13 - Production & Inventory
+    'sync_project_cost_from_estimates.sql', # 14 - Sync project costs
+    'sync_batch_costs_from_estimates.sql'   # 15 - Sync batch costs
 )
 
 $count = 1
 foreach ($file in $migrations) {
-    Write-Host "[$count/13] Running: $file" -ForegroundColor Yellow
+    Write-Host "[$count/15] Running: $file" -ForegroundColor Yellow
     
     # Check if file exists
     if (!(Test-Path "database\$file")) {
