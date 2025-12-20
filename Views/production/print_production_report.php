@@ -216,8 +216,69 @@ header('Content-Type: text/html; charset=utf-8');
             background-color: #fff3cd;
             border: 1px solid #ffc107;
         }
+        .date-filter {
+            margin: 10px 0;
+            padding: 15px;
+            background-color: #f0f9ff;
+            border: 1px solid #3b82f6;
+            border-radius: 4px;
+        }
+        .date-filter h4 {
+            margin: 0 0 10px 0;
+            color: #1e40af;
+        }
+        .date-filter form {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+        .date-filter .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .date-filter label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: #374151;
+        }
+        .date-filter input,
+        .date-filter select {
+            padding: 6px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+        .date-filter button {
+            padding: 7px 16px;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .date-filter button:hover {
+            background-color: #2563eb;
+        }
+        .quick-filters {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        .quick-filters button {
+            padding: 4px 10px;
+            background-color: white;
+            color: #3b82f6;
+            border: 1px solid #3b82f6;
+            font-size: 0.75rem;
+        }
+        .quick-filters button:hover {
+            background-color: #eff6ff;
+        }
         @media print {
-            .no-print {
+            .no-print, .date-filter {
                 display: none;
             }
             body {
@@ -238,8 +299,77 @@ header('Content-Type: text/html; charset=utf-8');
     <!-- Print Controls (hidden when printing) -->
     <div class="no-print">
         <button onclick="window.print()" style="padding: 8px 16px; font-size: 11pt; cursor: pointer;">🖨️ Print Report</button>
-        <button onclick="window.close()" style="padding: 8px 16px; font-size: 11pt; cursor: pointer; margin-left: 10px;">✖ Close</button>
+        <button onclick="exportCSV()" style="padding: 8px 16px; font-size: 11pt; cursor: pointer; margin-left: 10px; background-color: #10b981; color: white; border: none; border-radius: 4px;">📊 Export CSV</button>
+        <a href="<?php echo BASE_URL; ?>Views/reports/index.php" style="padding: 8px 16px; font-size: 11pt; cursor: pointer; margin-left: 10px; text-decoration: none; background: #fff; border: 1px solid #ddd; border-radius: 4px; display: inline-block;">✖ Close</a>
     </div>
+
+    <!-- Date Filter -->
+    <div class="date-filter">
+        <h4>📅 Filter Production Report</h4>
+        <form method="GET">
+            <div class="form-group">
+                <label>Start Date</label>
+                <input type="date" name="start_date" value="<?php echo htmlspecialchars($startDate); ?>" required>
+            </div>
+            <div class="form-group">
+                <label>End Date</label>
+                <input type="date" name="end_date" value="<?php echo htmlspecialchars($endDate); ?>" required>
+            </div>
+            <button type="submit">Apply Filter</button>
+        </form>
+        <div class="quick-filters">
+            <strong style="font-size: 0.875rem; margin-right: 10px;">Quick Filters:</strong>
+            <button onclick="setDateRange('today')">Today</button>
+            <button onclick="setDateRange('week')">This Week</button>
+            <button onclick="setDateRange('month')">This Month</button>
+            <button onclick="setDateRange('year')">This Year</button>
+            <button onclick="setDateRange('all')">All Time</button>
+        </div>
+    </div>
+
+    <script>
+        function exportCSV() {
+            const params = new URLSearchParams(window.location.search);
+            const startDate = params.get('start_date') || '<?php echo $startDate; ?>';
+            const endDate = params.get('end_date') || '<?php echo $endDate; ?>';
+            window.location.href = `<?php echo BASE_URL; ?>Views/production/export_production_csv.php?start_date=${startDate}&end_date=${endDate}`;
+        }
+        
+        function setDateRange(range) {
+            const today = new Date();
+            let startDate, endDate;
+            
+            switch(range) {
+                case 'today':
+                    startDate = endDate = formatDate(today);
+                    break;
+                case 'week':
+                    const weekStart = new Date(today);
+                    weekStart.setDate(today.getDate() - today.getDay());
+                    startDate = formatDate(weekStart);
+                    endDate = formatDate(today);
+                    break;
+                case 'month':
+                    startDate = formatDate(new Date(today.getFullYear(), today.getMonth(), 1));
+                    endDate = formatDate(today);
+                    break;
+                case 'year':
+                    startDate = formatDate(new Date(today.getFullYear(), 0, 1));
+                    endDate = formatDate(today);
+                    break;
+                case 'all':
+                    startDate = '2020-01-01';
+                    endDate = formatDate(today);
+                    break;
+            }
+            
+            window.location.href = `?start_date=${startDate}&end_date=${endDate}`;
+        }
+        
+        function formatDate(date) {
+            return date.toISOString().split('T')[0];
+        }
+    </script>
 
     <!-- Header -->
     <div class="header">

@@ -93,8 +93,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
-// Get all projects for dropdown (active or ready for production)
-$allProjects = $projectModel->getAllProjects();
+// Get projects ready for production (ready or active status only)
+$projectsQuery = "SELECT id, project_name, inventory_quantity 
+                  FROM projects 
+                  WHERE production_status IN ('ready', 'active') 
+                  ORDER BY project_name ASC";
+$projectsStmt = $db->prepare($projectsQuery);
+$projectsStmt->execute();
+$allProjects = $projectsStmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Generate suggested batch number for today
 $suggestedBatchNumber = $productionModel->generateBatchNumber(date('Y-m-d'));

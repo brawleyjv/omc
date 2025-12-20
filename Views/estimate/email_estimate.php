@@ -2,8 +2,14 @@
 require_once realpath(dirname(__FILE__) . '/../../config.php');
 require_once BASE_PATH . 'Models/Database.php';
 require_once BASE_PATH . 'Models/EstimateModel.php';
+require_once BASE_PATH . '/Models/Settings.php';
 
 use MyApp\Models\Database;
+use Models\Settings;
+
+// Get email settings
+$settingsModel = new Settings();
+$settings = $settingsModel->getSettings();
 
 // Get estimate by ID
 $estimateId = $_GET['id'] ?? null;
@@ -57,20 +63,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $emailBody .= "To view the full detailed estimate, please visit:\n";
             $emailBody .= BASE_URL . "Views/estimate/print_estimate.php?id=" . $estimate['id'] . "\n\n";
             $emailBody .= "Thank you for your business!\n";
-            $emailBody .= "Ozark Made Crafts\n";
+            $emailBody .= ($settings['company_name'] ?? 'Ozark Made Crafts') . "\n";
             
-            // Email headers
-            $headers = "From: Ozark Made Crafts <noreply@ozarkmadecrafts.com>\r\n";
-            $headers .= "Reply-To: " . ($estimate['customer_email'] ?? 'noreply@ozarkmadecrafts.com') . "\r\n";
-            $headers .= "X-Mailer: PHP/" . phpversion();
+            // Get SMTP settings
+            $smtp_host = $settings['smtp_host'] ?? '';
+            $smtp_port = $settings['smtp_port'] ?? 587;
+            $smtp_username = $settings['smtp_username'] ?? '';
+            $smtp_password = $settings['smtp_password'] ?? '';
+            $smtp_from_email = $settings['smtp_from_email'] ?? 'noreply@example.com';
+            $smtp_from_name = $settings['smtp_from_name'] ?? 'Ozark Made Crafts';
+            $smtp_encryption = $settings['smtp_encryption'] ?? 'tls';
             
-            // Send email
-            if (mail($toEmail, $subject, $emailBody, $headers)) {
-                // Update estimate status to sent
-                $estimateModel->updateStatus($estimateId, 'sent');
-                $sent = true;
+            // Validate SMTP settings
+            if (empty($smtp_host) || empty($smtp_username) || empty($smtp_password)) {
+                $error = "Email is not configured. Please set up SMTP settings in the Settings page.";
             } else {
-                $error = "Failed to send email. Please check your mail server configuration.";
+                // Use basic mail() function with proper headers
+                $headers = "From: " . $smtp_from_name . " <" . $smtp_from_email . ">\r\n";
+                $headers .= "Reply-To: " . ($estimate['customer_email'] ?? $smtp_from_email) . "\r\n";
+                $headers .= "X-Mailer: PHP/" . phpversion();
+                
+                // Configure mail settings using ini_set
+                ini_set('SMTP', $smtp_host);
+                ini_set('smtp_port', $smtp_port);
+                
+                // Send email
+                if (mail($toEmail, $subject, $emailBody, $headers)) {
+                    // Update estimate status to sent
+                    $estimateModel->updateStatus($estimateId, 'sent');
+                    $sent = true;
+                } else {
+                    $error = "Failed to send email. Please verify your SMTP settings in the Settings page.";
+                }
             }
             
         } catch (Exception $e) {

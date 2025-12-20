@@ -289,7 +289,7 @@ try {
                     </style>
                 </head>
                 <body>
-                    <button class="close-button" onclick="window.close()">Close</button>
+                    <button class="close-button" onclick="window.history.back()">Close</button>
                     <img src="${url}" alt="Equipment Image">
                 </body>
                 </html>

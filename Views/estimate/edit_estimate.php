@@ -7,6 +7,7 @@ use MyApp\Models\Database;
 
 // Get estimate by ID
 $estimateId = $_GET['id'] ?? null;
+$isCloning = isset($_GET['clone']);
 $estimate = null;
 
 if ($estimateId) {
@@ -15,6 +16,13 @@ if ($estimateId) {
         $conn = $database->getPdo();
         $estimateModel = new EstimateModel($conn);
         $estimate = $estimateModel->getEstimateById($estimateId);
+        
+        // Get existing customers for dropdown
+        $customersQuery = "SELECT id, customer_name, email, phone FROM customers ORDER BY customer_name ASC";
+        $customersStmt = $conn->prepare($customersQuery);
+        $customersStmt->execute();
+        $existingCustomers = $customersStmt->fetchAll(PDO::FETCH_ASSOC);
+        
     } catch (Exception $e) {
         error_log("Error loading estimate: " . $e->getMessage());
     }
@@ -79,7 +87,9 @@ if (!$estimate) {
             </div>
             <nav class="header-nav">
                 <a href="<?php echo BASE_URL; ?>Views/main.php" class="nav-link">Dashboard</a>
+                <a href="<?php echo BASE_URL; ?>Views/estimate/estimate.php" class="nav-link">Estimates Home</a>
                 <a href="<?php echo BASE_URL; ?>Views/estimate/list_estimates.php" class="nav-link">All Estimates</a>
+                <a href="<?php echo BASE_URL; ?>Views/estimate/create_new_estimate.php" class="nav-link">Create New</a>
             </nav>
         </div>
     </header>

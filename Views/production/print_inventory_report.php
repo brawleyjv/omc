@@ -289,7 +289,7 @@ header('Content-Type: text/html; charset=utf-8');
     <!-- Print Controls (hidden when printing) -->
     <div class="no-print">
         <button onclick="window.print()" style="padding: 8px 16px; font-size: 11pt; cursor: pointer;">🖨️ Print Report</button>
-        <button onclick="window.close()" style="padding: 8px 16px; font-size: 11pt; cursor: pointer; margin-left: 10px;">✖ Close</button>
+        <a href="<?php echo BASE_URL; ?>Views/reports/index.php" style="padding: 8px 16px; font-size: 11pt; cursor: pointer; margin-left: 10px; text-decoration: none; background: #fff; border: 1px solid #ddd; border-radius: 4px; display: inline-block;">✖ Close</a>
         <div style="margin-top: 10px; font-size: 9pt;">
             <strong>Filters:</strong>
             <a href="?">All Projects</a> |

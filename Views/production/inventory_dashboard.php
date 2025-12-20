@@ -28,6 +28,22 @@ $db = $database->getPdo();
 $projectModel = new ProjectModel($db);
 $productionModel = new ProductionModel($db);
 
+// Handle inventory adjustment
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['adjust_inventory'])) {
+    $projectId = $_POST['project_id'];
+    $adjustment = (int)$_POST['adjustment'];
+    $reason = $_POST['reason'] ?? 'Manual adjustment';
+    
+    if ($adjustment > 0) {
+        $productionModel->increaseInventory($projectId, $adjustment, 'adjustment', $reason);
+    } elseif ($adjustment < 0) {
+        $productionModel->decreaseInventory($projectId, abs($adjustment), 'adjustment', $reason);
+    }
+    
+    header("Location: " . BASE_URL . "Views/production/inventory_dashboard.php?adjusted=1");
+    exit();
+}
+
 // Get inventory summary
 $summary = $productionModel->getInventorySummary();
 
@@ -231,6 +247,12 @@ $recentTransactions = $transStmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="card-header">
                 <h2 class="card-title">Inventory Levels</h2>
                 <div style="margin-left: auto;">
+                    <a href="<?php echo BASE_URL; ?>Views/production/export_inventory_csv.php" 
+                       class="btn btn-sm" 
+                       style="background-color: #10b981; color: white;"
+                       title="Export to CSV/Excel">
+                        📊 Export CSV
+                    </a>
                     <a href="<?php echo BASE_URL; ?>Views/production/print_inventory_report.php" 
                        target="_blank" 
                        class="btn btn-primary btn-sm" 
@@ -260,6 +282,7 @@ $recentTransactions = $transStmt->fetchAll(PDO::FETCH_ASSOC);
                             <th>Reorder Point</th>
                             <th>Batch Size</th>
                             <th>Cost/Unit</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -291,6 +314,13 @@ $recentTransactions = $transStmt->fetchAll(PDO::FETCH_ASSOC);
                                 <td><?php echo $project['batch_size']; ?> units</td>
                                 <td>
                                     <?php echo $project['cost_per_unit'] ? '$' . number_format($project['cost_per_unit'], 2) : '-'; ?>
+                                </td>
+                                <td>
+                                    <button onclick="showAdjustModal(<?php echo $project['id']; ?>, '<?php echo htmlspecialchars($project['project_name'], ENT_QUOTES); ?>', <?php echo $stock; ?>)" 
+                                            class="btn btn-sm btn-outline" 
+                                            style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">
+                                        ✏️ Adjust
+                                    </button>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -346,5 +376,89 @@ $recentTransactions = $transStmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
         <?php endif; ?>
     </div>
+
+    <!-- Inventory Adjustment Modal -->
+    <div id="adjustModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 2rem; border-radius: 8px; max-width: 500px; width: 90%;">
+            <h3 style="margin: 0 0 1rem 0;">Adjust Inventory</h3>
+            <form method="POST" id="adjustForm">
+                <input type="hidden" name="adjust_inventory" value="1">
+                <input type="hidden" name="project_id" id="adjustProjectId">
+                
+                <div style="margin-bottom: 1rem;">
+                    <strong id="adjustProjectName"></strong>
+                    <div style="color: #6b7280; font-size: 0.875rem;">
+                        Current Stock: <span id="adjustCurrentStock"></span> units
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
+                        Adjustment (+/- units)
+                    </label>
+                    <input type="number" name="adjustment" id="adjustmentAmount" 
+                           class="form-control" required 
+                           placeholder="e.g., +10, -5"
+                           style="font-size: 1rem;">
+                    <div style="color: #6b7280; font-size: 0.75rem; margin-top: 0.25rem;">
+                        Positive number to add, negative to subtract
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
+                        Reason
+                    </label>
+                    <select name="reason" class="form-control" style="font-size: 0.875rem;">
+                        <option value="Manual adjustment">Manual adjustment</option>
+                        <option value="Damaged items">Damaged items</option>
+                        <option value="Lost items">Lost items</option>
+                        <option value="Found items">Found items</option>
+                        <option value="Inventory count correction">Inventory count correction</option>
+                        <option value="Return from customer">Return from customer</option>
+                        <option value="Sample/Demo">Sample/Demo</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                    <button type="button" onclick="closeAdjustModal()" class="btn btn-outline">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        Update Inventory
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function showAdjustModal(projectId, projectName, currentStock) {
+            document.getElementById('adjustProjectId').value = projectId;
+            document.getElementById('adjustProjectName').textContent = projectName;
+            document.getElementById('adjustCurrentStock').textContent = currentStock;
+            document.getElementById('adjustmentAmount').value = '';
+            document.getElementById('adjustModal').style.display = 'flex';
+        }
+
+        function closeAdjustModal() {
+            document.getElementById('adjustModal').style.display = 'none';
+        }
+
+        // Close modal on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeAdjustModal();
+            }
+        });
+
+        // Close modal on background click
+        document.getElementById('adjustModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAdjustModal();
+            }
+        });
+    </script>
 </body>
 </html>

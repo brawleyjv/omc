@@ -31,8 +31,21 @@ try {
         $bitChangeRate = $rates['bit_change_rate'];
         $customizeRate = $rates['customize_rate'];
     }
+    
+    // Get existing projects for dropdown
+    $projectsQuery = "SELECT DISTINCT project_name FROM projects ORDER BY project_name ASC";
+    $projectsStmt = $conn->prepare($projectsQuery);
+    $projectsStmt->execute();
+    $existingProjects = $projectsStmt->fetchAll(PDO::FETCH_COLUMN);
+    
+    // Get existing customers for dropdown
+    $customersQuery = "SELECT id, name, email, phone, address, city, state, zip FROM customers ORDER BY name ASC";
+    $customersStmt = $conn->prepare($customersQuery);
+    $customersStmt->execute();
+    $existingCustomers = $customersStmt->fetchAll(PDO::FETCH_ASSOC);
+    
 } catch (Exception $e) {
-    error_log("Error loading rates: " . $e->getMessage());
+    error_log("Error loading data: " . $e->getMessage());
 }
 ?>
 <!DOCTYPE html>
@@ -85,6 +98,24 @@ try {
             font-size: 1.2rem;
             color: #0066cc;
         }
+        .customer-type-section {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        .radio-group {
+            display: flex;
+            gap: 2rem;
+        }
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        #customer-fields {
+            margin-top: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -100,7 +131,9 @@ try {
             </div>
             <nav class="header-nav">
                 <a href="<?php echo BASE_URL; ?>Views/main.php" class="nav-link">Dashboard</a>
+                <a href="<?php echo BASE_URL; ?>Views/estimate/estimate.php" class="nav-link">Estimates Home</a>
                 <a href="<?php echo BASE_URL; ?>Views/estimate/list_estimates.php" class="nav-link">All Estimates</a>
+                <a href="<?php echo BASE_URL; ?>Views/estimate/create_new_estimate.php" class="nav-link" style="background-color: rgba(255, 255, 255, 0.1);">Create New</a>
             </nav>
         </div>
     </header>
@@ -113,20 +146,97 @@ try {
             <div class="card">
                 <div class="card-header">
                     <h2 class="card-title">Customer Information</h2>
+                    <p class="card-subtitle">Leave blank for base project estimate (no specific customer)</p>
                 </div>
                 <div class="card-body">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="customer_name" class="form-label">Customer Name *</label>
-                            <input type="text" id="customer_name" name="customer_name" class="form-control" required>
+                    <div class="customer-type-section">
+                        <label class="form-label">Estimate Type:</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="type-base" name="estimate_type" value="base" checked onchange="toggleCustomerFields()">
+                                <label for="type-base">Base Project (No Customer)</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="type-customer" name="estimate_type" value="customer" onchange="toggleCustomerFields()">
+                                <label for="type-customer">Customer-Specific</label>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="customer_email" class="form-label">Email</label>
-                            <input type="email" id="customer_email" name="customer_email" class="form-control">
+                    </div>
+                    
+                    <div id="customer-fields" style="display: none;">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="customer_select" class="form-label">Select Existing Customer</label>
+                                <select id="customer_select" class="form-control" onchange="fillCustomerInfo()">
+                                    <option value="">-- Select Customer or Enter New --</option>
+                                    <?php foreach ($existingCustomers as $customer): ?>
+                                        <option value="<?php echo $customer['id']; ?>" 
+                                                data-name="<?php echo htmlspecialchars($customer['name'] ?? $customer['customer_name'] ?? ''); ?>"
+                                                data-email="<?php echo htmlspecialchars($customer['email'] ?? ''); ?>"
+                                                data-phone="<?php echo htmlspecialchars($customer['phone'] ?? ''); ?>"
+                                                data-address="<?php echo htmlspecialchars($customer['address'] ?? ''); ?>"
+                                                data-city="<?php echo htmlspecialchars($customer['city'] ?? ''); ?>"
+                                                data-state="<?php echo htmlspecialchars($customer['state'] ?? ''); ?>"
+                                                data-zip="<?php echo htmlspecialchars($customer['zip'] ?? ''); ?>">
+                                            <?php echo htmlspecialchars($customer['name'] ?? $customer['customer_name'] ?? ''); ?>
+                                            <?php if ($customer['email']): ?>
+                                                (<?php echo htmlspecialchars($customer['email']); ?>)
+                                            <?php endif; ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="customer_phone" class="form-label">Phone</label>
-                            <input type="tel" id="customer_phone" name="customer_phone" class="form-control">
+                        
+                        <h4 style="margin-top: 1.5rem; margin-bottom: 1rem;">Basic Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="customer_name" class="form-label">Customer Name *</label>
+                                <input type="text" id="customer_name" name="customer_name" class="form-control" placeholder="Enter full customer name">
+                            </div>
+                        </div>
+                        
+                        <h4 style="margin-top: 1.5rem; margin-bottom: 1rem;">Contact Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="customer_phone" class="form-label">Phone Number</label>
+                                <input type="tel" id="customer_phone" name="customer_phone" class="form-control" placeholder="(555) 123-4567">
+                            </div>
+                            <div class="form-group">
+                                <label for="customer_email" class="form-label">Email Address</label>
+                                <input type="email" id="customer_email" name="customer_email" class="form-control" placeholder="customer@example.com">
+                            </div>
+                        </div>
+                        
+                        <h4 style="margin-top: 1.5rem; margin-bottom: 1rem;">Address Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="customer_address" class="form-label">Street Address</label>
+                                <input type="text" id="customer_address" name="customer_address" class="form-control" placeholder="123 Main Street">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="customer_city" class="form-label">City</label>
+                                <input type="text" id="customer_city" name="customer_city" class="form-control" placeholder="City">
+                            </div>
+                            <div class="form-group">
+                                <label for="customer_state" class="form-label">State</label>
+                                <input type="text" id="customer_state" name="customer_state" class="form-control" placeholder="AR" maxlength="2">
+                            </div>
+                            <div class="form-group">
+                                <label for="customer_zip" class="form-label">Zip Code</label>
+                                <input type="text" id="customer_zip" name="customer_zip" class="form-control" placeholder="12345" maxlength="5">
+                            </div>
+                        </div>
+                        
+                        <h4 style="margin-top: 1.5rem; margin-bottom: 1rem;">Additional Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="customer_notes" class="form-label">Notes</label>
+                                <textarea id="customer_notes" name="customer_notes" class="form-control" rows="3" placeholder="Add any additional notes about the customer or project..."></textarea>
+                                <small class="form-text">Optional notes about the customer or project requirements</small>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -141,7 +251,13 @@ try {
                     <div class="form-row">
                         <div class="form-group">
                             <label for="project_name" class="form-label">Project Name *</label>
-                            <input type="text" id="project_name" name="project_name" class="form-control" required>
+                            <input type="text" id="project_name" name="project_name" class="form-control" list="existing-projects" required placeholder="Type new name or select existing">
+                            <datalist id="existing-projects">
+                                <?php foreach ($existingProjects as $projectName): ?>
+                                    <option value="<?php echo htmlspecialchars($projectName); ?>">
+                                <?php endforeach; ?>
+                            </datalist>
+                            <small class="form-text">Start typing to see existing projects or enter a new name</small>
                         </div>
                     </div>
                     <div class="form-row">
@@ -438,6 +554,46 @@ try {
         window.onload = function() {
             addMaterialRow();
         };
+        
+        // Toggle customer fields based on estimate type
+        function toggleCustomerFields() {
+            const isCustomerEstimate = document.getElementById('type-customer').checked;
+            const customerFields = document.getElementById('customer-fields');
+            customerFields.style.display = isCustomerEstimate ? 'block' : 'none';
+            
+            // Clear customer fields if switching to base project
+            if (!isCustomerEstimate) {
+                document.getElementById('customer_name').value = '';
+                document.getElementById('customer_email').value = '';
+                document.getElementById('customer_phone').value = '';
+                document.getElementById('customer_select').value = '';
+            }
+        }
+        
+        // Fill customer info from dropdown selection
+        function fillCustomerInfo() {
+            const select = document.getElementById('customer_select');
+            const selectedOption = select.options[select.selectedIndex];
+            
+            if (selectedOption.value) {
+                document.getElementById('customer_name').value = selectedOption.getAttribute('data-name') || '';
+                document.getElementById('customer_email').value = selectedOption.getAttribute('data-email') || '';
+                document.getElementById('customer_phone').value = selectedOption.getAttribute('data-phone') || '';
+                document.getElementById('customer_address').value = selectedOption.getAttribute('data-address') || '';
+                document.getElementById('customer_city').value = selectedOption.getAttribute('data-city') || '';
+                document.getElementById('customer_state').value = selectedOption.getAttribute('data-state') || '';
+                document.getElementById('customer_zip').value = selectedOption.getAttribute('data-zip') || '';
+            } else {
+                // Clear fields if "Select Customer" is chosen
+                document.getElementById('customer_name').value = '';
+                document.getElementById('customer_email').value = '';
+                document.getElementById('customer_phone').value = '';
+                document.getElementById('customer_address').value = '';
+                document.getElementById('customer_city').value = '';
+                document.getElementById('customer_state').value = '';
+                document.getElementById('customer_zip').value = '';
+            }
+        }
     </script>
 </body>
 </html>

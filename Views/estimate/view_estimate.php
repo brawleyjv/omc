@@ -15,6 +15,19 @@ if ($estimateId) {
         $conn = $database->getPdo();
         $estimateModel = new EstimateModel($conn);
         $estimate = $estimateModel->getEstimateById($estimateId);
+        
+        // Get rates to calculate individual costs
+        $ratesQuery = "SELECT mill_rate, laser_rate, labor_rate, bit_change_rate, customize_rate FROM setup LIMIT 1";
+        $ratesStmt = $conn->prepare($ratesQuery);
+        $ratesStmt->execute();
+        $rates = $ratesStmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Calculate individual machine costs
+        $routerCost = $estimate['router_time'] * ($rates['mill_rate'] ?? 0.85);
+        $laserCost = $estimate['laser_time'] * ($rates['laser_rate'] ?? 0.50);
+        $bitChangeCost = ($estimate['bit_changes'] ?? 0) * ($rates['bit_change_rate'] ?? 5.00);
+        $customizationCost = ($estimate['needs_customization'] ?? 0) ? ($rates['customize_rate'] ?? 5.00) : 0;
+        
     } catch (Exception $e) {
         error_log("Error loading estimate: " . $e->getMessage());
     }
@@ -89,13 +102,24 @@ if (!$estimate) {
             </div>
             <nav class="header-nav">
                 <a href="<?php echo BASE_URL; ?>Views/main.php" class="nav-link">Dashboard</a>
+                <a href="<?php echo BASE_URL; ?>Views/estimate/estimate.php" class="nav-link">Estimates Home</a>
                 <a href="<?php echo BASE_URL; ?>Views/estimate/list_estimates.php" class="nav-link">All Estimates</a>
+                <a href="<?php echo BASE_URL; ?>Views/estimate/create_new_estimate.php" class="nav-link">Create New</a>
             </nav>
         </div>
     </header>
 
     <!-- Main Content -->
     <main class="main-container">
+        
+        <?php if (isset($_GET['success'])): ?>
+        <div class="notification notification-success mb-4 no-print">
+            ✅ Estimate created successfully! 
+            <a href="<?php echo BASE_URL; ?>Views/estimate/print_estimate.php?id=<?php echo $estimate['id']; ?>" target="_blank" style="margin-left: 15px; text-decoration: underline; color: inherit; font-weight: bold;">
+                🖨️ Click here to print now
+            </a>
+        </div>
+        <?php endif; ?>
         
         <!-- Estimate Header -->
         <div class="estimate-header">
@@ -143,7 +167,7 @@ if (!$estimate) {
         <!-- Time Breakdown -->
         <div class="card mt-4">
             <div class="card-header">
-                <h2 class="card-title">Time Estimates</h2>
+                <h2 class="card-title">Labor & Machine Time</h2>
             </div>
             <div class="card-body">
                 <div class="table-container">
@@ -152,31 +176,46 @@ if (!$estimate) {
                             <tr>
                                 <th>Type</th>
                                 <th>Time</th>
-                                <th>Cost</th>
+                                <th style="text-align: right;">Cost</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>Router Time</td>
+                                <td>CNC Router Time</td>
                                 <td><?php echo number_format($estimate['router_time'], 2); ?> minutes</td>
-                                <td rowspan="3" style="vertical-align: middle; text-align: right; font-size: 1.2rem;">
-                                    <strong>$<?php echo number_format($estimate['machine_cost'], 2); ?></strong>
-                                </td>
+                                <td style="text-align: right;">$<?php echo number_format($routerCost, 2); ?></td>
                             </tr>
                             <tr>
                                 <td>Laser Time</td>
                                 <td><?php echo number_format($estimate['laser_time'], 2); ?> minutes</td>
+                                <td style="text-align: right;">$<?php echo number_format($laserCost, 2); ?></td>
                             </tr>
                             <tr>
                                 <td>Labor Hours</td>
                                 <td><?php echo number_format($estimate['labor_hours'], 2); ?> hours</td>
+                                <td style="text-align: right;">$<?php echo number_format($estimate['labor_cost'], 2); ?></td>
                             </tr>
+                            <?php if ($bitChangeCost > 0): ?>
                             <tr>
-                                <td colspan="2"><strong>Labor Cost</strong></td>
-                                <td style="text-align: right; font-size: 1.2rem;">
-                                    <strong>$<?php echo number_format($estimate['labor_cost'], 2); ?></strong>
-                                </td>
+                                <td>Bit Changes</td>
+                                <td><?php echo ($estimate['bit_changes'] ?? 0); ?> changes</td>
+                                <td style="text-align: right;">$<?php echo number_format($bitChangeCost, 2); ?></td>
                             </tr>
+                            <?php endif; ?>
+                            <?php if ($customizationCost > 0): ?>
+                            <tr>
+                                <td>Customization</td>
+                                <td>Yes</td>
+                                <td style="text-align: right;">$<?php echo number_format($customizationCost, 2); ?></td>
+                            </tr>
+                            <?php endif; ?>
+                            <?php if (($estimate['shipping_cost'] ?? 0) > 0): ?>
+                            <tr>
+                                <td>Shipping/Packaging</td>
+                                <td>-</td>
+                                <td style="text-align: right;">$<?php echo number_format($estimate['shipping_cost'], 2); ?></td>
+                            </tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -263,9 +302,6 @@ if (!$estimate) {
         <div class="total-box">
             <h3>Total Estimate</h3>
             <div class="total-amount">$<?php echo number_format($estimate['total_estimate'], 2); ?></div>
-            <p style="margin-top: 1rem; color: #666;">
-                <small>Formula Applied: (Materials Cost / 0.3) + ((Labor Time × Hourly Rate) / 0.2) + Additional Items</small>
-            </p>
         </div>
 
         <?php if ($estimate['notes']): ?>
@@ -282,17 +318,17 @@ if (!$estimate) {
 
         <!-- Actions -->
         <div class="form-actions mt-4 no-print">
-            <button onclick="window.print()" class="btn btn-primary">
-                <span class="icon">🖨️</span> Print
-            </button>
             <a href="<?php echo BASE_URL; ?>Views/estimate/print_estimate.php?id=<?php echo $estimate['id']; ?>" target="_blank" class="btn btn-primary">
-                <span class="icon">📄</span> Download PDF
+                <span class="icon">🖨️</span> Print Estimate
             </a>
             <a href="<?php echo BASE_URL; ?>Views/estimate/email_estimate.php?id=<?php echo $estimate['id']; ?>" class="btn btn-primary">
                 <span class="icon">📧</span> Email to Customer
             </a>
             <a href="<?php echo BASE_URL; ?>Views/estimate/edit_estimate.php?id=<?php echo $estimate['id']; ?>" class="btn btn-secondary">
                 <span class="icon">✏️</span> Edit Estimate
+            </a>
+            <a href="<?php echo BASE_URL; ?>public/Estimate/clone_estimate.php?id=<?php echo $estimate['id']; ?>" class="btn btn-secondary">
+                <span class="icon">📋</span> Clone for Customer
             </a>
             
             <?php if ($estimate['status'] == 'draft'): ?>

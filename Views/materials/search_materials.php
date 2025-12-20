@@ -251,7 +251,7 @@ if (!empty($search_term)) {
                     </style>
                 </head>
                 <body>
-                    <button class="close-button" onclick="window.close()">Close</button>
+                    <button class="close-button" onclick="window.history.back()">Close</button>
                     <img src="${url}" alt="Material Image" onerror="this.style.display='none'; document.body.innerHTML='<p style=color:white;text-align:center;>Image could not be loaded</p>';">
                 </body>
                 </html>

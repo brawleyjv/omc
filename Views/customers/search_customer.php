@@ -2,6 +2,8 @@
 require_once __DIR__ . '/../../config.php';
 require_once BASE_PATH . '/Models/CustomerModel.php';
 
+use MyApp\Models\CustomerModel;
+
 // Initialize search results
 $customers = [];
 $searchQuery = '';
@@ -141,7 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search_query'])) {
                                 <thead>
                                     <tr>
                                         <th>Name</th>
-                                        <th>Company</th>
+                                        <th>Project</th>
                                         <th>Email</th>
                                         <th>Phone</th>
                                         <th>Location</th>
@@ -154,7 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search_query'])) {
                                             <td>
                                                 <strong><?php echo htmlspecialchars($customer['name'] ?? ''); ?></strong>
                                             </td>
-                                            <td><?php echo htmlspecialchars($customer['company'] ?? 'N/A'); ?></td>
+                                            <td><?php echo htmlspecialchars($customer['Project'] ?? 'N/A'); ?></td>
                                             <td>
                                                 <?php if (!empty($customer['email'])): ?>
                                                     <a href="mailto:<?php echo htmlspecialchars($customer['email']); ?>" class="text-primary">
@@ -190,6 +192,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search_query'])) {
                                                     <a href="<?php echo BASE_URL; ?>Views/customers/edit_customer.php?id=<?php echo $customer['id']; ?>" 
                                                        class="btn btn-ghost btn-sm" title="Edit Customer">
                                                         <span class="icon">✏️</span>
+                                                    </a>
+                                                    <a href="<?php echo BASE_URL; ?>Views/estimate/list_estimates.php?customer=<?php echo urlencode($customer['name']); ?>" 
+                                                       class="btn btn-ghost btn-sm" title="View Estimates">
+                                                        <span class="icon">📋</span>
                                                     </a>
                                                 </div>
                                             </td>

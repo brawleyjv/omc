@@ -129,7 +129,7 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </style>
                 </head>
                 <body>
-                    <button class="close-button" onclick="window.close()">Close</button>
+                    <button class="close-button" onclick="window.history.back()">Close</button>
                     <img src="${url}" alt="Project Image" 
                          onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                     <div class="error-message" style="display:none;">

@@ -33,7 +33,7 @@ require_once realpath(dirname(__FILE__) . '/../../config.php');
                     </style>
                 </head>
                 <body>
-                    <button class="close-btn" onclick="window.close()">Close</button>
+                    <button class="close-btn" onclick="window.history.back()">Close</button>
                     <img src="${url}" alt="Material Image" onerror="this.style.display='none'; document.body.innerHTML='<p>Image could not be loaded</p>';">
                 </body>
                 </html>

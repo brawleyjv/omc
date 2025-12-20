@@ -34,16 +34,17 @@ class CustomerModel {
                 WHERE name LIKE ? 
                    OR email LIKE ? 
                    OR phone LIKE ? 
-                   OR company LIKE ? 
                    OR city LIKE ? 
                    OR state LIKE ? 
                    OR address LIKE ?
+                   OR zip LIKE ?
+                   OR notes LIKE ?
                 ORDER BY name ASC";
         
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
             $searchTerm, $searchTerm, $searchTerm, $searchTerm, 
-            $searchTerm, $searchTerm, $searchTerm
+            $searchTerm, $searchTerm, $searchTerm, $searchTerm
         ]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

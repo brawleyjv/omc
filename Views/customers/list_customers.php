@@ -154,6 +154,11 @@ try {
                                         </td>
                                         <td>
                                             <div class="action-buttons">
+                                                <a href="<?php echo BASE_URL; ?>Views/estimate/list_estimates.php?customer=<?php echo urlencode($customer['name']); ?>" 
+                                                   class="btn btn-primary btn-sm" title="View Estimates">
+                                                    <span class="icon">📋</span>
+                                                    Estimates
+                                                </a>
                                                 <a href="<?php echo BASE_URL; ?>Views/customers/edit_customer.php?id=<?php echo htmlspecialchars($customer['id'] ?? ''); ?>" 
                                                    class="btn btn-ghost btn-sm" title="Edit Customer">
                                                     <span class="icon">✏️</span>

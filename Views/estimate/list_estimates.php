@@ -5,12 +5,28 @@ require_once BASE_PATH . 'Models/EstimateModel.php';
 
 use MyApp\Models\Database;
 
+// Get search query
+$searchQuery = $_GET['search'] ?? '';
+
 // Get all estimates
 try {
     $database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
     $conn = $database->getPdo();
     $estimateModel = new EstimateModel($conn);
-    $estimates = $estimateModel->getAllEstimates();
+    
+    // If search query exists, filter estimates
+    if (!empty($searchQuery)) {
+        $sql = "SELECT * FROM estimates 
+                WHERE estimate_number LIKE :search 
+                OR customer_name LIKE :search 
+                OR project_name LIKE :search 
+                ORDER BY created_at DESC";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([':search' => '%' . $searchQuery . '%']);
+        $estimates = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } else {
+        $estimates = $estimateModel->getAllEstimates();
+    }
 } catch (Exception $e) {
     error_log("Error loading estimates: " . $e->getMessage());
     $estimates = [];
@@ -46,13 +62,15 @@ try {
         <div class="header-content">
             <div class="header-brand">
                 <div class="header-brand-text">
-                    <h1>Estimates</h1>
-                    <p>Manage all project estimates and quotes</p>
+                    <h1>All Estimates</h1>
+                    <p>Browse and manage your estimates</p>
                 </div>
             </div>
             <nav class="header-nav">
                 <a href="<?php echo BASE_URL; ?>Views/main.php" class="nav-link">Dashboard</a>
-                <a href="<?php echo BASE_URL; ?>Views/estimate/create_new_estimate.php" class="nav-link">Create Estimate</a>
+                <a href="<?php echo BASE_URL; ?>Views/estimate/estimate.php" class="nav-link">Estimates Home</a>
+                <a href="<?php echo BASE_URL; ?>Views/estimate/list_estimates.php" class="nav-link" style="background-color: rgba(255, 255, 255, 0.1);">All Estimates</a>
+                <a href="<?php echo BASE_URL; ?>Views/estimate/create_new_estimate.php" class="nav-link">Create New</a>
             </nav>
         </div>
     </header>
@@ -72,9 +90,54 @@ try {
             </div>
         </div>
 
+        <!-- Search Bar -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="get" action="">
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 1;">
+                            <input type="text" 
+                                   name="search" 
+                                   class="form-control" 
+                                   placeholder="Search by estimate number, customer name, or project name..." 
+                                   value="<?php echo htmlspecialchars($searchQuery); ?>">
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">
+                                <span class="icon">🔍</span> Search
+                            </button>
+                            <?php if (!empty($searchQuery)): ?>
+                                <a href="<?php echo BASE_URL; ?>Views/estimate/list_estimates.php" class="btn btn-secondary">
+                                    Clear
+                                </a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <?php if (!empty($searchQuery)): ?>
+            <div class="notification notification-info mb-4">
+                Found <?php echo count($estimates); ?> estimate(s) matching "<?php echo htmlspecialchars($searchQuery); ?>"
+            </div>
+        <?php endif; ?>
+
         <?php if (isset($_GET['success'])): ?>
             <div class="notification notification-success mb-4">
                 Estimate created successfully!
+            </div>
+        <?php endif; ?>
+
+        <?php if (isset($_GET['deleted'])): ?>
+            <div class="notification notification-success mb-4">
+                ✅ Estimate deleted successfully!
+            </div>
+        <?php endif; ?>
+
+        <?php if (isset($_GET['error'])): ?>
+            <div class="notification notification-error mb-4">
+                ❌ Error: <?php echo htmlspecialchars($_GET['error']); ?>
             </div>
         <?php endif; ?>
 
@@ -114,6 +177,9 @@ try {
                                         <td><?php echo date('M d, Y', strtotime($estimate['created_at'])); ?></td>
                                         <td>
                                             <a href="<?php echo BASE_URL; ?>Views/estimate/view_estimate.php?id=<?php echo $estimate['id']; ?>" class="btn btn-sm btn-primary">View</a>
+                                            <a href="<?php echo BASE_URL; ?>Views/estimate/print_estimate.php?id=<?php echo $estimate['id']; ?>" target="_blank" class="btn btn-sm btn-secondary" title="Print/PDF">🖨️</a>
+                                            <a href="<?php echo BASE_URL; ?>Views/estimate/edit_estimate.php?id=<?php echo $estimate['id']; ?>" class="btn btn-sm btn-ghost" title="Edit">✏️</a>
+                                            <a href="<?php echo BASE_URL; ?>public/Estimate/delete_estimate.php?id=<?php echo $estimate['id']; ?>" class="btn btn-sm btn-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this estimate? This cannot be undone.');">🗑️</a>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>

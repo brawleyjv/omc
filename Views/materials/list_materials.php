@@ -70,7 +70,7 @@ $materials = $materialsController->getAllMaterials();
                     </style>
                 </head>
                 <body>
-                    <button class="close-button" onclick="window.close()">Close</button>
+                    <button class="close-button" onclick="window.history.back()">Close</button>
                     <img src="${url}" alt="Material Image" 
                          onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                     <div class="error-message" style="display:none;">

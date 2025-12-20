@@ -202,44 +202,6 @@ try {
                                                 <?php endif; ?>
                                             </div>
                                         </div>
-
-                                        <!-- BOM Section -->
-                                        <?php
-                                        $project_id = $project['id'];
-                                        $bom_sql = "SELECT description FROM bom WHERE project_id = :project_id";
-                                        $stmt = $conn->prepare($bom_sql);
-                                        $stmt->execute(['project_id' => $project_id]);
-                                        $bom_result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                                        ?>
-                                        <div class="mt-6 pt-6 border-t">
-                                            <h4 class="font-medium mb-3">Bill of Materials</h4>
-                                            <?php if (count($bom_result) > 0): ?>
-                                                <ul class="list-disc list-inside space-y-1 text-sm text-muted">
-                                                    <?php foreach ($bom_result as $bom): ?>
-                                                        <li><?php echo htmlspecialchars($bom['description']); ?></li>
-                                                    <?php endforeach; ?>
-                                                </ul>
-                                                <div class="btn-group mt-3">
-                                                    <a href="<?php echo BASE_URL; ?>Views/bom/edit_bom.php?project_id=<?php echo $project_id; ?>" 
-                                                       class="btn btn-ghost btn-sm">
-                                                        <span class="icon">✏️</span>
-                                                        Edit BOM
-                                                    </a>
-                                                    <a href="<?php echo BASE_URL; ?>Views/bom/view_bom.php?project_id=<?php echo $project_id; ?>" 
-                                                       class="btn btn-ghost btn-sm">
-                                                        <span class="icon">👁️</span>
-                                                        View BOM
-                                                    </a>
-                                                </div>
-                                            <?php else: ?>
-                                                <p class="text-muted">No Bill of Materials added yet.</p>
-                                                <a href="<?php echo BASE_URL; ?>Views/bom/add_bom.php?project_name=<?php echo urlencode($project['project_name']); ?>" 
-                                                   class="btn btn-primary btn-sm mt-2">
-                                                    <span class="icon">➕</span>
-                                                    Add BOM
-                                                </a>
-                                            <?php endif; ?>
-                                        </div>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -284,7 +246,7 @@ try {
                     </style>
                 </head>
                 <body>
-                    <button class="close-button" onclick="window.close()">Close</button>
+                    <button class="close-button" onclick="window.history.back()">Close</button>
                     <img src="${url}" alt="Project Image">
                 </body>
                 </html>

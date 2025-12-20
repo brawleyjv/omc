@@ -1,0 +1,7 @@
+[30-Dec-2024 21:06:33 Europe/Berlin] PHP Warning:  move_uploaded_file(projects/project_files/2.lbrn2): Failed to open stream: No such file or directory in C:\xampp\htdocs\OMC\projects\submit_project.php on line 43
+[30-Dec-2024 21:06:33 Europe/Berlin] PHP Warning:  move_uploaded_file(): Unable to move &quot;C:\xampp\tmp\php8FFE.tmp&quot; to &quot;projects/project_files/2.lbrn2&quot; in C:\xampp\htdocs\OMC\projects\submit_project.php on line 43
+[30-Dec-2024 21:06:33 Europe/Berlin] PHP Warning:  move_uploaded_file(projects/project_images/2.png): Failed to open stream: No such file or directory in C:\xampp\htdocs\OMC\projects\submit_project.php on line 44
+[30-Dec-2024 21:06:33 Europe/Berlin] PHP Warning:  move_uploaded_file(): Unable to move &quot;C:\xampp\tmp\php8FFF.tmp&quot; to &quot;projects/project_images/2.png&quot; in C:\xampp\htdocs\OMC\projects\submit_project.php on line 44
+[30-Dec-2024 21:06:33 Europe/Berlin] Error uploading files.
+[31-Dec-2024 03:11:14 Europe/Berlin] Error uploading files.
+[31-Dec-2024 03:11:54 Europe/Berlin] Error uploading files.
