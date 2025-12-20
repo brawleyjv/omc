@@ -44,15 +44,26 @@ try {
     $customersStmt->execute();
     $existingCustomers = $customersStmt->fetchAll(PDO::FETCH_ASSOC);
     
+    // Get project name from URL if provided (from add project page)
+    $prefilledProjectName = isset($_GET['project_name']) ? htmlspecialchars($_GET['project_name']) : '';
+    
 } catch (Exception $e) {
     error_log("Error loading data: " . $e->getMessage());
 }
+
+// Force no-cache for this page
+header("Cache-Control: no-cache, no-store, must-revalidate");
+header("Pragma: no-cache");
+header("Expires: 0");
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Create New Estimate - OMC</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -146,7 +157,7 @@ try {
             <div class="card">
                 <div class="card-header">
                     <h2 class="card-title">Customer Information</h2>
-                    <p class="card-subtitle">Leave blank for base project estimate (no specific customer)</p>
+                    <p class="card-subtitle">Leave blank for base project estimate (no specific customer) <span style="color: #999; font-size: 0.8em;">[v2.0 - Machine cost no markup]</span></p>
                 </div>
                 <div class="card-body">
                     <div class="customer-type-section">
@@ -251,7 +262,7 @@ try {
                     <div class="form-row">
                         <div class="form-group">
                             <label for="project_name" class="form-label">Project Name *</label>
-                            <input type="text" id="project_name" name="project_name" class="form-control" list="existing-projects" required placeholder="Type new name or select existing">
+                            <input type="text" id="project_name" name="project_name" class="form-control" list="existing-projects" required placeholder="Type new name or select existing" value="<?php echo $prefilledProjectName; ?>">
                             <datalist id="existing-projects">
                                 <?php foreach ($existingProjects as $projectName): ?>
                                     <option value="<?php echo htmlspecialchars($projectName); ?>">
@@ -532,11 +543,10 @@ try {
             // Calculate subtotal
             const subtotal = materialsCost + machineCost + laborCost + bitChangeCost + customizationCost + shippingCost + customItemsCost;
 
-            // Apply formula: (materials_cost / 0.3) + ((labor_time * hourly_rate) / 0.2)
-            const totalLaborTime = laborHours + (routerTime / 60) + (laserTime / 60);
+            // Apply formula: (materials_cost / 0.3) + ((labor_hours * hourly_rate) / 0.2) + machine_cost (no markup) + other items (no markup)
             const materialMarkup = materialsCost / 0.3;
-            const laborMarkup = (totalLaborTime * laborRate) / 0.2;
-            const totalEstimate = materialMarkup + laborMarkup + bitChangeCost + customizationCost + shippingCost + customItemsCost;
+            const laborMarkup = (laborHours * laborRate) / 0.2;
+            const totalEstimate = materialMarkup + laborMarkup + machineCost + bitChangeCost + customizationCost + shippingCost + customItemsCost;
 
             // Update display
             document.getElementById('display-materials-cost').textContent = '$' + materialsCost.toFixed(2);

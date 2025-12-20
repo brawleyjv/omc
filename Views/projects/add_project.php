@@ -3,6 +3,16 @@ require_once __DIR__ . '/../../config.php'; // Updated to use __DIR__
 require_once BASE_PATH . '/Models/Database.php'; // Updated to use BASE_PATH
 require_once BASE_PATH . '/Controllers/ProjectController.php'; // Updated to use BASE_PATH
 
+// Fetch existing estimates for dropdown
+$db = new MyApp\Models\Database();
+$conn = $db->getConnection();
+$estimatesQuery = "SELECT id, estimate_number, project_name, customer_name, total_estimate, created_at 
+                   FROM estimates 
+                   ORDER BY created_at DESC";
+$estimatesStmt = $conn->prepare($estimatesQuery);
+$estimatesStmt->execute();
+$estimates = $estimatesStmt->fetchAll(PDO::FETCH_ASSOC);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // ...existing code...
     header("Location: " . BASE_URL . "Views/projects/list_projects.php"); // Updated to use BASE_URL
@@ -81,6 +91,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <div class="form-group">
                                     <label for="customer_name" class="form-label">Customer Name</label>
                                     <input type="text" id="customer_name" name="customer_name" class="form-control">
+                                </div>
+                            </div>
+
+                            <!-- Estimate Selection -->
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="estimate_selection" class="form-label">Link to Estimate</label>
+                                    <select id="estimate_selection" name="estimate_id" class="form-control" onchange="updateEstimateInfo()">
+                                        <option value="">-- No Estimate / Create Later --</option>
+                                        <?php foreach ($estimates as $estimate): ?>
+                                            <option value="<?php echo $estimate['id']; ?>" 
+                                                    data-project="<?php echo htmlspecialchars($estimate['project_name']); ?>"
+                                                    data-customer="<?php echo htmlspecialchars($estimate['customer_name'] ?? 'N/A'); ?>"
+                                                    data-total="<?php echo number_format($estimate['total_estimate'], 2); ?>">
+                                                <?php echo htmlspecialchars($estimate['estimate_number']); ?> - 
+                                                <?php echo htmlspecialchars($estimate['project_name']); ?>
+                                                (<?php echo htmlspecialchars($estimate['customer_name'] ?? 'OMC'); ?>) - 
+                                                $<?php echo number_format($estimate['total_estimate'], 2); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <small class="form-text">Link this project to an existing estimate for cost tracking</small>
+                                </div>
+                            </div>
+
+                            <!-- Estimate Info Display -->
+                            <div id="estimate-info" class="alert alert-info" style="display: none; margin-top: 10px;">
+                                <strong>Estimate Details:</strong>
+                                <div id="estimate-details"></div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-ghost" onclick="createProjectThenEstimate()">
+                                        <span class="icon">➕</span>
+                                        Create Project & New Estimate
+                                    </button>
+                                    <small class="form-text">Save this project first, then create an estimate for it</small>
                                 </div>
                             </div>
 
@@ -180,6 +228,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 return false;
             }
             return true;
+        }
+
+        function createProjectThenEstimate() {
+            // Validate required fields
+            var projectName = document.getElementById('project_name').value.trim();
+            if (projectName === '') {
+                alert('Please enter a project name before creating an estimate.');
+                document.getElementById('project_name').focus();
+                return false;
+            }
+
+            var designDate = document.getElementById('design_date').value;
+            if (designDate === '') {
+                alert('Please enter a design date before creating an estimate.');
+                document.getElementById('design_date').focus();
+                return false;
+            }
+
+            // Add a flag to indicate we want to create estimate after
+            var form = document.getElementById('project-form');
+            var input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'create_estimate_after';
+            input.value = '1';
+            form.appendChild(input);
+            
+            // Submit the form
+            form.submit();
+        }
+
+        function updateEstimateInfo() {
+            const select = document.getElementById('estimate_selection');
+            const infoDiv = document.getElementById('estimate-info');
+            const detailsDiv = document.getElementById('estimate-details');
+            
+            if (select.value) {
+                const option = select.options[select.selectedIndex];
+                const projectName = option.getAttribute('data-project');
+                const customer = option.getAttribute('data-customer');
+                const total = option.getAttribute('data-total');
+                
+                detailsDiv.innerHTML = `
+                    <p><strong>Project:</strong> ${projectName}</p>
+                    <p><strong>Customer:</strong> ${customer}</p>
+                    <p><strong>Total Estimate:</strong> $${total}</p>
+                `;
+                infoDiv.style.display = 'block';
+            } else {
+                infoDiv.style.display = 'none';
+            }
         }
     </script>
 </body>

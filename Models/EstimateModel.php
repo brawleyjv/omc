@@ -57,15 +57,12 @@ class EstimateModel {
         // Calculate labor cost
         $laborCost = $laborHours * $laborRate;
 
-        // Total labor time for formula (in hours)
-        $totalLaborTime = $laborHours + ($routerTime / 60) + ($laserTime / 60);
-
-        // Apply the formula: (materials_cost / 0.3) + ((labor_time * hourly_rate) / 0.2)
+        // Apply the formula: (materials_cost / 0.3) + ((labor_hours * hourly_rate) / 0.2) + machine_cost (no markup) + custom_items (no markup)
         $materialMarkup = $materialsCost / 0.3;
-        $laborMarkup = ($totalLaborTime * $laborRate) / 0.2;
+        $laborMarkup = ($laborHours * $laborRate) / 0.2;
         
         $subtotal = $materialsCost + $machineCost + $laborCost + $customItemsCost;
-        $totalEstimate = $materialMarkup + $laborMarkup + $customItemsCost;
+        $totalEstimate = $materialMarkup + $laborMarkup + $machineCost + $customItemsCost;
 
         return [
             'materials_cost' => round($materialsCost, 2),

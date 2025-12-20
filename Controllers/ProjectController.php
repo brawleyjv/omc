@@ -41,7 +41,8 @@ class ProjectController {
         $due_date,
         $file_upload,
         $image_upload,
-        $design_file
+        $design_file,
+        $estimate_id = null
     ) {
         if ($this->db === null) {
             throw new \Exception("Database connection is not initialized.");
@@ -59,7 +60,8 @@ class ProjectController {
                 due_date, 
                 file_upload, 
                 image_upload, 
-                design_file
+                design_file,
+                estimate_id
             ) VALUES (
                 :project_name, 
                 :design_date, 
@@ -71,7 +73,8 @@ class ProjectController {
                 :due_date, 
                 :file_upload, 
                 :image_upload, 
-                :design_file
+                :design_file,
+                :estimate_id
             )";
 
             $stmt = $this->db->prepare($query); // Use the PDO instance directly
@@ -86,6 +89,7 @@ class ProjectController {
             $stmt->bindValue(':file_upload', $file_upload, PDO::PARAM_STR);
             $stmt->bindValue(':image_upload', $image_upload, PDO::PARAM_STR);
             $stmt->bindValue(':design_file', $design_file, PDO::PARAM_STR);
+            $stmt->bindValue(':estimate_id', $estimate_id, $estimate_id === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
 
             $stmt->execute();
             return $this->db->lastInsertId(); // Return the new project ID

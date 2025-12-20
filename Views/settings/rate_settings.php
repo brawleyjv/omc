@@ -183,7 +183,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_rates'])) {
                 <li><strong>Laser Rate:</strong> Cost per minute of laser cutting/engraving</li>
                 <li><strong>Labor Rate:</strong> Cost per hour of manual labor</li>
             </ul>
-            <p style="margin-top: 0.5rem; margin-bottom: 0;">These rates are used in the estimate formula: <code>(materials_cost / 0.3) + ((labor_time × rate) / 0.2)</code></p>
+            <p style="margin-top: 0.5rem; margin-bottom: 0;">These rates are used in the estimate formula: <code>(materials_cost / 0.3) + ((labor_hours × rate) / 0.2) + machine_cost</code></p>
+            <p style="margin-top: 0.25rem; color: #666; font-size: 0.9rem;">Note: Machine time (router/laser) has no markup and is charged at cost</p>
         </div>
 
         <!-- Update Rates Form -->

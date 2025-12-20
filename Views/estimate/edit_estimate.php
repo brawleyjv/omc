@@ -388,11 +388,11 @@ if (!$estimate) {
             const laserTime = parseFloat(document.getElementById('laser_time').value) || 0;
             const laborHours = parseFloat(document.getElementById('labor_hours').value) || 0;
 
+            const machineCost = (routerTime * 0.85) + (laserTime * 0.50); // Calculate machine cost at rates
             const laborRate = 25.00;
-            const totalLaborTime = laborHours + (routerTime / 60) + (laserTime / 60);
             const materialMarkup = materialsCost / 0.3;
-            const laborMarkup = (totalLaborTime * laborRate) / 0.2;
-            const totalEstimate = materialMarkup + laborMarkup + customItemsCost;
+            const laborMarkup = (laborHours * laborRate) / 0.2;
+            const totalEstimate = materialMarkup + laborMarkup + machineCost + customItemsCost; // Machine cost no markup
 
             document.getElementById('display-total').textContent = '$' + totalEstimate.toFixed(2);
         }

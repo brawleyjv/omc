@@ -1,7 +1,7 @@
 -- Add username column to users table
 -- This migration adds a username field that was missing from the users table
 
-USE omc;
+-- Note: Database selection handled by phpMyAdmin - don't use USE statement
 
 -- Add username column after id
 ALTER TABLE users ADD COLUMN username VARCHAR(100) UNIQUE AFTER id;

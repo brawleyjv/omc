@@ -59,6 +59,11 @@ If they DON'T exist, run these:
 **8. update_columns.sql** - Modifies `customer_id` to NOT NULL
    - **Must run AFTER #7** since it requires customer_id to exist
 
+**8.5. add_estimate_id_to_projects.sql** - Adds estimate_id to projects
+   - Adds `estimate_id` column to link projects to estimates
+   - **Must run BEFORE #9** (required for project-estimate linking)
+   - Created: December 20, 2025
+
 ---
 
 ### **Phase 3: Project-Estimate Integration (December 19, 2025)**
@@ -136,6 +141,7 @@ If they DON'T exist, run these:
 
 ## 📋 **Complete Migration List (All 18 Files)**
 
+### **Required Migrations (18 files - run in this order):**
 1. create_customers_table.sql
 2. create_projects_table.sql  
 3. create_estimates_table.sql
@@ -144,6 +150,7 @@ If they DON'T exist, run these:
 6. update_schema.sql (creates customer_project table)
 7. add_customer_id_to_projects.sql
 8. update_columns.sql
+8.5. add_estimate_id_to_projects.sql ⚠️ **NEW - REQUIRED!**
 9. link_projects_estimates.sql
 10. add_company_info_fields.sql
 11. add_email_settings.sql
@@ -154,7 +161,12 @@ If they DON'T exist, run these:
 16. sync_project_cost_from_estimates.sql
 17. sync_batch_costs_from_estimates.sql
 
-**Note:** `create_customer_project_table.sql` is NOT in this list because `update_schema.sql` (#6) already creates that table. Running both would cause conflicts.
+### **Optional/Redundant (1 file - DO NOT RUN):**
+18. **create_customer_project_table.sql** ⚠️ **DO NOT RUN!**
+    - This is REDUNDANT with `update_schema.sql` (#6)
+    - Migration #6 already creates the `customer_project` table
+    - Running both will cause a conflict/error
+    - **Keep file for reference only**
 
 ---
 

@@ -239,7 +239,8 @@ try {
                         <li>Router Cost = Router Time (minutes) × Mill Rate</li>
                         <li>Laser Cost = Laser Time (minutes) × Laser Rate</li>
                         <li>Labor Cost = Labor Hours × Labor Rate</li>
-                        <li>Final estimate uses formula: <code>(materials_cost / 0.3) + ((total_labor_hours × labor_rate) / 0.2)</code></li>
+                        <li>Final estimate uses formula: <code>(materials_cost / 0.3) + ((labor_hours × labor_rate) / 0.2) + machine_cost</code></li>
+                        <li>Machine time (router/laser) is charged at cost with no markup</li>
                     </ul>
                     <p style="margin-bottom: 0;"><strong>Note:</strong> Changes to these rates will apply to all new estimates. Existing estimates keep their original calculated values.</p>
                 </div>

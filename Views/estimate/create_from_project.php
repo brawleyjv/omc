@@ -491,11 +491,10 @@ try {
             // Calculate subtotal
             const subtotal = materialsCost + machineCost + laborCost + bitChangeCost + customizationCost + shippingCost + customItemsCost;
 
-            // Apply formula: (materials_cost / 0.3) + ((labor_time * hourly_rate) / 0.2)
-            const totalLaborTime = laborHours + (routerTime / 60) + (laserTime / 60);
+            // Apply formula: (materials_cost / 0.3) + ((labor_hours * hourly_rate) / 0.2) + machine_cost (no markup) + other items (no markup)
             const materialMarkup = materialsCost / 0.3;
-            const laborMarkup = (totalLaborTime * laborRate) / 0.2;
-            const totalEstimate = materialMarkup + laborMarkup + bitChangeCost + customizationCost + shippingCost + customItemsCost;
+            const laborMarkup = (laborHours * laborRate) / 0.2;
+            const totalEstimate = materialMarkup + laborMarkup + machineCost + bitChangeCost + customizationCost + shippingCost + customItemsCost;
 
             // Update display
             document.getElementById('display-materials-cost').textContent = '$' + materialsCost.toFixed(2);

@@ -19,6 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $labor_hours = $_POST['labor_hours'] ?? 0;
     $project_description = $_POST['project_description'] ?? '';
     $due_date = $_POST['due_date'] ?? '';
+    $estimate_id = !empty($_POST['estimate_id']) ? (int)$_POST['estimate_id'] : null;
+    $create_estimate_after = isset($_POST['create_estimate_after']) && $_POST['create_estimate_after'] == '1';
 
     $file_uploads = [];
     $image_uploads = [];
@@ -56,9 +58,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $due_date,
             implode(',', $file_uploads),
             implode(',', $image_uploads),
-            implode(',', $design_files)
+            implode(',', $design_files),
+            $estimate_id
         );
-        header('Location: ' . BASE_URL . 'Views/projects/view_project.php?project_name=' . urlencode($project_name));
+        
+        // Check if user wants to create an estimate after project creation
+        if ($create_estimate_after) {
+            header('Location: ' . BASE_URL . 'Views/estimate/create_new_estimate.php?project_name=' . urlencode($project_name));
+        } else {
+            header('Location: ' . BASE_URL . 'Views/projects/view_project.php?project_name=' . urlencode($project_name));
+        }
         exit;
     } catch (Exception $e) {
         if (strpos($e->getMessage(), 'Duplicate entry') !== false) {
