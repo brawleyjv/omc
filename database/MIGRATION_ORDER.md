@@ -33,31 +33,37 @@ If they DON'T exist, run these:
 
 **4. create_equipment_table.sql** - Creates equipment table
 
+**5. add_username_column.sql** - Adds username column to users table
+   - Adds unique username field
+   - Auto-generates usernames for existing users
+   - ✅ **Safe to run** - only modifies users table
+
 ---
 
 ### **Phase 2: Project-Customer Relationship Changes**
 
-**⚠️ CONFLICT WARNING:** These three files modify the `projects` table structure in specific order!
+**⚠️ CONFLICT WARNING:** These files modify the `projects` table structure in specific order!
 
-**5. update_schema.sql** - ⚠️ **DESTRUCTIVE!** 
+**6. update_schema.sql** - ⚠️ **DESTRUCTIVE!** 
    - Drops and recreates projects table
    - **WARNING:** This drops `customer_id` column from projects
    - Creates `customer_project` junction table
    - Run this FIRST before other project modifications
+   - **NOTE:** create_customer_project_table.sql is REDUNDANT with this - don't run both!
 
-**6. add_customer_id_to_projects.sql** - ⚠️ **CONFLICTS with #5!**
+**7. add_customer_id_to_projects.sql** - ⚠️ **CONFLICTS with #6!**
    - Adds `customer_id` back to projects table
    - Adds foreign key to customers
-   - **Must run AFTER #5** to re-add the column
+   - **Must run AFTER #6** to re-add the column
 
-**7. update_columns.sql** - Modifies `customer_id` to NOT NULL
-   - **Must run AFTER #6** since it requires customer_id to exist
+**8. update_columns.sql** - Modifies `customer_id` to NOT NULL
+   - **Must run AFTER #7** since it requires customer_id to exist
 
 ---
 
 ### **Phase 3: Project-Estimate Integration (December 19, 2025)**
 
-**8. link_projects_estimates.sql** - Project-estimate relationship
+**9. link_projects_estimates.sql** - Project-estimate relationship
    - Makes `customer_name` in estimates nullable
    - Adds `is_project_estimate` column to estimates
    - ✅ **Safe to run** - only modifies estimates table
@@ -66,35 +72,40 @@ If they DON'T exist, run these:
 
 ### **Phase 4: Settings Table Enhancements**
 
-**9. add_company_info_fields.sql** - Company info in settings
+**10. add_company_info_fields.sql** - Company info in settings
    - Adds address, phone, email, logo fields
    - ✅ **Safe to run** - uses `ADD COLUMN IF NOT EXISTS`
 
-**10. add_email_settings.sql** - SMTP email configuration
+**11. add_email_settings.sql** - SMTP email configuration
     - Adds SMTP settings to settings table
     - ✅ **Safe to run** - uses `ADD COLUMN IF NOT EXISTS`
+
+**12. remove_unused_rates.sql** - Cleanup setup table
+    - Removes overhead_rate and packaging_rate columns
+    - ⚠️ **Must run AFTER setup table exists**
+    - Purpose: Removes unused columns from estimates
 
 ---
 
 ### **Phase 5: Etsy Integration (December 19, 2025)**
 
-**11. create_etsy_tables.sql** - Etsy OAuth and orders
+**13. create_etsy_tables.sql** - Etsy OAuth and orders
     - Adds 9 etsy_* columns to settings table
     - Creates `etsy_orders` table
     - Creates `etsy_sync_log` table
     - ✅ **Safe to run** - new tables and columns
 
-**12. create_etsy_order_items.sql** - Etsy product tracking
+**14. create_etsy_order_items.sql** - Etsy product tracking
     - Creates `etsy_order_items` table
     - Creates `etsy_product_mappings` table
     - Adds `has_unlinked_items` to etsy_orders
-    - ⚠️ **Must run AFTER #11** (requires etsy_orders table)
+    - ⚠️ **Must run AFTER #13** (requires etsy_orders table)
 
 ---
 
 ### **Phase 6: Production & Inventory Tracking (December 19, 2025)**
 
-**13. add_production_tracking.sql** - Complete production lifecycle
+**15. add_production_tracking.sql** - Complete production lifecycle
     - Adds production fields to projects table (status, inventory, costs)
     - Creates `production_batches` table (includes labor_hours, laser_time, mill_time)
     - Creates `inventory_transactions` table
@@ -106,38 +117,63 @@ If they DON'T exist, run these:
 
 ### **Phase 7: Cost Integration & Reports (December 20, 2025)**
 
-**14. sync_project_cost_from_estimates.sql** - Sync project costs
+**16. sync_project_cost_from_estimates.sql** - Sync project costs
     - Updates `projects.cost_per_unit` from linked estimate totals
     - Only affects projects with production_status = 'ready' or 'active'
-    - ⚠️ **Must run AFTER #8** (requires estimate_id in projects)
-    - ⚠️ **Must run AFTER #13** (requires cost_per_unit column)
+    - ⚠️ **Must run AFTER #9** (requires estimate_id in projects)
+    - ⚠️ **Must run AFTER #15** (requires cost_per_unit column)
     - Purpose: Populates cost data for inventory value calculations
 
-**15. sync_batch_costs_from_estimates.sql** - Sync batch production costs
+**17. sync_batch_costs_from_estimates.sql** - Sync batch production costs
     - Updates `production_batches` material_cost and labor_cost from estimates
     - Calculates: material_cost = estimate.materials_cost × quantity_produced
     - Calculates: labor_cost = (estimate.labor_cost + machine_cost) × quantity_produced
-    - ⚠️ **Must run AFTER #13** (requires production_batches table)
-    - ⚠️ **Must run AFTER #8** (requires projects linked to estimates)
+    - ⚠️ **Must run AFTER #15** (requires production_batches table)
+    - ⚠️ **Must run AFTER #9** (requires projects linked to estimates)
     - Purpose: Populates batch costs for profit analysis reports
+
+---
+
+## 📋 **Complete Migration List (All 18 Files)**
+
+1. create_customers_table.sql
+2. create_projects_table.sql  
+3. create_estimates_table.sql
+4. create_equipment_table.sql
+5. add_username_column.sql
+6. update_schema.sql (creates customer_project table)
+7. add_customer_id_to_projects.sql
+8. update_columns.sql
+9. link_projects_estimates.sql
+10. add_company_info_fields.sql
+11. add_email_settings.sql
+12. remove_unused_rates.sql
+13. create_etsy_tables.sql
+14. create_etsy_order_items.sql
+15. add_production_tracking.sql
+16. sync_project_cost_from_estimates.sql
+17. sync_batch_costs_from_estimates.sql
+
+**Note:** `create_customer_project_table.sql` is NOT in this list because `update_schema.sql` (#6) already creates that table. Running both would cause conflicts.
 
 ---
 
 ## ⚠️ CRITICAL CONFLICTS IDENTIFIED
 
 ### **Projects Table Conflicts:**
-- `update_schema.sql` (line 8) - **DROPS** `customer_id` column
-- `add_customer_id_to_projects.sql` (line 2) - **ADDS** `customer_id` column back
-- `update_columns.sql` (line 1) - **MODIFIES** `customer_id` to NOT NULL
+- `update_schema.sql` (#6) - **DROPS** `customer_id` column
+- `add_customer_id_to_projects.sql` (#7) - **ADDS** `customer_id` column back
+- `update_columns.sql` (#8) - **MODIFIES** `customer_id` to NOT NULL
 
-**Resolution:** These must run in order 5 → 6 → 7
+**Resolution:** These must run in order 6 → 7 → 8
 
 ### **Settings Table - Multiple Modifications:**
 - `add_company_info_fields.sql` - Adds 7 columns
 - `add_email_settings.sql` - Adds 7 columns
+- `remove_unused_rates.sql` - Removes 2 columns
 - `create_etsy_tables.sql` - Adds 9 columns
 
-**Resolution:** All are safe - they use `ADD COLUMN` and won't conflict. Run in any order (9, 10, 11).
+**Resolution:** All are safe - they use `ADD/DROP COLUMN` and won't conflict. Run in order (10, 11, 12, 13).
 
 ---
 
@@ -149,19 +185,21 @@ If they DON'T exist, run these:
 | create_projects_table.sql | projects | CREATE | Low |
 | create_estimates_table.sql | estimates | CREATE | Low |
 | create_equipment_table.sql | equipment | CREATE | Low |
+| add_username_column.sql | users | ALTER ADD | Low |
 | update_schema.sql | projects, customer_project | DROP/CREATE | **HIGH** |
 | add_customer_id_to_projects.sql | projects | ALTER ADD | Medium |
 | update_columns.sql | projects | ALTER MODIFY | Low |
 | link_projects_estimates.sql | estimates | ALTER MODIFY/ADD | Low |
 | add_company_info_fields.sql | settings | ALTER ADD | Low |
 | add_email_settings.sql | settings | ALTER ADD | Low |
+| remove_unused_rates.sql | setup | ALTER DROP | Low |
 | create_etsy_tables.sql | settings, etsy_orders, etsy_sync_log | ALTER/CREATE | Low |
 | create_etsy_order_items.sql | etsy_order_items, etsy_product_mappings, etsy_orders | CREATE/ALTER | Low |
 | add_production_tracking.sql | projects, production_batches, inventory_transactions, etsy_order_items | ALTER/CREATE | Low |
 | sync_project_cost_from_estimates.sql | projects | UPDATE | Low |
 | sync_batch_costs_from_estimates.sql | production_batches | UPDATE | Low |
 
-**Note on Migration #13 (add_production_tracking.sql):**
+**Note on Migration #15 (add_production_tracking.sql):**
 - `laser_time` and `mill_time` columns store time in **MINUTES** (not hours)
 - `labor_hours` column stores time in **HOURS**
 - This matches actual CNC machine readouts (minutes) vs timesheet format (hours)
@@ -199,16 +237,23 @@ Since your production server is IONOS with phpMyAdmin access:
    ✅ 3. create_estimates_table.sql
    ✅ 4. create_equipment_table.sql
    ✅ 5. update_schema.sql
-   ✅ 6. add_customer_id_to_projects.sql
-   ✅ 7. update_columns.sql
-   ✅ 8. link_projects_estimates.sql
-   ✅ 9. add_company_info_fields.sql
-   ✅ 10. add_email_settings.sql
-   ✅ 11. create_etsy_tables.sql
-   ✅ 12. create_etsy_order_items.sql
-   ⬜ 13. add_production_tracking.sql
-   ⬜ 14. sync_project_cost_from_estimates.sql
-   ⬜ 15. sync_batch_costs_from_estimates.sql
+   ✅ 1. create_customers_table.sql
+   ✅ 2. create_projects_table.sql
+   ✅ 3. create_estimates_table.sql
+   ✅ 4. create_equipment_table.sql
+   ⬜ 5. add_username_column.sql
+   ✅ 6. update_schema.sql
+   ✅ 7. add_customer_id_to_projects.sql
+   ✅ 8. update_columns.sql
+   ✅ 9. link_projects_estimates.sql
+   ✅ 10. add_company_info_fields.sql
+   ✅ 11. add_email_settings.sql
+   ⬜ 12. remove_unused_rates.sql
+   ✅ 13. create_etsy_tables.sql
+   ✅ 14. create_etsy_order_items.sql
+   ⬜ 15. add_production_tracking.sql
+   ⬜ 16. sync_project_cost_from_estimates.sql
+   ⬜ 17. sync_batch_costs_from_estimates.sql
    ```
 
 4. **Verify After Each Migration:**
@@ -232,22 +277,24 @@ $migrations = @(
     'create_projects_table.sql',            # 2
     'create_estimates_table.sql',           # 3
     'create_equipment_table.sql',           # 4
-    'update_schema.sql',                    # 5 - DROPS customer_id
-    'add_customer_id_to_projects.sql',      # 6 - ADDS customer_id back
-    'update_columns.sql',                   # 7 - Modifies customer_id
-    'link_projects_estimates.sql',          # 8 - Estimate integration
-    'add_company_info_fields.sql',          # 9 - Settings: company
-    'add_email_settings.sql',               # 10 - Settings: email
-    'create_etsy_tables.sql',               # 11 - Etsy Phase 1
-    'create_etsy_order_items.sql',          # 12 - Etsy Phase 2
-    'add_production_tracking.sql',          # 13 - Production & Inventory
-    'sync_project_cost_from_estimates.sql', # 14 - Sync project costs
-    'sync_batch_costs_from_estimates.sql'   # 15 - Sync batch costs
+    'add_username_column.sql',              # 5 - Adds username to users
+    'update_schema.sql',                    # 6 - DROPS customer_id
+    'add_customer_id_to_projects.sql',      # 7 - ADDS customer_id back
+    'update_columns.sql',                   # 8 - Modifies customer_id
+    'link_projects_estimates.sql',          # 9 - Estimate integration
+    'add_company_info_fields.sql',          # 10 - Settings: company
+    'add_email_settings.sql',               # 11 - Settings: email
+    'remove_unused_rates.sql',              # 12 - Cleanup setup table
+    'create_etsy_tables.sql',               # 13 - Etsy Phase 1
+    'create_etsy_order_items.sql',          # 14 - Etsy Phase 2
+    'add_production_tracking.sql',          # 15 - Production & Inventory
+    'sync_project_cost_from_estimates.sql', # 16 - Sync project costs
+    'sync_batch_costs_from_estimates.sql'   # 17 - Sync batch costs
 )
 
 $count = 1
 foreach ($file in $migrations) {
-    Write-Host "[$count/15] Running: $file" -ForegroundColor Yellow
+    Write-Host "[$count/17] Running: $file" -ForegroundColor Yellow
     
     # Check if file exists
     if (!(Test-Path "database\$file")) {
