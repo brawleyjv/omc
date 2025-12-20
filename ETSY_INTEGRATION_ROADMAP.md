@@ -12,10 +12,13 @@
 **Phase 1: Foundation & Authentication** - ✅ **COMPLETE**  
 All OAuth infrastructure, database schema, and UI components are built and tested. Ready to authenticate once Etsy approves the application.
 
+**Phase 2.5: Product Tracking Enhancement** - ✅ **COMPLETE**  
+Individual product tracking system built. Can parse order items, link products to projects, and generate sales reports. Ready for use when orders are synced.
+
 **Etsy App Status:** 🟡 Pending Personal Approval  
 **App Name:** omcoffice  
 **API Keystring:** w2umgp6l4u16xywc9fmuq0jn  
-**Next Action:** Wait for Etsy approval email, then test OAuth flow
+**Next Action:** Wait for Etsy approval email, then test OAuth flow, or continue with Phase 4 (Production Tracking)
 
 ---
 
@@ -288,9 +291,10 @@ CREATE TABLE etsy_sync_log (
 
 ---
 
-## Phase 2.5: Product Tracking Enhancement 🔧 **CAN BUILD NOW**
+## Phase 2.5: Product Tracking Enhancement ✅ **COMPLETE**
 **Estimated Time**: 4-6 hours  
-**Status**: 💡 Optional - Can build without Etsy approval  
+**Actual Time**: 5 hours (with debugging)  
+**Status**: ✅ **COMPLETE** - December 19, 2025  
 **Goal**: Track individual products sold in Etsy orders and link to OMC projects
 
 ### Why Build This Now?
@@ -301,35 +305,39 @@ CREATE TABLE etsy_sync_log (
 - ✅ Can be built and tested locally
 
 ### Tasks
-- [ ] **2.5.1** Create etsy_order_items table
-  - File: `database/create_etsy_order_items.sql`
+- ✅ **2.5.1** Create etsy_order_items table
+  - File: `database/create_etsy_order_items.sql` ✅ Created & deployed
   - Link to etsy_orders (order breakdown)
   - Link to projects (optional, for matching)
   - Track product name, SKU, quantity, price
   - Store item-level data from JSON
+  - Also created etsy_product_mappings table for permanent links
 
-- [ ] **2.5.2** Create parsing logic
-  - File: `Models/EtsyOrderParser.php`
+- ✅ **2.5.2** Create parsing logic
+  - File: `Models/EtsyOrderParser.php` ✅ Created (400+ lines)
   - Parse items_data JSON from etsy_orders
   - Extract individual line items
   - Store in etsy_order_items table
   - Handle variations/customizations
+  - Auto-match products to projects using multiple strategies
 
-- [ ] **2.5.3** Add manual project linking UI
-  - Page: `Views/etsy/link_products.php`
+- ✅ **2.5.3** Add manual project linking UI
+  - Page: `public/etsy/link_products.php` ✅ Created (300+ lines)
   - List all Etsy products (from order items)
   - Dropdown to select matching OMC project
   - Save link for future auto-matching
   - Show which products are unlinked
+  - Display sales statistics per product
 
-- [ ] **2.5.4** Product sales reporting
-  - Page: `Views/etsy/product_report.php`
+- ✅ **2.5.4** Product sales reporting
+  - Page: `public/etsy/product_report.php` ✅ Created (200+ lines)
   - Show all products sold on Etsy
   - Quantity sold per product
   - Revenue per product
   - Link status (linked/unlinked to projects)
+  - Date range filtering
 
-### Database Schema
+### Database Schema ✅ **DEPLOYED**
 ```sql
 CREATE TABLE etsy_order_items (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -362,12 +370,167 @@ CREATE TABLE etsy_order_items (
 );
 ```
 
-### Deliverables
-- ✅ Individual product tracking
-- ✅ Project linking capability
-- ✅ Better data for estimates
-- ✅ Product sales reporting
-- ✅ Foundation for inventory sync
+### Deliverables ✅ **COMPLETE**
+- ✅ Individual product tracking (etsy_order_items table)
+- ✅ Project linking capability (manual and automatic)
+- ✅ Better data for estimates (item-level detail)
+- ✅ Product sales reporting (revenue and quantity)
+- ✅ Foundation for inventory sync (product mappings)
+- ✅ Auto-matching algorithm (listing ID, SKU, name, pattern)
+- ✅ Permanent product mappings (etsy_product_mappings table)
+- ✅ Dashboard navigation enhanced
+- ✅ Added getAllProjects() method to ProjectModel
+
+### Files Created
+1. `database/create_etsy_order_items.sql` (166 lines)
+2. `Models/EtsyOrderParser.php` (449 lines)
+3. `public/etsy/link_products.php` (335 lines)
+4. `public/etsy/product_report.php` (200+ lines)
+5. `public/etsy/dashboard.php` (enhanced with navigation)
+
+---
+
+## Phase 4: Production & Inventory Management 🏭 **CAN BUILD NOW**
+**Estimated Time**: 12-16 hours  
+**Status**: 💡 **READY TO BUILD** - Can build without Etsy approval  
+**Goal**: Complete lifecycle tracking from project design → production → Etsy listing → sales
+
+### Overview
+Track the complete product lifecycle:
+1. Project created and perfected (existing)
+2. Mark project "Ready for Production" (new)
+3. Record production batches with costs (new)
+4. Track inventory levels (new)
+5. Publish to Etsy with inventory (requires API)
+6. Sync inventory when orders arrive (requires API)
+7. Low stock alerts and reorder points (new)
+
+### Part A: Production Tracking (Can Build Now - No API)
+
+#### Tasks
+- [ ] **4A.1** Add production fields to projects table
+  ```sql
+  ALTER TABLE projects ADD COLUMN production_status ENUM('design', 'ready', 'active', 'discontinued') DEFAULT 'design';
+  ALTER TABLE projects ADD COLUMN etsy_listing_id BIGINT NULL;
+  ALTER TABLE projects ADD COLUMN inventory_quantity INT DEFAULT 0;
+  ALTER TABLE projects ADD COLUMN reorder_point INT DEFAULT 5;
+  ALTER TABLE projects ADD COLUMN batch_size INT DEFAULT 10;
+  ALTER TABLE projects ADD COLUMN cost_per_unit DECIMAL(10,2) NULL;
+  ALTER TABLE projects ADD COLUMN last_inventory_sync DATETIME NULL;
+  ```
+
+- [ ] **4A.2** Create production_batches table
+  - Track when items are produced
+  - Record quantity, date, costs
+  - Link to specific project
+  - Calculate cost per unit
+
+- [ ] **4A.3** Create inventory_transactions table
+  - Track all inventory movements
+  - Production increases inventory
+  - Sales decrease inventory
+  - Manual adjustments (damage, etc)
+  - Full audit trail
+
+- [ ] **4A.4** Production recording UI
+  - Page: `Views/production/record_batch.php`
+  - Select project
+  - Enter quantity produced
+  - Record material and labor costs
+  - Auto-calculate cost per unit
+  - Update inventory count
+
+- [ ] **4A.5** Inventory dashboard
+  - Page: `Views/production/inventory_dashboard.php`
+  - Show all projects with inventory tracking
+  - Current stock levels
+  - Low stock alerts (at/below reorder point)
+  - Recent production batches
+  - Inventory value calculation
+
+- [ ] **4A.6** Enhanced project list view
+  - Add production status column
+  - Show inventory levels
+  - Add "Record Production" button
+  - Add "Mark Ready for Production" button
+  - Color-code low stock items
+
+### Part B: Etsy Publishing (Requires API Approval)
+
+#### Tasks
+- [ ] **4B.1** Create listing from project
+  - Page: `public/etsy/create_listing.php`
+  - Form to gather Etsy listing details
+  - Upload project images to Etsy
+  - Set title, description, price
+  - Set initial inventory from OMC
+  - API: `POST /v3/application/shops/{shop_id}/listings`
+
+- [ ] **4B.2** Bi-directional inventory sync
+  - Sync OMC inventory → Etsy when produced
+  - Sync Etsy inventory → OMC when sold
+  - API: `PUT /v3/application/listings/{listing_id}/inventory`
+  - API: `GET /v3/application/shops/{shop_id}/listings/{listing_id}/inventory`
+
+- [ ] **4B.3** Fulfillment workflow
+  - Mark order as fulfilled in OMC
+  - Decrease inventory count
+  - Update Etsy with tracking info
+  - API: `POST /v3/application/shops/{shop_id}/receipts/{receipt_id}/tracking`
+
+### Database Schema (Part A)
+```sql
+-- Production tracking
+CREATE TABLE production_batches (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    project_id INT NOT NULL,
+    batch_number VARCHAR(50),
+    quantity_produced INT NOT NULL,
+    production_date DATE NOT NULL,
+    labor_hours DECIMAL(5,2),
+    material_cost DECIMAL(10,2),
+    labor_cost DECIMAL(10,2),
+    cost_per_unit DECIMAL(10,2),
+    notes TEXT,
+    produced_by VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+    INDEX idx_project (project_id),
+    INDEX idx_date (production_date)
+);
+
+-- Inventory audit trail
+CREATE TABLE inventory_transactions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    project_id INT NOT NULL,
+    transaction_type ENUM('production', 'sale', 'adjustment', 'damage') NOT NULL,
+    quantity INT NOT NULL,
+    quantity_before INT NOT NULL,
+    quantity_after INT NOT NULL,
+    reference_type VARCHAR(50),
+    reference_id INT,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+    INDEX idx_project (project_id),
+    INDEX idx_type (transaction_type)
+);
+```
+
+### Deliverables (Part A - No API Required)
+- [ ] Production status tracking
+- [ ] Production batch recording
+- [ ] Inventory level management
+- [ ] Inventory transaction history
+- [ ] Low stock alerts
+- [ ] Cost per unit tracking
+- [ ] Inventory value reporting
+
+### Deliverables (Part B - Requires API)
+- [ ] Publish projects to Etsy
+- [ ] Bi-directional inventory sync
+- [ ] Order fulfillment workflow
+- [ ] Tracking number updates to Etsy
 
 ---
 

@@ -13,7 +13,10 @@ require_once __DIR__ . '/../../Models/EtsyModel.php';
 use MyApp\Models\Database;
 use MyApp\Models\EtsyModel;
 
-session_start();
+// Start session only if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Check authentication
 if (!isset($_SESSION['username'])) {
@@ -23,7 +26,7 @@ if (!isset($_SESSION['username'])) {
 
 // Initialize database
 $database = new Database();
-$db = $database->connect();
+$db = $database->getPdo();
 $etsyModel = new EtsyModel($db);
 
 // Check if connected
@@ -77,8 +80,10 @@ $syncLogs = $logsStmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             </div>
             <nav class="header-nav">
-                <a href="<?php echo BASE_URL; ?>Views/main.php" class="nav-link">Dashboard</a>
+                <a href="<?php echo BASE_URL; ?>public/etsy/link_products.php" class="nav-link">Link Products</a>
+                <a href="<?php echo BASE_URL; ?>public/etsy/product_report.php" class="nav-link">Product Report</a>
                 <a href="<?php echo BASE_URL; ?>Views/settings.php" class="nav-link">Settings</a>
+                <a href="<?php echo BASE_URL; ?>Views/main.php" class="nav-link">Dashboard</a>
             </nav>
         </div>
     </header>

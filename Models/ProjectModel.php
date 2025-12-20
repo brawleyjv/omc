@@ -25,6 +25,13 @@ class ProjectModel {
         return $stmt->fetch(); // No argument needed
     }
 
+    public function getAllProjects() {
+        $query = "SELECT * FROM projects ORDER BY project_name ASC";
+        $stmt = $this->database->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function updateProject($projectId, $projectName, $designDate, $customerName, $laserTime, $routerTime, $laborHours, $projectDescription, $dueDate, $fileUpload, $imageUpload) {
         $query = "UPDATE projects SET 
             project_name = :project_name,
