@@ -230,6 +230,25 @@ $recentTransactions = $transStmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="card">
             <div class="card-header">
                 <h2 class="card-title">Inventory Levels</h2>
+                <div style="margin-left: auto;">
+                    <a href="<?php echo BASE_URL; ?>Views/production/print_inventory_report.php" 
+                       target="_blank" 
+                       class="btn btn-primary btn-sm" 
+                       title="Print Full Inventory Report">
+                        🖨️ Print Report
+                    </a>
+                    <a href="<?php echo BASE_URL; ?>Views/production/print_inventory_report.php?low_stock=1" 
+                       target="_blank" 
+                       class="btn btn-outline btn-sm" 
+                       title="Print Low Stock Report">
+                        ⚠️ Low Stock Report
+                    </a>
+                    <a href="<?php echo BASE_URL; ?>Views/production/record_batch.php" 
+                       class="btn btn-outline btn-sm" 
+                       title="Record Production Batch">
+                        🏭 Record Batch
+                    </a>
+                </div>
             </div>
             <div class="card-body">
                 <table class="inventory-table">

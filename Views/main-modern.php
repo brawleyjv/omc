@@ -140,6 +140,24 @@ error_log("Main.php: Session username: " . (isset($_SESSION['username']) ? $_SES
                 <h3 class="menu-card-title">Vendors</h3>
                 <p class="menu-card-description">Manage supplier relationships, pricing, and procurement information</p>
             </a>
+
+            <!-- Production Tracking Card -->
+            <a href="<?php echo BASE_URL; ?>Views/production/record_batch.php" class="menu-card">
+                <div class="menu-card-icon">
+                    <span class="icon">🏭</span>
+                </div>
+                <h3 class="menu-card-title">Production</h3>
+                <p class="menu-card-description">Record production batches, track labor hours and machine times</p>
+            </a>
+
+            <!-- Inventory Management Card -->
+            <a href="<?php echo BASE_URL; ?>Views/production/inventory_dashboard.php" class="menu-card">
+                <div class="menu-card-icon">
+                    <span class="icon">📦</span>
+                </div>
+                <h3 class="menu-card-title">Inventory</h3>
+                <p class="menu-card-description">View stock levels, low stock alerts, and production history</p>
+            </a>
         </div>
 
         <!-- Tools & Calculators Section -->
@@ -206,9 +224,9 @@ error_log("Main.php: Session username: " . (isset($_SESSION['username']) ? $_SES
             </div>
             <div class="card-body">
                 <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                    <a href="<?php echo BASE_URL; ?>Views/setup.php" class="btn btn-secondary">
-                        <span class="icon">⚙️</span>
-                        System Setup
+                    <a href="<?php echo BASE_URL; ?>Views/settings.php" class="btn btn-primary">
+                        <span class="icon">💲</span>
+                        Pricing Settings
                     </a>
                     <a href="<?php echo BASE_URL; ?>Views/update.php" class="btn btn-outline">
                         <span class="icon">🔄</span>

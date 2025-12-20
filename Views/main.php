@@ -166,6 +166,24 @@ error_log("Main.php: Session username: " . (isset($_SESSION['username']) ? $_SES
                 <p class="menu-card-description">Manage supplier relationships, pricing, and procurement information</p>
             </a>
 
+            <!-- Production Tracking Card -->
+            <a href="<?php echo BASE_URL; ?>Views/production/record_batch.php" class="menu-card" style="border-left: 4px solid #8b5cf6;">
+                <div class="menu-card-icon">
+                    <span class="icon">🏭</span>
+                </div>
+                <h3 class="menu-card-title">Production</h3>
+                <p class="menu-card-description">Record production batches, track labor hours and machine times</p>
+            </a>
+
+            <!-- Inventory Management Card -->
+            <a href="<?php echo BASE_URL; ?>Views/production/inventory_dashboard.php" class="menu-card" style="border-left: 4px solid #06b6d4;">
+                <div class="menu-card-icon">
+                    <span class="icon">📦</span>
+                </div>
+                <h3 class="menu-card-title">Inventory</h3>
+                <p class="menu-card-description">View stock levels, low stock alerts, and production history</p>
+            </a>
+
             <!-- Etsy Integration Card -->
             <?php if ($etsyConnected): ?>
                 <a href="<?php echo BASE_URL; ?>public/etsy/dashboard.php" class="menu-card" style="border-left: 4px solid #f56400;">

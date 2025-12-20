@@ -246,6 +246,19 @@ $lowStock = $productionModel->getLowStockProjects();
         <div class="card">
             <div class="card-header">
                 <h2 class="card-title">New Production Batch</h2>
+                <div style="margin-left: auto;">
+                    <a href="<?php echo BASE_URL; ?>Views/production/print_production_report.php?start_date=<?php echo date('Y-m-01'); ?>&end_date=<?php echo date('Y-m-d'); ?>" 
+                       target="_blank" 
+                       class="btn btn-outline btn-sm" 
+                       title="Print Production Report">
+                        🖨️ Production Report
+                    </a>
+                    <a href="<?php echo BASE_URL; ?>Views/production/inventory_dashboard.php" 
+                       class="btn btn-outline btn-sm" 
+                       title="View Inventory Dashboard">
+                        📦 Inventory
+                    </a>
+                </div>
             </div>
             <div class="card-body">
                 <form method="POST" id="productionForm">

@@ -14,6 +14,22 @@ $database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 $db = $database->getConnection(); // Ensure $db is a PDO instance
 $projectsController = new ProjectController($db); // Pass the PDO instance to the controller
 
+// Handle production status update
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_production_status'])) {
+    $projectId = $_POST['project_id'];
+    $newStatus = $_POST['production_status'];
+    
+    $updateQuery = "UPDATE projects SET production_status = :status WHERE id = :id";
+    $updateStmt = $db->prepare($updateQuery);
+    $updateStmt->execute([
+        ':status' => $newStatus,
+        ':id' => $projectId
+    ]);
+    
+    header("Location: " . BASE_URL . "Views/projects/list_projects.php?updated=1");
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_project_name'])) {
     $projectName = $_POST['delete_project_name'];
     error_log("Deleting project with name: $projectName"); // Log the project name being deleted
@@ -129,6 +145,39 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
 
+        <!-- Production Status Info -->
+        <div class="card" style="background-color: #f0f9ff; border-left: 4px solid #3b82f6;">
+            <div class="card-body">
+                <h3 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: #1e40af;">📊 Production Status Guide</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; font-size: 0.875rem;">
+                    <div>
+                        <strong style="color: #6b7280;">📝 Design</strong>
+                        <div style="color: #4b5563; margin-top: 0.25rem;">
+                            Initial phase: designing, testing, creating estimates. <strong>Not tracked in inventory.</strong>
+                        </div>
+                    </div>
+                    <div>
+                        <strong style="color: #059669;">✅ Ready</strong>
+                        <div style="color: #4b5563; margin-top: 0.25rem;">
+                            Approved design, ready to produce. <strong>Shows in inventory, can record batches.</strong>
+                        </div>
+                    </div>
+                    <div>
+                        <strong style="color: #dc2626;">🏭 Active</strong>
+                        <div style="color: #4b5563; margin-top: 0.25rem;">
+                            Regular production item. <strong>Fully tracked, monitored for reorder points.</strong>
+                        </div>
+                    </div>
+                    <div>
+                        <strong style="color: #6b7280;">⛔ Discontinued</strong>
+                        <div style="color: #4b5563; margin-top: 0.25rem;">
+                            No longer producing. <strong>Hidden from inventory (unless stock remains).</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Projects Table Card -->
         <div class="card">
             <div class="card-header">
@@ -142,6 +191,7 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <tr>
                                 <th>Project</th>
                                 <th>Customer</th>
+                                <th>Production Status</th>
                                 <th>Timeline</th>
                                 <th>Hours</th>
                                 <th>Estimate</th>
@@ -168,6 +218,38 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             <?php else: ?>
                                                 <span class="text-muted">No customer assigned</span>
                                             <?php endif; ?>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <form method="POST" style="display: inline-block;">
+                                            <input type="hidden" name="project_id" value="<?php echo $project['id']; ?>">
+                                            <input type="hidden" name="update_production_status" value="1">
+                                            <select name="production_status" class="form-control" style="font-size: 0.875rem; padding: 0.25rem 0.5rem;" onchange="this.form.submit()" title="Change production status">
+                                                <option value="design" <?php echo ($project['production_status'] ?? 'design') === 'design' ? 'selected' : ''; ?>>
+                                                    📝 Design (Prototype/Testing)
+                                                </option>
+                                                <option value="ready" <?php echo ($project['production_status'] ?? '') === 'ready' ? 'selected' : ''; ?>>
+                                                    ✅ Ready (Approved for Production)
+                                                </option>
+                                                <option value="active" <?php echo ($project['production_status'] ?? '') === 'active' ? 'selected' : ''; ?>>
+                                                    🏭 Active (Currently Producing)
+                                                </option>
+                                                <option value="discontinued" <?php echo ($project['production_status'] ?? '') === 'discontinued' ? 'selected' : ''; ?>>
+                                                    ⛔ Discontinued (No Longer Made)
+                                                </option>
+                                            </select>
+                                        </form>
+                                        <div style="font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem;">
+                                            <?php 
+                                            $status = $project['production_status'] ?? 'design';
+                                            $descriptions = [
+                                                'design' => 'Not tracked in inventory',
+                                                'ready' => 'Shows in inventory, can produce',
+                                                'active' => 'Regular production, tracked',
+                                                'discontinued' => 'No longer producing'
+                                            ];
+                                            echo $descriptions[$status] ?? '';
+                                            ?>
                                         </div>
                                     </td>
                                     <td>
