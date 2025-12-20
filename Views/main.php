@@ -7,10 +7,35 @@ if (session_status() === PHP_SESSION_NONE) {
 
 require_once __DIR__ . '/../config.php';
 require_once BASE_PATH . 'Models/Database.php'; // Include the Database class
+require_once BASE_PATH . 'Models/EtsyModel.php'; // Include Etsy Model
 
 use MyApp\Models\Database; // Add this to use the Database class from the namespace
+use MyApp\Models\EtsyModel;
 
 $database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME); // Ensure required arguments are passed
+
+// Get Etsy connection status
+$pdo = $database->getPdo();
+$etsyModel = new EtsyModel($pdo);
+$etsyConnected = $etsyModel->isConnected();
+
+// Get Etsy shop info
+$etsyQuery = "SELECT etsy_shop_name, etsy_last_sync FROM settings WHERE id = 1";
+$etsyStmt = $pdo->prepare($etsyQuery);
+$etsyStmt->execute();
+$etsyData = $etsyStmt->fetch(PDO::FETCH_ASSOC);
+$etsyShopName = $etsyData['etsy_shop_name'] ?? null;
+$etsyLastSync = $etsyData['etsy_last_sync'] ?? null;
+
+// Get recent Etsy orders count (only if connected)
+$recentOrdersCount = 0;
+if ($etsyConnected) {
+    $ordersQuery = "SELECT COUNT(*) as count FROM etsy_orders WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+    $ordersStmt = $pdo->prepare($ordersQuery);
+    $ordersStmt->execute();
+    $ordersData = $ordersStmt->fetch(PDO::FETCH_ASSOC);
+    $recentOrdersCount = $ordersData['count'] ?? 0;
+}
 
 // Ensure user is authenticated
 if (!isset($_SESSION['username'])) {
@@ -140,6 +165,37 @@ error_log("Main.php: Session username: " . (isset($_SESSION['username']) ? $_SES
                 <h3 class="menu-card-title">Vendors</h3>
                 <p class="menu-card-description">Manage supplier relationships, pricing, and procurement information</p>
             </a>
+
+            <!-- Etsy Integration Card -->
+            <?php if ($etsyConnected): ?>
+                <a href="<?php echo BASE_URL; ?>public/etsy/dashboard.php" class="menu-card" style="border-left: 4px solid #f56400;">
+                    <div class="menu-card-icon">
+                        <span class="icon">🛒</span>
+                    </div>
+                    <h3 class="menu-card-title">Etsy Sales</h3>
+                    <p class="menu-card-description">
+                        <strong style="color: #10b981;">● Connected</strong> - <?php echo htmlspecialchars($etsyShopName ?? 'Shop'); ?><br>
+                        <small style="color: #6b7280;">
+                            <?php if ($recentOrdersCount > 0): ?>
+                                <?php echo $recentOrdersCount; ?> order<?php echo $recentOrdersCount !== 1 ? 's' : ''; ?> this week
+                            <?php else: ?>
+                                No recent orders
+                            <?php endif; ?>
+                        </small>
+                    </p>
+                </a>
+            <?php else: ?>
+                <a href="<?php echo BASE_URL; ?>Views/settings.php#etsy" class="menu-card" style="border-left: 4px solid #94a3b8;">
+                    <div class="menu-card-icon">
+                        <span class="icon">🛒</span>
+                    </div>
+                    <h3 class="menu-card-title">Etsy Integration</h3>
+                    <p class="menu-card-description">
+                        <strong style="color: #94a3b8;">○ Not Connected</strong><br>
+                        <small style="color: #6b7280;">Connect your Etsy shop to sync orders</small>
+                    </p>
+                </a>
+            <?php endif; ?>
         </div>
 
         <!-- Tools & Calculators Section -->
@@ -206,9 +262,9 @@ error_log("Main.php: Session username: " . (isset($_SESSION['username']) ? $_SES
             </div>
             <div class="card-body">
                 <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                    <a href="<?php echo BASE_URL; ?>Views/setup.php" class="btn btn-secondary">
-                        <span class="icon">⚙️</span>
-                        System Setup
+                    <a href="<?php echo BASE_URL; ?>Views/settings.php" class="btn btn-primary">
+                        <span class="icon">💲</span>
+                        Pricing Settings
                     </a>
                     <a href="<?php echo BASE_URL; ?>Views/update.php" class="btn btn-outline">
                         <span class="icon">🔄</span>
