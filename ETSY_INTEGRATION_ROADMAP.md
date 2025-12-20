@@ -2,7 +2,7 @@
 
 **Project**: Ozark Made Crafts (OMC) - Etsy Integration  
 **Purpose**: Connect OMC application to Etsy shop for seamless order management and sales tracking  
-**Status**: ✅ Phase 1 Complete - Awaiting Etsy App Approval  
+**Status**: ✅ Phase 1 Complete | ✅ Phase 2.5 Complete | ✅ Phase 4A Complete - Awaiting Etsy App Approval for API features  
 **Last Updated**: December 19, 2025
 
 ---
@@ -15,10 +15,13 @@ All OAuth infrastructure, database schema, and UI components are built and teste
 **Phase 2.5: Product Tracking Enhancement** - ✅ **COMPLETE**  
 Individual product tracking system built. Can parse order items, link products to projects, and generate sales reports. Ready for use when orders are synced.
 
+**Phase 4A: Production & Inventory Tracking** - ✅ **COMPLETE**  
+Production batch recording, inventory management, auto-generated batch numbers, time tracking (labor hours + CNC minutes), and inventory dashboard. Complete lifecycle tracking from design → production → inventory.
+
 **Etsy App Status:** 🟡 Pending Personal Approval  
 **App Name:** omcoffice  
 **API Keystring:** w2umgp6l4u16xywc9fmuq0jn  
-**Next Action:** Wait for Etsy approval email, then test OAuth flow, or continue with Phase 4 (Production Tracking)
+**Next Action:** Wait for Etsy approval email, then test OAuth flow and build Phase 2 (Order Sync) and Phase 4B (Etsy Publishing)
 
 ---
 
@@ -390,25 +393,26 @@ CREATE TABLE etsy_order_items (
 
 ---
 
-## Phase 4: Production & Inventory Management 🏭 **CAN BUILD NOW**
+## Phase 4: Production & Inventory Management 🏭
 **Estimated Time**: 12-16 hours  
-**Status**: 💡 **READY TO BUILD** - Can build without Etsy approval  
+**Actual Time**: 8 hours (Phase 4A)  
+**Status**: � **Phase 4A COMPLETE** - Phase 4B requires Etsy approval  
 **Goal**: Complete lifecycle tracking from project design → production → Etsy listing → sales
 
 ### Overview
 Track the complete product lifecycle:
 1. Project created and perfected (existing)
-2. Mark project "Ready for Production" (new)
-3. Record production batches with costs (new)
-4. Track inventory levels (new)
+2. Mark project "Ready for Production" ✅
+3. Record production batches with costs ✅
+4. Track inventory levels ✅
 5. Publish to Etsy with inventory (requires API)
 6. Sync inventory when orders arrive (requires API)
-7. Low stock alerts and reorder points (new)
+7. Low stock alerts and reorder points ✅
 
-### Part A: Production Tracking (Can Build Now - No API)
+### Part A: Production Tracking ✅ **COMPLETE** (No API Required)
 
 #### Tasks
-- [ ] **4A.1** Add production fields to projects table
+- [x] **4A.1** Add production fields to projects table ✅
   ```sql
   ALTER TABLE projects ADD COLUMN production_status ENUM('design', 'ready', 'active', 'discontinued') DEFAULT 'design';
   ALTER TABLE projects ADD COLUMN etsy_listing_id BIGINT NULL;
@@ -418,35 +422,48 @@ Track the complete product lifecycle:
   ALTER TABLE projects ADD COLUMN cost_per_unit DECIMAL(10,2) NULL;
   ALTER TABLE projects ADD COLUMN last_inventory_sync DATETIME NULL;
   ```
+  - **Status**: Complete - deployed via `add_production_tracking.sql`
 
-- [ ] **4A.2** Create production_batches table
+- [x] **4A.2** Create production_batches table ✅
   - Track when items are produced
   - Record quantity, date, costs
+  - Record labor hours and CNC machine times (laser/mill in minutes)
   - Link to specific project
   - Calculate cost per unit
+  - Auto-generate batch numbers (YYYYMMDD-N format)
+  - **Status**: Complete - deployed via `add_production_tracking.sql`
 
-- [ ] **4A.3** Create inventory_transactions table
+- [x] **4A.3** Create inventory_transactions table ✅
   - Track all inventory movements
   - Production increases inventory
   - Sales decrease inventory
   - Manual adjustments (damage, etc)
   - Full audit trail
+  - **Status**: Complete - deployed via `add_production_tracking.sql`
 
-- [ ] **4A.4** Production recording UI
+- [x] **4A.4** Production recording UI ✅
   - Page: `Views/production/record_batch.php`
-  - Select project
+  - Select project (dropdown)
+  - Auto-generate batch number (YYYYMMDD-N)
   - Enter quantity produced
-  - Record material and labor costs
-  - Auto-calculate cost per unit
-  - Update inventory count
+  - Record labor hours (in hours)
+  - Record CNC laser time (in minutes)
+  - Record CNC mill time (in minutes)
+  - Auto-calculate time per piece
+  - Update inventory count automatically
+  - Show low stock alerts
+  - Display recent batches
+  - **Status**: Complete - compact grid layout, all calculations working
 
-- [ ] **4A.5** Inventory dashboard
+- [x] **4A.5** Inventory dashboard ✅
   - Page: `Views/production/inventory_dashboard.php`
   - Show all projects with inventory tracking
-  - Current stock levels
+  - Current stock levels with visual bars
   - Low stock alerts (at/below reorder point)
   - Recent production batches
-  - Inventory value calculation
+  - Summary statistics (active projects, low stock count, total units)
+  - Quick actions (record batch, view project)
+  - **Status**: Complete - full dashboard with stats and alerts
 
 - [ ] **4A.6** Enhanced project list view
   - Add production status column
@@ -454,6 +471,23 @@ Track the complete product lifecycle:
   - Add "Record Production" button
   - Add "Mark Ready for Production" button
   - Color-code low stock items
+  - **Status**: Not started (optional enhancement)
+
+**Phase 4A Files Created:**
+- `database/add_production_tracking.sql` (175 lines) - Database schema
+- `Models/ProductionModel.php` (402 lines) - Business logic
+- `Views/production/record_batch.php` (452 lines) - Batch recording UI
+- `Views/production/get_next_batch.php` - AJAX batch number generator
+- `Views/production/inventory_dashboard.php` (400+ lines) - Inventory dashboard
+
+**Key Features:**
+- Auto-generated batch numbers with date-based sequential format
+- Compact form layout with efficient use of space
+- Real-time calculations for time per piece
+- Tracks labor in hours, CNC times in minutes
+- Full inventory audit trail with transaction log
+- Low stock alerts and reorder point system
+- Production cost tracking and cost per unit calculation
 
 ### Part B: Etsy Publishing (Requires API Approval)
 

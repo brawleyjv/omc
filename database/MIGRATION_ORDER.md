@@ -92,6 +92,18 @@ If they DON'T exist, run these:
 
 ---
 
+### **Phase 6: Production & Inventory Tracking (December 19, 2025)**
+
+**13. add_production_tracking.sql** - Complete production lifecycle
+    - Adds production fields to projects table (status, inventory, costs)
+    - Creates `production_batches` table (includes labor_hours, laser_time, mill_time)
+    - Creates `inventory_transactions` table
+    - Adds `fulfilled_from_batch` to etsy_order_items
+    - ✅ **Safe to run** - new tables and columns
+    - **Updated Dec 19:** Includes CNC machine time tracking (laser_time, mill_time)
+
+---
+
 ## ⚠️ CRITICAL CONFLICTS IDENTIFIED
 
 ### **Projects Table Conflicts:**
@@ -126,12 +138,66 @@ If they DON'T exist, run these:
 | add_email_settings.sql | settings | ALTER ADD | Low |
 | create_etsy_tables.sql | settings, etsy_orders, etsy_sync_log | ALTER/CREATE | Low |
 | create_etsy_order_items.sql | etsy_order_items, etsy_product_mappings, etsy_orders | CREATE/ALTER | Low |
+| add_production_tracking.sql | projects, production_batches, inventory_transactions, etsy_order_items | ALTER/CREATE | Low |
+
+**Note on Migration #13 (add_production_tracking.sql):**
+- `laser_time` and `mill_time` columns store time in **MINUTES** (not hours)
+- `labor_hours` column stores time in **HOURS**
+- This matches actual CNC machine readouts (minutes) vs timesheet format (hours)
+- UI converts minutes to hours for total time calculations
 
 ---
 
-## Safe Execution Script (PowerShell)
+## Safe Execution Methods
 
-Run this from XAMPP directory on production server:
+### **Method 1: IONOS Production Server (phpMyAdmin)**
+
+Since your production server is IONOS with phpMyAdmin access:
+
+1. **Backup Database First!**
+   - Login to phpMyAdmin
+   - Select database `dbs14052036`
+   - Click "Export" tab
+   - Select "Quick" export method
+   - Click "Go" and save the SQL file
+   - Name it: `backup_before_migration_2025-12-19.sql`
+
+2. **Run Each Migration File:**
+   - Open each SQL file (in order 1-12) in a text editor
+   - Copy the entire contents
+   - In phpMyAdmin, click "SQL" tab
+   - Paste the SQL code
+   - Click "Go"
+   - Check for success message (green) or errors (red)
+   - **If error occurs, STOP and fix before continuing!**
+
+3. **Track Your Progress:**
+   ```
+   ✅ 1. create_customers_table.sql
+   ✅ 2. create_projects_table.sql
+   ✅ 3. create_estimates_table.sql
+   ✅ 4. create_equipment_table.sql
+   ✅ 5. update_schema.sql
+   ✅ 6. add_customer_id_to_projects.sql
+   ✅ 7. update_columns.sql
+   ✅ 8. link_projects_estimates.sql
+   ✅ 9. add_company_info_fields.sql
+   ✅ 10. add_email_settings.sql
+   ✅ 11. create_etsy_tables.sql
+   ✅ 12. create_etsy_order_items.sql
+   ⬜ 13. add_production_tracking.sql
+   ```
+
+4. **Verify After Each Migration:**
+   - Check "Structure" tab to see new tables/columns
+   - Look for error messages
+   - Don't proceed if you see errors
+
+---
+
+### **Method 2: Local Development (XAMPP/PowerShell)**
+
+Run this from XAMPP directory on your local Windows development machine:
 
 ```powershell
 # Backup first!
@@ -150,12 +216,13 @@ $migrations = @(
     'add_company_info_fields.sql',          # 9 - Settings: company
     'add_email_settings.sql',               # 10 - Settings: email
     'create_etsy_tables.sql',               # 11 - Etsy Phase 1
-    'create_etsy_order_items.sql'           # 12 - Etsy Phase 2.5
+    'create_etsy_order_items.sql',          # 12 - Etsy Phase 2.5
+    'add_production_tracking.sql'           # 13 - Production & Inventory
 )
 
 $count = 1
 foreach ($file in $migrations) {
-    Write-Host "[$count/12] Running: $file" -ForegroundColor Yellow
+    Write-Host "[$count/13] Running: $file" -ForegroundColor Yellow
     
     # Check if file exists
     if (!(Test-Path "database\$file")) {
