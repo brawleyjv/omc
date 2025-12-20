@@ -22,7 +22,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_project_name']
     exit;
 }
 
-$projects = $projectsController->listProjects(); // Use the correct method to list projects
+// Fetch projects with their estimate information
+$query = "SELECT p.*, 
+          e.id as estimate_id, 
+          e.estimate_number, 
+          e.total_estimate, 
+          e.status as estimate_status 
+          FROM projects p 
+          LEFT JOIN estimates e ON p.estimate_id = e.id 
+          ORDER BY p.design_date DESC";
+$stmt = $db->prepare($query);
+$stmt->execute();
+$projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -133,6 +144,7 @@ $projects = $projectsController->listProjects(); // Use the correct method to li
                                 <th>Customer</th>
                                 <th>Timeline</th>
                                 <th>Hours</th>
+                                <th>Estimate</th>
                                 <th>Description</th>
                                 <th>Files</th>
                                 <th>Actions</th>
@@ -178,6 +190,35 @@ $projects = $projectsController->listProjects(); // Use the correct method to li
                                             <?php endif; ?>
                                             <?php if (!empty($project['labor_hours'])): ?>
                                                 <div class="text-sm">👷 Labor: <?php echo htmlspecialchars($project['labor_hours']); ?>h</div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="estimate-info">
+                                            <?php if (!empty($project['estimate_id'])): ?>
+                                                <div class="text-sm">
+                                                    <a href="<?php echo BASE_URL; ?>Views/estimate/view_estimate.php?id=<?php echo $project['estimate_id']; ?>" class="text-link">
+                                                        <?php echo htmlspecialchars($project['estimate_number']); ?>
+                                                    </a>
+                                                </div>
+                                                <?php if (!empty($project['total_estimate'])): ?>
+                                                    <div class="text-sm text-success">
+                                                        💰 $<?php echo number_format($project['total_estimate'], 2); ?>
+                                                    </div>
+                                                <?php endif; ?>
+                                                <?php if (!empty($project['estimate_status'])): ?>
+                                                    <span class="badge badge-<?php 
+                                                        echo $project['estimate_status'] === 'approved' ? 'success' : 
+                                                             ($project['estimate_status'] === 'sent' ? 'info' : 
+                                                             ($project['estimate_status'] === 'rejected' ? 'danger' : 'secondary')); 
+                                                    ?>">
+                                                        <?php echo ucfirst($project['estimate_status']); ?>
+                                                    </span>
+                                                <?php endif; ?>
+                                            <?php else: ?>
+                                                <a href="<?php echo BASE_URL; ?>Views/estimate/create_from_project.php?project_id=<?php echo $project['id']; ?>" class="btn btn-sm btn-outline-primary">
+                                                    <span class="icon">💰</span> Create Estimate
+                                                </a>
                                             <?php endif; ?>
                                         </div>
                                     </td>

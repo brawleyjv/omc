@@ -59,5 +59,43 @@ class ProjectModel {
         $stmt = $this->database->prepare('DELETE FROM projects WHERE id = :id');
         return $stmt->execute([':id' => $projectId]);
     }
+
+    /**
+     * Get project with its linked estimate
+     */
+    public function getProjectWithEstimate($projectId) {
+        $query = "SELECT p.*, e.estimate_number, e.total_estimate, e.status as estimate_status
+                  FROM projects p
+                  LEFT JOIN estimates e ON p.estimate_id = e.id
+                  WHERE p.id = :id";
+        $stmt = $this->database->prepare($query);
+        $stmt->bindValue(':id', $projectId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Update project's estimate_id
+     */
+    public function linkEstimate($projectId, $estimateId) {
+        $query = "UPDATE projects SET estimate_id = :estimate_id WHERE id = :id";
+        $stmt = $this->database->prepare($query);
+        return $stmt->execute([
+            ':estimate_id' => $estimateId,
+            ':id' => $projectId
+        ]);
+    }
+
+    /**
+     * Check if project has an estimate
+     */
+    public function hasEstimate($projectId) {
+        $query = "SELECT estimate_id FROM projects WHERE id = :id";
+        $stmt = $this->database->prepare($query);
+        $stmt->bindValue(':id', $projectId, PDO::PARAM_INT);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return !empty($result['estimate_id']);
+    }
 }
 ?>
