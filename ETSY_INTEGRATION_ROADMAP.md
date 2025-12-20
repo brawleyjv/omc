@@ -288,6 +288,89 @@ CREATE TABLE etsy_sync_log (
 
 ---
 
+## Phase 2.5: Product Tracking Enhancement 🔧 **CAN BUILD NOW**
+**Estimated Time**: 4-6 hours  
+**Status**: 💡 Optional - Can build without Etsy approval  
+**Goal**: Track individual products sold in Etsy orders and link to OMC projects
+
+### Why Build This Now?
+- ✅ Does NOT require Etsy API access
+- ✅ Improves internal data structure
+- ✅ Makes Phase 3 easier (estimate creation)
+- ✅ Enables better reporting later
+- ✅ Can be built and tested locally
+
+### Tasks
+- [ ] **2.5.1** Create etsy_order_items table
+  - File: `database/create_etsy_order_items.sql`
+  - Link to etsy_orders (order breakdown)
+  - Link to projects (optional, for matching)
+  - Track product name, SKU, quantity, price
+  - Store item-level data from JSON
+
+- [ ] **2.5.2** Create parsing logic
+  - File: `Models/EtsyOrderParser.php`
+  - Parse items_data JSON from etsy_orders
+  - Extract individual line items
+  - Store in etsy_order_items table
+  - Handle variations/customizations
+
+- [ ] **2.5.3** Add manual project linking UI
+  - Page: `Views/etsy/link_products.php`
+  - List all Etsy products (from order items)
+  - Dropdown to select matching OMC project
+  - Save link for future auto-matching
+  - Show which products are unlinked
+
+- [ ] **2.5.4** Product sales reporting
+  - Page: `Views/etsy/product_report.php`
+  - Show all products sold on Etsy
+  - Quantity sold per product
+  - Revenue per product
+  - Link status (linked/unlinked to projects)
+
+### Database Schema
+```sql
+CREATE TABLE etsy_order_items (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    etsy_order_id INT NOT NULL,
+    project_id INT NULL,
+    
+    -- Etsy Item Data
+    etsy_listing_id BIGINT NULL,
+    etsy_transaction_id BIGINT NULL,
+    product_name VARCHAR(255),
+    product_sku VARCHAR(100),
+    quantity INT,
+    price DECIMAL(10,2),
+    
+    -- Customization/Variations
+    variations_data JSON NULL,
+    personalization TEXT NULL,
+    
+    -- Linking
+    auto_matched BOOLEAN DEFAULT FALSE,
+    manually_linked BOOLEAN DEFAULT FALSE,
+    
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (etsy_order_id) REFERENCES etsy_orders(id),
+    FOREIGN KEY (project_id) REFERENCES projects(id),
+    INDEX idx_etsy_order_id (etsy_order_id),
+    INDEX idx_project_id (project_id),
+    INDEX idx_product_name (product_name)
+);
+```
+
+### Deliverables
+- ✅ Individual product tracking
+- ✅ Project linking capability
+- ✅ Better data for estimates
+- ✅ Product sales reporting
+- ✅ Foundation for inventory sync
+
+---
+
 ## Phase 3: Estimate Creation from Orders 📋 **PLANNED**
 **Estimated Time**: 8-12 hours  
 **Status**: 📋 Planned - Awaiting Phase 2 completion  
@@ -384,10 +467,107 @@ CREATE TABLE etsy_sync_log (
 
 ---
 
-## Phase 5: Inventory Synchronization (FUTURE) 📦 **FUTURE**
+## Phase 5: Inventory Synchronization 📦 **FUTURE**
 **Estimated Time**: 15-20 hours  
 **Status**: 💡 Future Enhancement - Not currently prioritized  
 **Goal**: Keep inventory in sync between OMC and Etsy
+**Requires**: Etsy API approval + Phase 2.5 product tracking
+
+### Prerequisites
+- ⏳ Phase 2.5 product tracking must be complete
+- ⏳ Etsy listings API access
+- ⏳ Projects must track quantity/inventory
+- ⏳ Product linking established
+
+### Tasks
+- [ ] **5.1** Create etsy_listings table
+  - File: `database/create_etsy_listings.sql`
+  - Link Etsy listings to OMC projects
+  - Store listing details (title, price, photos)
+  - Track quantity (Etsy vs OMC)
+  - Sync status and timestamps
+
+- [ ] **5.2** Fetch listings from Etsy API
+  - Implement in EtsyModel
+  - GET /shops/{shop_id}/listings
+  - Cache listing data locally
+  - Update etsy_listings table
+  - Link to etsy_order_items by listing_id
+
+- [ ] **5.3** Manual listing linking UI
+  - Page: `Views/etsy/link_listings.php`
+  - Show all Etsy listings
+  - Dropdown to select OMC project
+  - Display current quantity on both sides
+  - Save permanent link
+
+- [ ] **5.4** Automatic quantity sync
+  - When project completed → increase Etsy quantity
+  - When Etsy order received → decrease OMC inventory
+  - Conflict resolution (which is source of truth?)
+  - Low stock alerts
+
+- [ ] **5.5** Inventory dashboard
+  - Page: `Views/etsy/inventory.php`
+  - Show all linked products
+  - Display: Etsy qty | OMC qty | Difference
+  - Sync status indicator
+  - Manual sync button per product
+  - Bulk sync all button
+
+- [ ] **5.6** Low stock alerts
+  - Notify when Etsy listing quantity < threshold
+  - Suggest creating more inventory
+  - Link to production schedule
+  - Email notifications (optional)
+
+- [ ] **5.7** Automated sync scheduler
+  - Cron job or scheduled task
+  - Sync every X hours (configurable)
+  - Background process
+  - Sync log tracking in etsy_sync_log
+
+### Database Schema
+```sql
+CREATE TABLE etsy_listings (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    etsy_listing_id BIGINT UNIQUE NOT NULL,
+    project_id INT NULL,
+    
+    -- Listing Information
+    title VARCHAR(255),
+    description TEXT,
+    price DECIMAL(10,2),
+    quantity INT,
+    sku VARCHAR(100),
+    state VARCHAR(50), -- active, inactive, draft
+    url VARCHAR(500),
+    
+    -- Sync Information
+    last_synced_quantity INT,
+    sync_enabled BOOLEAN DEFAULT TRUE,
+    auto_sync BOOLEAN DEFAULT FALSE,
+    
+    -- Raw Data
+    listing_data JSON NULL,
+    
+    -- Timestamps
+    etsy_created_at DATETIME NULL,
+    etsy_updated_at DATETIME NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    synced_at DATETIME NULL,
+    
+    FOREIGN KEY (project_id) REFERENCES projects(id),
+    INDEX idx_etsy_listing_id (etsy_listing_id),
+    INDEX idx_project_id (project_id),
+    INDEX idx_state (state)
+);
+
+-- Add inventory tracking to projects table (if not exists)
+ALTER TABLE projects ADD COLUMN inventory_quantity INT DEFAULT 0;
+ALTER TABLE projects ADD COLUMN track_inventory BOOLEAN DEFAULT FALSE;
+```
 
 ### Tasks
 - [ ] **5.1** Create etsy_listings table
@@ -417,10 +597,11 @@ CREATE TABLE etsy_sync_log (
   - Sync log tracking
 
 ### Deliverables
-- ✅ Linked products/listings
-- ✅ Automatic quantity updates
-- ✅ Stock level monitoring
-- ✅ Scheduled sync process
+- ✅ etsy_listings table with project links
+- ✅ Automatic quantity synchronization
+- ✅ Low stock monitoring and alerts
+- ✅ Inventory dashboard
+- ✅ Scheduled background sync
 
 ---
 
@@ -711,13 +892,20 @@ omc/
 - **OAuth Flow Testing** - Cannot test until Etsy approves app
 - **Phase 2 Start** - Requires working OAuth connection
 
-### ⏳ Next Up
+### 💡 CAN BUILD NOW (No API Required)
+- **Phase 2.5: Product Tracking** - Internal database enhancement
+  - Track individual items from orders
+  - Link products to OMC projects
+  - Product sales reporting
+  - Foundation for better estimates
+
+### ⏳ Next Up (After Approval)
 - **Phase 2: Order Synchronization** - Ready to start after approval
 - **Phase 3: Estimate Creation** - Dependent on Phase 2
 - **Phase 4: Fulfillment Updates** - Dependent on Phase 3
 
 ### 💡 Future Enhancements
-- **Phase 5: Inventory Sync** - Not currently prioritized
+- **Phase 5: Inventory Sync** - Requires Phase 2.5 + API approval
 - **Phase 6: Analytics** - Future consideration
 - **Phase 7: Publishing** - Future consideration
 
@@ -725,17 +913,19 @@ omc/
 
 ## Timeline Estimate
 
-| Phase | Estimated Time | Actual Time | Status |
-|-------|---------------|-------------|--------|
-| Phase 1: Authentication | 6-8 hours | 14 hours | ✅ Complete |
-| Phase 2: Order Sync | 10-15 hours | TBD | ⏳ Blocked |
-| Phase 3: Order → Estimate | 8-12 hours | TBD | 📋 Planned |
-| Phase 4: Fulfillment | 10-15 hours | TBD | 📋 Planned |
-| Phase 5: Inventory Sync | 15-20 hours | TBD | 💡 Future |
+| Phase | Estimated Time | Actual Time | Status | API Required |
+|-------|---------------|-------------|--------|--------------|
+| Phase 1: Authentication | 6-8 hours | 14 hours | ✅ Complete | Yes (done) |
+| Phase 2: Order Sync | 10-15 hours | TBD | ⏳ Blocked | Yes |
+| **Phase 2.5: Product Tracking** | **4-6 hours** | **TBD** | **💡 Can build** | **No** |
+| Phase 3: Order → Estimate | 8-12 hours | TBD | 📋 Planned | No |
+| Phase 4: Fulfillment | 10-15 hours | TBD | 📋 Planned | Yes |
+| Phase 5: Inventory Sync | 15-20 hours | TBD | 💡 Future | Yes |
 
 **Completed**: 14 hours (Phase 1)  
-**Remaining (Core Features)**: 28-42 hours (Phases 2-4)  
-**Total Core Features**: 42-56 hours
+**Can Build Now**: 4-6 hours (Phase 2.5) - No API needed  
+**Blocked by Approval**: 28-42 hours (Phases 2, 4, 5)  
+**Total Core Features**: 46-62 hours
 
 ---
 
